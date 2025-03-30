@@ -1,0 +1,387 @@
+/* TASK CARD */
+.task-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  position: relative;
+  margin-bottom: 10px;
+  transition: 0.2s ease-in-out;
+}
+
+.task-card:hover {
+  box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* TASK ACTIONS */
+.task-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.icon {
+  cursor: pointer;
+  font-size: 16px;
+  color: gray;
+  transition: 0.2s;
+}
+
+.icon:hover {
+  color: black;
+}
+
+/* TAG ACTIONS */
+.tag-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.tag-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.delete-icon {
+  cursor: pointer;
+  color: #666;
+  font-size: 12px;
+  transition: color 0.2s;
+}
+
+.delete-icon:hover {
+  color: #ff4d4d;
+}
+
+/* TASK MENU POPUP */
+.task-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+  width: 160px;
+  z-index: 10;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.menu-item:hover {
+  background: #f3f3f3;
+  border-radius: 5px;
+}
+
+.menu-icon {
+  margin-right: 8px;
+  color: black;
+}
+
+/* SELECTED TAGS */
+.selected-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 8px;
+}
+
+.task-tag {
+  padding: 4px 8px;
+  border-radius: 5px;
+  font-size: 12px;
+  color: white;
+  font-weight: bold;
+  display: inline-block;
+  white-space: nowrap;
+}
+
+/* TAG WRAPPER */
+.tag-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.tag-delete-icon {
+  font-size: 12px;
+  color: #666;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.tag-wrapper:hover .tag-delete-icon {
+  opacity: 1;
+}
+
+.tag-delete-icon:hover {
+  color: #ff4d4d;
+}
+
+/* TAGS POPUP */
+.tags-popup {
+  position: absolute;
+  top: 50px;
+  right: 0;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  width: 250px;
+  z-index: 20;
+  padding: 10px;
+}
+
+.tags-popup-container {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 1000;
+  margin-top: 5px;
+}
+
+.tags-header {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  font-weight: bold;
+}
+
+.add-tag-icon {
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.add-tag-icon:hover {
+  color: blue;
+}
+
+/* TAG SEARCH INPUT */
+.tags-search input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 14px;
+  outline: none;
+}
+
+.tags-list {
+  margin-top: 10px;
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+.tag-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: 0.2s;
+}
+
+.tag-item:hover {
+  background: #f3f3f3;
+}
+
+.tag-item input {
+  margin-right: 10px;
+}
+
+.tag-item.priority {
+  background: #FFD84D;
+}
+
+.edit-icon {
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.edit-icon:hover {
+  color: blue;
+}
+
+/* TAG FOOTER BUTTONS */
+.tags-footer {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  font-size: 14px;
+}
+
+.cancel-btn, .save-btn {
+  background: none;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.cancel-btn {
+  color: black;
+}
+
+.cancel-btn:hover {
+  color: red;
+}
+
+.save-btn {
+  color: blue;
+  font-weight: bold;
+}
+
+.save-btn:hover {
+  text-decoration: underline;
+}
+
+/* NEW TAG POPUP */
+.new-tag-popup {
+  position: absolute;
+  top: 50px;
+  right: 0;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  width: 250px;
+  z-index: 30;
+  padding: 10px;
+}
+
+.new-tag-header {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  font-weight: bold;
+}
+
+.back-icon {
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.back-icon:hover {
+  color: blue;
+}
+
+.new-tag-body {
+  padding: 10px;
+}
+
+.new-tag-body label {
+  display: block;
+  font-size: 12px;
+  margin: 5px 0;
+  font-weight: bold;
+  color: gray;
+}
+
+.new-tag-body input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 14px;
+  outline: none;
+}
+
+.new-tag-body input:focus {
+  border-color: blue;
+}
+
+/* COLOR PICKER */
+.color-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 10px 0;
+}
+
+.color-circle {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: 0.2s;
+  border: 2px solid transparent;
+}
+
+.color-circle:hover {
+  opacity: 0.8;
+}
+
+.color-circle.selected {
+  border: 2px solid black;
+}
+
+.checkmark {
+  color: white;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+/* EDIT TAG POPUP */
+.edit-tag-popup {
+  position: absolute;
+  top: 0;
+  right: 100%;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  width: 250px;
+  z-index: 1001;
+  margin-right: 10px;
+  padding: 15px;
+}
+
+.edit-tag-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.edit-tag-form input {
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.edit-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.right-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.delete-btn {
+  background: none;
+  border: none;
+  color: #ff4d4d;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.delete-btn:hover {
+  color: #ff0000;
+  text-decoration: underline;
+}
+

@@ -1,0 +1,76 @@
+.main-content {
+  max-width: 600px;
+  margin: 40px auto;
+  font-family: Arial, sans-serif;
+  color: #333;
+}
+
+header {
+  text-align: left;
+  margin-bottom: 20px;
+}
+
+h2 {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.dot {
+  color: blue;
+}
+
+p {
+  color: gray;
+  font-size: 14px;
+}
+
+.date-section {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.date-section .day {
+  font-size: 12px;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+.date-section .date {
+  font-size: 30px;
+  font-weight: bold;
+}
+
+.date-section .month {
+  font-size: 14px;
+  color: gray;
+}
+
+.task-list {
+  margin-top: 20px;
+}
+
+.task-input {
+  display: flex;
+  align-items: center;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 10px;
+  margin-top: 20px;
+}
+
+.task-input input {
+  border: none;
+  outline: none;
+  flex-grow: 1;
+  font-size: 16px;
+}
+
+.task-input button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #007bff;
+  font-size: 18px;
+}

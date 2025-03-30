@@ -1,0 +1,232 @@
+.sidebar {
+  width: 250px;
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
+  background-color: #f8f9fa;
+  padding: 20px;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar li {
+  padding: 10px;
+  font-size: 16px;
+  color: #333;
+  cursor: pointer;
+}
+
+.sidebar li:hover {
+  background-color: #e2e6ea;
+  border-radius: 5px;
+}
+
+
+/* User Profile */
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.profile-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f5f5f5;
+  transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+.profile-icon:hover {
+  transform: scale(1.1);
+  background-color: #e8e8e8;
+}
+
+.profile-info h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.profile-info .subtitle {
+  margin: 0;
+  font-size: 12px;
+  color: #666;
+}
+
+/* Navigation Menu */
+.nav-menu ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.nav-item:hover {
+  background-color: #f5f5f5;
+}
+
+.nav-item.active {
+  background-color: #f0f0f0;
+}
+
+.nav-icon {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12px;
+  transition: transform 0.3s ease;
+}
+
+.nav-item:hover .nav-icon {
+  transform: scale(1.2);
+}
+
+.nav-label {
+  flex: 1;
+  font-size: 14px;
+}
+
+.badge {
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-size: 12px;
+  background-color: #e0e0e0;
+  color: #666;
+  transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+.nav-item:hover .badge {
+  transform: scale(1.1);
+  background-color: #d0d0d0;
+}
+
+.badge.beta {
+  background-color: #2196f3;
+  color: white;
+  text-transform: uppercase;
+  font-size: 10px;
+  transition: background-color 0.3s ease;
+}
+
+.nav-item:hover .badge.beta {
+  background-color: #1e88e5;
+}
+
+/* Create View Button */
+.create-view {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: none;
+  background: none;
+  color: #666;
+  cursor: pointer;
+  font-size: 14px;
+  width: 100%;
+  text-align: left;
+}
+
+.create-view:hover {
+  background-color: #f5f5f5;
+  border-radius: 6px;
+}
+
+/* Lists Section */
+.lists-section {
+  margin-top: 8px;
+}
+
+.lists-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.lists-header h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #666;
+}
+
+.add-list {
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 18px;
+  color: #666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+}
+
+.add-list:hover {
+  background-color: #f5f5f5;
+}
+
+.lists-section ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.list-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.list-item:hover {
+  background-color: #f5f5f5;
+}
+
+.list-label {
+  flex: 1;
+  font-size: 14px;
+}
+
+/* Lottie Animation Styles */
+.lottie-icon {
+  pointer-events: none;
+  transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+.nav-item:hover .lottie-icon {
+  transform: scale(1.1);
+  filter: brightness(1.2);
+}
