@@ -8,6 +8,7 @@ const TagPopup = ({ tags, setTags, selectedTags, setSelectedTags, closePopup, sa
   const [selectedColor, setSelectedColor] = useState("");
   const [editingIndex, setEditingIndex] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [tempSelectedTags, setTempSelectedTags] = useState(selectedTags);
 
   const colorOptions = [
     "#FF4D4D", "#FF804D", "#FFC24D", "#FFD84D", "#57CC57",
@@ -38,26 +39,38 @@ const TagPopup = ({ tags, setTags, selectedTags, setSelectedTags, closePopup, sa
   const saveTag = () => {
     if (!tagName.trim() || !selectedColor) return;
 
+    const newTag = { name: tagName.trim(), color: selectedColor };
     let updatedTags = [...tags];
 
     if (editingIndex !== null) {
-      updatedTags[editingIndex] = { name: tagName.trim(), color: selectedColor };
+      updatedTags[editingIndex] = newTag;
+      setTempSelectedTags(prevSelectedTags => 
+        prevSelectedTags.map(tag => 
+          tag.name === tags[editingIndex].name ? newTag : tag
+        )
+      );
     } else {
-      updatedTags.push({ name: tagName.trim(), color: selectedColor });
+      updatedTags.push(newTag);
+      setTempSelectedTags(prev => [...prev, newTag]);
     }
 
     setTags(updatedTags);
-    saveTags(updatedTags); // Reflect changes in task card
     setIsEditing(false);
     setEditingIndex(null);
   };
 
   const toggleTagSelection = (tag) => {
-    setSelectedTags((prevSelectedTags) =>
+    setTempSelectedTags((prevSelectedTags) =>
       prevSelectedTags.some((t) => t.name === tag.name)
         ? prevSelectedTags.filter((t) => t.name !== tag.name)
         : [...prevSelectedTags, tag]
     );
+  };
+
+  const handleSave = () => {
+    setSelectedTags(tempSelectedTags);
+    saveTags(tags, tempSelectedTags);
+    closePopup();
   };
 
   return (
@@ -74,7 +87,7 @@ const TagPopup = ({ tags, setTags, selectedTags, setSelectedTags, closePopup, sa
                 <div className="tag-info">
                   <input
                     type="checkbox"
-                    checked={selectedTags.some((t) => t.name === tag.name)}
+                    checked={tempSelectedTags.some((t) => t.name === tag.name)}
                     onChange={() => toggleTagSelection(tag)}
                   />
                   <span>{tag.name}</span>
@@ -99,7 +112,7 @@ const TagPopup = ({ tags, setTags, selectedTags, setSelectedTags, closePopup, sa
           </div>
           <div className="tags-footer">
             <button className="cancel-btn" onClick={closePopup}>Cancel</button>
-            <button className="save-btn" onClick={() => saveTags(tags)}>Save</button>
+            <button className="save-btn" onClick={handleSave}>Save</button>
           </div>
         </>
       ) : (

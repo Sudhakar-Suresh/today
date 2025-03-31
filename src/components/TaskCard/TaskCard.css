@@ -16,6 +16,25 @@
   box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.15);
 }
 
+/* TASK DATE */
+.task-date {
+  margin: 8px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.task-day {
+  font-size: 14px;
+  font-weight: bold;
+  color: #333;
+}
+
+.task-full-date {
+  font-size: 12px;
+  color: #666;
+}
+
 /* TASK ACTIONS */
 .task-actions {
   display: flex;

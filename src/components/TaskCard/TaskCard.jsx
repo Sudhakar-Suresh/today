@@ -61,11 +61,12 @@ const TaskCard = ({ task, onDelete, onUpdateTags }) => {
   };
 
   // Handle saving tags from TagPopup
-  const handleSaveTags = (updatedTags) => {
+  const handleSaveTags = (updatedTags, updatedSelectedTags) => {
     if (onUpdateTags) {
-      onUpdateTags(task.id, selectedTags);
+      onUpdateTags(task.id, updatedSelectedTags);
     }
     setTags(updatedTags);
+    setSelectedTags(updatedSelectedTags);
     closePopups();
   };
 
