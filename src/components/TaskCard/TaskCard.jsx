@@ -14,6 +14,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import ListEditPopup from "../ListEditPopup/ListEditPopup";
 import TagPopup from "../TagPopup/TagPopup";
+import ReminderPopup from "../ReminderPopup/ReminderPopup";
 import "./TaskCard.css";
 
 const TaskCard = ({ task, onDelete, onUpdateTags, onUpdateList }) => {
@@ -29,6 +30,8 @@ const TaskCard = ({ task, onDelete, onUpdateTags, onUpdateList }) => {
   const [tagsPopupOpen, setTagsPopupOpen] = useState(false);
   const [lists, setLists] = useState(["Personal", "Work", "Shopping", "Ideas"]);
   const [selectedList, setSelectedList] = useState(task.list || "Personal");
+  const [reminderPopupOpen, setReminderPopupOpen] = useState(false);
+  const [reminder, setReminder] = useState(task.reminder || null);
 
   const menuRef = useRef(null);
   const popupRef = useRef(null);
@@ -42,11 +45,16 @@ const TaskCard = ({ task, onDelete, onUpdateTags, onUpdateList }) => {
     setMenuOpen(false);
     setTagsPopupOpen(true);
   };
+  const openReminderPopup = () => {
+    setMenuOpen(false);
+    setReminderPopupOpen(true);
+  };
 
   const closePopups = () => {
     setMenuOpen(false);
     setListPopupOpen(false);
     setTagsPopupOpen(false);
+    setReminderPopupOpen(false);
   };
 
   const handleListEdit = (newListName) => {
@@ -97,6 +105,18 @@ const TaskCard = ({ task, onDelete, onUpdateTags, onUpdateList }) => {
     }
   };
 
+  const handleSetReminder = (taskId, reminderData) => {
+    setReminder(reminderData);
+    
+    // Here you would typically update this in your backend/storage
+    console.log(`Reminder set for task ${taskId} at ${reminderData.date} ${reminderData.time}`);
+    
+    // You could implement a function in the parent component to save the reminder
+    // if (onUpdateReminder) {
+    //   onUpdateReminder(taskId, reminderData);
+    // }
+  };
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
@@ -121,6 +141,13 @@ const TaskCard = ({ task, onDelete, onUpdateTags, onUpdateList }) => {
           🔒 My lists &gt; {selectedList}
         </div>
         <p>{task.title}</p>
+
+        {reminder && (
+          <div className="task-reminder">
+            <FontAwesomeIcon icon={faBell} className="reminder-icon" />
+            <span>{reminder.date} {reminder.time}</span>
+          </div>
+        )}
 
         <div className="selected-tags">
           {selectedTags.map((tag, index) => (
@@ -160,7 +187,7 @@ const TaskCard = ({ task, onDelete, onUpdateTags, onUpdateList }) => {
 
       {menuOpen && (
         <div className="task-menu" ref={menuRef}>
-          <div className="menu-item">
+          <div className="menu-item" onClick={openReminderPopup}>
             <FontAwesomeIcon icon={faBell} className="menu-icon" /> Reminder
           </div>
           <div className="menu-item" onClick={openListPopup}>
@@ -172,6 +199,16 @@ const TaskCard = ({ task, onDelete, onUpdateTags, onUpdateList }) => {
           <div className="menu-item">
             <FontAwesomeIcon icon={faMapPin} className="menu-icon" /> Pin
           </div>
+        </div>
+      )}
+
+      {reminderPopupOpen && (
+        <div ref={popupRef}>
+          <ReminderPopup
+            onClose={() => setReminderPopupOpen(false)}
+            onSetReminder={handleSetReminder}
+            task={task}
+          />
         </div>
       )}
 
@@ -198,11 +235,7 @@ const TaskCard = ({ task, onDelete, onUpdateTags, onUpdateList }) => {
               if (onUpdateTags) {
                 onUpdateTags(task.id, updatedSelectedTags);
               }
-              setTags(updatedTags);
-              setSelectedTags(updatedSelectedTags);
-              setTagsPopupOpen(false);
             }}
-            onDelete={handleDeleteTag}
           />
         </div>
       )}
@@ -212,19 +245,15 @@ const TaskCard = ({ task, onDelete, onUpdateTags, onUpdateList }) => {
 
 TaskCard.propTypes = {
   task: PropTypes.shape({
-    id: PropTypes.string.isRequired,
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
     title: PropTypes.string.isRequired,
     list: PropTypes.string,
-    tags: PropTypes.arrayOf(
-      PropTypes.shape({
-        name: PropTypes.string.isRequired,
-        color: PropTypes.string.isRequired,
-      })
-    ),
+    tags: PropTypes.array,
+    reminder: PropTypes.object
   }).isRequired,
   onDelete: PropTypes.func.isRequired,
   onUpdateTags: PropTypes.func,
-  onUpdateList: PropTypes.func,
+  onUpdateList: PropTypes.func
 };
 
 export default TaskCard;

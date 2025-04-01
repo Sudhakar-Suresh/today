@@ -1,0 +1,255 @@
+.reminder-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #202124;
+  color: #e8eaed;
+  border-radius: 8px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+  width: 340px;
+  z-index: 1000;
+  font-family: 'Google Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+.reminder-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.reminder-content h3 {
+  text-align: center;
+  font-size: 16px;
+  font-weight: 500;
+  margin: 16px 0;
+  color: #e8eaed;
+}
+
+.input-container {
+  display: flex;
+  padding: 0 16px;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.input-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.input-group label {
+  font-size: 12px;
+  color: #9aa0a6;
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+.date-input, .time-input {
+  padding: 10px 12px;
+  background: transparent;
+  border: 1px solid #5f6368;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #e8eaed;
+  height: 40px;
+  box-sizing: border-box;
+}
+
+.time-input-container {
+  position: relative;
+}
+
+.time-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #2d2e30;
+  border: 1px solid #5f6368;
+  border-radius: 4px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  z-index: 10;
+  max-height: 180px;
+  overflow-y: auto;
+  margin-top: 2px;
+}
+
+.time-option {
+  padding: 10px 12px;
+  cursor: pointer;
+  color: #e8eaed;
+  transition: background-color 0.2s;
+}
+
+.time-option:hover {
+  background: #3c4043;
+}
+
+.calendar {
+  padding: 0 16px;
+  margin-bottom: 12px;
+}
+
+.month-header {
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.month-header h4 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+  color: #e8eaed;
+}
+
+.month-navigation {
+  display: flex;
+  gap: 8px;
+}
+
+.nav-btn {
+  background: none;
+  border: none;
+  color: #9aa0a6;
+  cursor: pointer;
+  font-size: 16px;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+
+.nav-btn:hover {
+  background-color: #3c4043;
+}
+
+.weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  margin-bottom: 4px;
+}
+
+.weekday {
+  font-size: 12px;
+  color: #9aa0a6;
+  font-weight: 500;
+  padding: 6px 0;
+}
+
+.days-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0;
+  text-align: center;
+}
+
+.day {
+  height: 32px;
+  width: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  color: #e8eaed;
+  cursor: pointer;
+  border-radius: 50%;
+  margin: 2px auto;
+  user-select: none;
+}
+
+.day:hover {
+  background-color: #3c4043;
+}
+
+.other-month {
+  color: #5f6368;
+}
+
+.selected {
+  background-color: #1a73e8;
+  color: white;
+}
+
+.selected:hover {
+  background-color: #1a73e8;
+}
+
+.quick-options {
+  display: flex;
+  flex-direction: column;
+  padding: 0 16px;
+}
+
+.quick-option {
+  text-align: left;
+  padding: 12px;
+  background: none;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  color: #e8eaed;
+  border-radius: 0;
+  transition: background-color 0.2s;
+}
+
+.quick-option:hover {
+  background-color: #3c4043;
+}
+
+.recurring-option {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  cursor: pointer;
+  border-radius: 0;
+  transition: background-color 0.2s;
+}
+
+.recurring-option:hover {
+  background-color: #3c4043;
+}
+
+.sync-icon {
+  display: inline-flex;
+  margin-right: 8px;
+  font-size: 14px;
+  transform: rotate(80deg);
+}
+
+.action-buttons {
+  display: flex;
+  margin-top: 12px;
+  border-top: 1px solid #3c4043;
+}
+
+.cancel-btn, .set-btn {
+  flex: 1;
+  padding: 16px 0;
+  text-align: center;
+  background: none;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.cancel-btn {
+  color: #e8eaed;
+  border-right: 1px solid #3c4043;
+}
+
+.set-btn {
+  color: #8ab4f8;
+  font-weight: 500;
+}
+
+.cancel-btn:hover, .set-btn:hover {
+  background-color: #3c4043;
+} 
