@@ -17,7 +17,7 @@ import TagPopup from "../TagPopup/TagPopup";
 import ReminderPopup from "../ReminderPopup/ReminderPopup";
 import "./TaskCard.css";
 
-const TaskCard = ({ task, onDelete, onUpdateTags, onUpdateList }) => {
+const TaskCard = ({ task, onDelete, onUpdateTags, onUpdateList, onToggleComplete }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [tags, setTags] = useState([
     { name: "Priority", color: "#FFD84D" },
@@ -117,6 +117,10 @@ const TaskCard = ({ task, onDelete, onUpdateTags, onUpdateList }) => {
     // }
   };
 
+  const handleCheckboxClick = () => {
+    onToggleComplete(task.id, !task.completed);
+  };
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
@@ -135,12 +139,32 @@ const TaskCard = ({ task, onDelete, onUpdateTags, onUpdateList }) => {
   }, []);
 
   return (
-    <div className="task-card">
+    <div className={`task-card ${task.completed ? 'completed' : ''}`}>
       <div className="task-content">
-        <div className="task-category">
-          🔒 My lists &gt; {selectedList}
+        <div className="task-left">
+          <div 
+            className="checkbox-wrapper"
+            onClick={handleCheckboxClick}
+          >
+            <div className={`custom-checkbox ${task.completed ? 'checked' : ''}`}>
+              {task.completed && (
+                <FontAwesomeIcon 
+                  icon={faCheck} 
+                  className="check-icon"
+                />
+              )}
+            </div>
+          </div>
+          
+          <div className="task-info">
+            <div className="task-list-path">
+              <span>My lists › {task.list}</span>
+            </div>
+            <div className={`task-title ${task.completed ? 'completed-text' : ''}`}>
+              {task.title}
+            </div>
+          </div>
         </div>
-        <p>{task.title}</p>
 
         {reminder && (
           <div className="task-reminder">
@@ -253,7 +277,8 @@ TaskCard.propTypes = {
   }).isRequired,
   onDelete: PropTypes.func.isRequired,
   onUpdateTags: PropTypes.func,
-  onUpdateList: PropTypes.func
+  onUpdateList: PropTypes.func,
+  onToggleComplete: PropTypes.func.isRequired
 };
 
 export default TaskCard;
