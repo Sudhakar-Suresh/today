@@ -1,0 +1,39 @@
+.completed-tasks-content {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 24px 0;
+}
+
+.completed-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.completed-header h1 {
+  font-size: 24px;
+  font-weight: 400;
+  color: #202124;
+  margin: 0;
+}
+
+.completed-count {
+  background: #f1f3f4;
+  color: #5f6368;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 14px;
+}
+
+.no-completed-tasks {
+  text-align: center;
+  padding: 48px 0;
+  color: #5f6368;
+}
+
+.completed-tasks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+} 

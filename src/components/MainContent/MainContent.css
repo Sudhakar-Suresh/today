@@ -1,14 +1,33 @@
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
 .main-content {
   flex: 1;
-  background-color: #ffffff;
-  color: #202124;
-  min-height: 100vh;
-  overflow-y: auto;
+  margin-left: 280px;
   padding: 24px 32px;
-  margin-left: 280px; /* Width of sidebar */
-  padding-bottom: 100px;
-  max-width: 1200px;
+  background: #ffffff;
   position: relative;
+}
+
+.page-content {
+  max-width: 800px;
+  margin: 0 auto;
+  padding-bottom: 100px;
+}
+
+.page-content h1 {
+  font-size: 24px;
+  font-weight: 500;
+  color: #202124;
+  margin-bottom: 24px;
+}
+
+.tasks-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 /* Add padding at the bottom to prevent content from being hidden behind AddTask */

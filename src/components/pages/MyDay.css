@@ -1,0 +1,192 @@
+.my-day-content {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 24px 0;
+  padding-bottom: 100px; /* Make space for AddTask component */
+}
+
+.my-day-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 32px;
+}
+
+.greeting-section h1 {
+  font-size: 32px;
+  font-weight: 400;
+  color: #202124;
+  margin: 0 0 8px 0;
+}
+
+.dot {
+  color: #1a73e8;
+}
+
+.subtitle {
+  font-size: 16px;
+  color: #5f6368;
+  margin: 0;
+}
+
+.header-actions {
+  display: flex;
+  gap: 16px;
+}
+
+.header-icon-btn {
+  background: none;
+  border: none;
+  color: #5f6368;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.header-icon-btn:hover {
+  background-color: rgba(95, 99, 104, 0.08);
+  color: #202124;
+}
+
+/* Date Section */
+.date-section {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+  margin-bottom: 32px;
+  background: #fff;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 1px 2px 0 rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
+}
+
+.date-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 80px;
+}
+
+.date-label {
+  font-size: 14px;
+  color: #5f6368;
+  margin-bottom: 4px;
+}
+
+.date-number {
+  font-size: 36px;
+  font-weight: 400;
+  color: #202124;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.date-month {
+  font-size: 14px;
+  color: #5f6368;
+}
+
+.calendar-connect {
+  flex: 1;
+}
+
+.calendar-connect p {
+  font-size: 14px;
+  color: #5f6368;
+  margin: 0 0 12px 0;
+}
+
+.calendar-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+.calendar-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border: 1px solid #dadce0;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #1a73e8;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.calendar-btn:hover {
+  background-color: #f8f9fa;
+}
+
+/* Tasks Section */
+.tasks-section {
+  margin-top: 24px;
+}
+
+.no-tasks {
+  text-align: center;
+  padding: 48px 0;
+  color: #5f6368;
+}
+
+.no-tasks p {
+  margin: 0;
+  font-size: 16px;
+}
+
+.no-tasks-subtitle {
+  font-size: 14px;
+  margin-top: 8px;
+  color: #80868b;
+}
+
+.tasks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.task-wrapper {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .my-day-content {
+    padding: 16px;
+  }
+
+  .date-section {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .calendar-buttons {
+    flex-direction: column;
+  }
+
+  .my-day-header {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .header-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+} 
