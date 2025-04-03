@@ -20,9 +20,11 @@ const AddTask = ({ onAddTask }) => {
 
   return (
     <div className="add-task-container">
+      <div className="add-task-button" onClick={() => document.querySelector('.task-input').focus()}>
+        <span className="plus-icon">+</span> Add task
+      </div>
       <form onSubmit={handleSubmit} className="add-task-form">
         <div className="input-wrapper">
-          <span className="task-icon">☐</span>
           <input
             type="text"
             value={taskTitle}
@@ -30,9 +32,6 @@ const AddTask = ({ onAddTask }) => {
             placeholder="Enter task title"
             className="task-input"
           />
-          <button type="submit" className="submit-button">
-            <span className="arrow-icon">↑</span>
-          </button>
         </div>
       </form>
     </div>

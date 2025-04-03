@@ -1,97 +1,61 @@
-import React, { useState } from "react";
-import TaskCard from "../TaskCard/TaskCard";
-import AddTask from "../AddTask/AddTask";
-import "./MainContent.css";
+import React, { useState } from 'react';
 import MyDay from '../pages/MyDay';
-import Next7Days from '../pages/Next7Days';
 import AllTasks from '../pages/AllTasks';
+import Next7Days from '../pages/Next7Days';
 import Calendar from '../pages/Calendar';
 import CompletedTasks from '../pages/CompletedTasks';
-import Sidebar from '../Sidebar/Sidebar';
+import './MainContent.css';
 
-const MainContent = () => {
-  const [activeView, setActiveView] = useState('my-day');
-  const [tasks, setTasks] = useState([
-    {
-      id: 1,
-      title: "Create your first task",
-      list: "Personal",
-      completed: false
-    }
-  ]);
-
-  const handleToggleComplete = (taskId, completed) => {
-    setTasks(tasks.map(task => 
-      task.id === taskId ? { ...task, completed } : task
+const MainContent = ({ currentPage }) => {
+  const [tasks, setTasks] = useState([]);
+  
+  const handleAddTask = (newTask) => {
+    setTasks([...tasks, newTask]);
+  };
+  
+  const handleToggleComplete = (taskId) => {
+    setTasks(tasks.map(task =>
+      task.id === taskId ? { ...task, completed: !task.completed } : task
     ));
   };
-
-  const handleDeleteTask = (taskId) => {
+  
+  const handleDelete = (taskId) => {
     setTasks(tasks.filter(task => task.id !== taskId));
   };
-
-  const handleUpdateTags = (taskId, updatedTags) => {
-    setTasks(tasks.map(task => 
-      task.id === taskId ? { ...task, tags: updatedTags } : task
+  
+  const handleUpdateTags = (taskId, newTags) => {
+    setTasks(tasks.map(task =>
+      task.id === taskId ? { ...task, tags: newTags } : task
     ));
   };
-
+  
   const handleUpdateList = (taskId, newList) => {
-    setTasks(tasks.map(task => 
+    setTasks(tasks.map(task =>
       task.id === taskId ? { ...task, list: newList } : task
     ));
   };
 
-  const handleAddTask = (newTask) => {
-    setTasks([...tasks, {
-      ...newTask,
-      id: Date.now(),
-      completed: false,
-      date: new Date()
-    }]);
-  };
-
-  const renderActivePage = () => {
-    const props = {
-      tasks,
-      onToggleComplete: handleToggleComplete,
-      onDelete: handleDeleteTask,
-      onUpdateTags: handleUpdateTags,
-      onUpdateList: handleUpdateList
-    };
-
-    switch (activeView) {
-      case 'my-day':
-        return (
-          <>
-            <MyDay {...props} />
-            <AddTask onAddTask={handleAddTask} />
-          </>
-        );
-      case 'next-7-days':
-        return <Next7Days {...props} />;
-      case 'all-tasks':
-        return <AllTasks {...props} />;
-      case 'calendar':
-        return <Calendar {...props} />;
-      case 'completed':
-        return <CompletedTasks {...props} />;
+  // Render different page content based on currentPage
+  const renderPage = () => {
+    switch(currentPage) {
+      case 'My day':
+        return <MyDay />;
+      case 'Next 7 days':
+        return <Next7Days tasks={tasks} onToggleComplete={handleToggleComplete} onDelete={handleDelete} onUpdateTags={handleUpdateTags} onUpdateList={handleUpdateList} />;
+      case 'All my tasks':
+        return <AllTasks tasks={tasks} onToggleComplete={handleToggleComplete} onDelete={handleDelete} onUpdateTags={handleUpdateTags} onUpdateList={handleUpdateList} />;
+      case 'My Calendar':
+        return <Calendar tasks={tasks} onToggleComplete={handleToggleComplete} onDelete={handleDelete} onUpdateTags={handleUpdateTags} onUpdateList={handleUpdateList} />;
+      case 'Completed tasks':
+        return <CompletedTasks tasks={tasks.filter(task => task.completed)} onDelete={handleDelete} onUpdateTags={handleUpdateTags} onUpdateList={handleUpdateList} />;
       default:
-        return (
-          <>
-            <MyDay {...props} />
-            <AddTask onAddTask={handleAddTask} />
-          </>
-        );
+        return <MyDay />;
     }
   };
 
   return (
-    <div className="app-layout">
-      <Sidebar activeView={activeView} onViewChange={setActiveView} />
-      <div className="main-content">
-        {renderActivePage()}
-      </div>
+    <div className="main-content">
+      {renderPage()}
     </div>
   );
 };

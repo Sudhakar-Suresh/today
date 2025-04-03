@@ -1,32 +1,19 @@
 import React from 'react';
 import './CompletedTasks.css';
-import TaskCard from '../TaskCard/TaskCard';
 
-const CompletedTasks = ({ tasks, onToggleComplete }) => {
-  const completedTasks = tasks.filter(task => task.completed);
-
+const CompletedTasks = ({ tasks, onDelete, onUpdateTags, onUpdateList }) => {
   return (
-    <div className="completed-tasks-content">
-      <div className="completed-header">
-        <h1>Completed Tasks</h1>
-        <span className="completed-count">{completedTasks.length}</span>
-      </div>
+    <div className="page-content">
+      <header className="header-section">
+        <div className="greeting-container">
+          <h1>Completed Tasks</h1>
+          <p className="subtitle">Review what you've accomplished</p>
+        </div>
+      </header>
       
-      {completedTasks.length === 0 ? (
-        <div className="no-completed-tasks">
-          <p>No completed tasks yet</p>
-        </div>
-      ) : (
-        <div className="completed-tasks-list">
-          {completedTasks.map(task => (
-            <TaskCard
-              key={task.id}
-              task={task}
-              onToggleComplete={onToggleComplete}
-            />
-          ))}
-        </div>
-      )}
+      <div className="completed-tasks-content">
+        <p>Your completed tasks will appear here</p>
+      </div>
     </div>
   );
 };

@@ -2,22 +2,21 @@ import React, { useState, useRef, useEffect } from "react";
 import PropTypes from "prop-types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faEllipsisV,
+  faEllipsisVertical,
   faTimes,
-  faThumbtack,
   faBell,
   faList,
   faHashtag,
-  faMapPin,
-  faTrash,
+  faThumbtack,
   faCheck,
+  faXmark
 } from "@fortawesome/free-solid-svg-icons";
 import ListEditPopup from "../ListEditPopup/ListEditPopup";
 import TagPopup from "../TagPopup/TagPopup";
 import ReminderPopup from "../ReminderPopup/ReminderPopup";
 import "./TaskCard.css";
 
-const TaskCard = ({ task, onDelete, onUpdateTags, onUpdateList, onToggleComplete }) => {
+const TaskCard = ({ task, onDelete, onUpdateTags, onUpdateList, onToggleComplete, onUpdateReminder, onTogglePin }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [tags, setTags] = useState([
     { name: "Priority", color: "#FFD84D" },
@@ -32,19 +31,26 @@ const TaskCard = ({ task, onDelete, onUpdateTags, onUpdateList, onToggleComplete
   const [selectedList, setSelectedList] = useState(task.list || "Personal");
   const [reminderPopupOpen, setReminderPopupOpen] = useState(false);
   const [reminder, setReminder] = useState(task.reminder || null);
+  const [isPinned, setIsPinned] = useState(task.pinned || false);
 
   const menuRef = useRef(null);
   const popupRef = useRef(null);
 
-  const toggleMenu = () => setMenuOpen(!menuOpen);
+  const toggleMenu = (e) => {
+    e.stopPropagation();
+    setMenuOpen(!menuOpen);
+  };
+  
   const openListPopup = () => {
     setMenuOpen(false);
     setListPopupOpen(true);
   };
+  
   const openTagsPopup = () => {
     setMenuOpen(false);
     setTagsPopupOpen(true);
   };
+  
   const openReminderPopup = () => {
     setMenuOpen(false);
     setReminderPopupOpen(true);
@@ -107,18 +113,43 @@ const TaskCard = ({ task, onDelete, onUpdateTags, onUpdateList, onToggleComplete
 
   const handleSetReminder = (taskId, reminderData) => {
     setReminder(reminderData);
+    setReminderPopupOpen(false);
     
-    // Here you would typically update this in your backend/storage
-    console.log(`Reminder set for task ${taskId} at ${reminderData.date} ${reminderData.time}`);
-    
-    // You could implement a function in the parent component to save the reminder
-    // if (onUpdateReminder) {
-    //   onUpdateReminder(taskId, reminderData);
-    // }
+    if (onUpdateReminder) {
+      onUpdateReminder(taskId, reminderData);
+    } else {
+      console.log(`Reminder set for task ${taskId} at ${reminderData.date} ${reminderData.time}`);
+    }
   };
 
-  const handleCheckboxClick = () => {
+  const handleClearReminder = (e) => {
+    e.stopPropagation();
+    setReminder(null);
+    
+    if (onUpdateReminder) {
+      onUpdateReminder(task.id, null);
+    }
+  };
+
+  const handleCheckboxClick = (e) => {
+    e.stopPropagation();
     onToggleComplete(task.id, !task.completed);
+  };
+  
+  const handleTogglePin = (e) => {
+    if (e) e.stopPropagation();
+    setIsPinned(!isPinned);
+    
+    if (onTogglePin) {
+      onTogglePin(task.id, !isPinned);
+    }
+    
+    setMenuOpen(false);
+  };
+  
+  const handleDelete = (e) => {
+    e.stopPropagation();
+    onDelete(task.id);
   };
 
   useEffect(() => {
@@ -138,9 +169,17 @@ const TaskCard = ({ task, onDelete, onUpdateTags, onUpdateList, onToggleComplete
     };
   }, []);
 
+  // Update component state when props change
+  useEffect(() => {
+    setSelectedTags(task.tags || []);
+    setSelectedList(task.list || "Personal");
+    setReminder(task.reminder || null);
+    setIsPinned(task.pinned || false);
+  }, [task]);
+
   return (
-    <div className={`task-card ${task.completed ? 'completed' : ''}`}>
-      <div className="task-content">
+    <div className={`task-card ${task.completed ? 'completed' : ''} ${isPinned ? 'pinned' : ''}`}>
+      <div className="task-content" onClick={() => console.log(`Task clicked: ${task.title}`)}>
         <div className="task-left">
           <div 
             className="checkbox-wrapper"
@@ -158,7 +197,7 @@ const TaskCard = ({ task, onDelete, onUpdateTags, onUpdateList, onToggleComplete
           
           <div className="task-info">
             <div className="task-list-path">
-              <span>My lists › {task.list}</span>
+              <span>My lists › {selectedList}</span>
             </div>
             <div className={`task-title ${task.completed ? 'completed-text' : ''}`}>
               {task.title}
@@ -170,6 +209,7 @@ const TaskCard = ({ task, onDelete, onUpdateTags, onUpdateList, onToggleComplete
           <div className="task-reminder">
             <FontAwesomeIcon icon={faBell} className="reminder-icon" />
             <span>{reminder.date} {reminder.time}</span>
+            <button className="clear-reminder" onClick={handleClearReminder}>×</button>
           </div>
         )}
 
@@ -183,7 +223,7 @@ const TaskCard = ({ task, onDelete, onUpdateTags, onUpdateList, onToggleComplete
                 {tag.name}
               </span>
               <FontAwesomeIcon
-                icon={faTrash}
+                icon={faXmark}
                 className="tag-delete-icon"
                 onClick={(e) => {
                   e.stopPropagation();
@@ -196,32 +236,47 @@ const TaskCard = ({ task, onDelete, onUpdateTags, onUpdateList, onToggleComplete
       </div>
 
       <div className="task-actions">
-        <FontAwesomeIcon icon={faThumbtack} className="icon" />
-        <FontAwesomeIcon 
-          icon={faEllipsisV} 
-          className="icon" 
-          onClick={toggleMenu} 
-        />
-        <FontAwesomeIcon 
-          icon={faTimes} 
-          className="icon" 
-          onClick={() => onDelete(task.id)} 
-        />
+        <button 
+          className="icon-button pin-button" 
+          onClick={handleTogglePin}
+          title={isPinned ? "Unpin" : "Pin"}
+        >
+          <FontAwesomeIcon 
+            icon={faThumbtack} 
+            className={`icon ${isPinned ? 'pinned' : ''}`} 
+          />
+        </button>
+        <button className="icon-button menu-button" onClick={toggleMenu} title="More options">
+          <FontAwesomeIcon 
+            icon={faEllipsisVertical} 
+            className="icon" 
+          />
+        </button>
+        <button className="icon-button close-button" onClick={handleDelete} title="Delete">
+          <FontAwesomeIcon 
+            icon={faXmark} 
+            className="icon" 
+          />
+        </button>
       </div>
 
       {menuOpen && (
-        <div className="task-menu" ref={menuRef}>
+        <div className="task-menu popup-menu" ref={menuRef}>
           <div className="menu-item" onClick={openReminderPopup}>
-            <FontAwesomeIcon icon={faBell} className="menu-icon" /> Reminder
+            <FontAwesomeIcon icon={faBell} className="menu-icon" /> 
+            <span>Reminder</span>
           </div>
           <div className="menu-item" onClick={openListPopup}>
-            <FontAwesomeIcon icon={faList} className="menu-icon" /> Lists
+            <FontAwesomeIcon icon={faList} className="menu-icon" /> 
+            <span>Lists</span>
           </div>
           <div className="menu-item" onClick={openTagsPopup}>
-            <FontAwesomeIcon icon={faHashtag} className="menu-icon" /> Tags
+            <FontAwesomeIcon icon={faHashtag} className="menu-icon" /> 
+            <span>Tags</span>
           </div>
-          <div className="menu-item">
-            <FontAwesomeIcon icon={faMapPin} className="menu-icon" /> Pin
+          <div className="menu-item" onClick={handleTogglePin}>
+            <FontAwesomeIcon icon={faThumbtack} className="menu-icon" /> 
+            <span>Pin</span>
           </div>
         </div>
       )}
@@ -273,12 +328,16 @@ TaskCard.propTypes = {
     title: PropTypes.string.isRequired,
     list: PropTypes.string,
     tags: PropTypes.array,
-    reminder: PropTypes.object
+    reminder: PropTypes.object,
+    completed: PropTypes.bool,
+    pinned: PropTypes.bool
   }).isRequired,
   onDelete: PropTypes.func.isRequired,
   onUpdateTags: PropTypes.func,
   onUpdateList: PropTypes.func,
-  onToggleComplete: PropTypes.func.isRequired
+  onToggleComplete: PropTypes.func.isRequired,
+  onUpdateReminder: PropTypes.func,
+  onTogglePin: PropTypes.func
 };
 
 export default TaskCard;

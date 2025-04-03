@@ -1,31 +1,53 @@
 .sidebar {
-  width: 250px;
+  width: 280px;
   height: 100vh;
+  background-color: #ffffff;
+  color: #333;
+  padding: 20px;
   position: fixed;
   left: 0;
   top: 0;
-  background-color: #f8f9fa;
-  padding: 20px;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  border-right: 1px solid #e0e0e0;
+  overflow-y: auto;
 }
 
-.sidebar ul {
+.sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.1);
+  border-radius: 3px;
+}
+
+.sidebar-header {
+  padding-bottom: 20px;
+  border-bottom: 1px solid #3c3c3c;
+  margin-bottom: 20px;
+}
+
+.sidebar-menu {
   list-style: none;
-  padding: 0;
 }
 
-.sidebar li {
-  padding: 10px;
-  font-size: 16px;
-  color: #333;
+.sidebar-menu-item {
+  padding: 12px 0;
   cursor: pointer;
-}
-
-.sidebar li:hover {
-  background-color: #e2e6ea;
   border-radius: 5px;
+  margin-bottom: 5px;
 }
 
+.sidebar-menu-item:hover {
+  background-color: #3c3c3c;
+}
+
+.sidebar-menu-item.active {
+  background-color: #3c3c3c;
+}
 
 /* User Profile */
 .user-profile {
@@ -34,6 +56,7 @@
   gap: 12px;
   padding-bottom: 16px;
   border-bottom: 1px solid #f0f0f0;
+  margin-bottom: 16px;
 }
 
 .profile-icon {
@@ -44,11 +67,19 @@
   align-items: center;
   justify-content: center;
   background: #f5f5f5;
+  border: 1px solid #e0e0e0;
   transition: transform 0.3s ease, background-color 0.3s ease;
+  overflow: hidden;
+}
+
+.profile-icon .settings-icon {
+  width: 24px;
+  height: 24px;
+  display: block;
 }
 
 .profile-icon:hover {
-  transform: scale(1.1);
+  transform: scale(1.05);
   background-color: #e8e8e8;
 }
 
@@ -56,6 +87,7 @@
   margin: 0;
   font-size: 16px;
   font-weight: 600;
+  color: #333;
 }
 
 .profile-info .subtitle {
@@ -68,10 +100,10 @@
 .nav-menu ul {
   list-style: none;
   padding: 0;
-  margin: 0;
+  margin: 0 0 16px 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
 }
 
 .nav-item {
@@ -98,16 +130,21 @@
   align-items: center;
   justify-content: center;
   margin-right: 12px;
+}
+
+.lottie-icon {
+  pointer-events: none;
   transition: transform 0.3s ease;
 }
 
-.nav-item:hover .nav-icon {
-  transform: scale(1.2);
+.nav-item:hover .lottie-icon {
+  transform: scale(1.1);
 }
 
 .nav-label {
   flex: 1;
   font-size: 14px;
+  color: #333;
 }
 
 .badge {
@@ -116,12 +153,8 @@
   font-size: 12px;
   background-color: #e0e0e0;
   color: #666;
-  transition: transform 0.3s ease, background-color 0.3s ease;
-}
-
-.nav-item:hover .badge {
-  transform: scale(1.1);
-  background-color: #d0d0d0;
+  min-width: 20px;
+  text-align: center;
 }
 
 .badge.beta {
@@ -130,10 +163,6 @@
   text-transform: uppercase;
   font-size: 10px;
   transition: background-color 0.3s ease;
-}
-
-.nav-item:hover .badge.beta {
-  background-color: #1e88e5;
 }
 
 /* Create View Button */
@@ -149,6 +178,7 @@
   font-size: 14px;
   width: 100%;
   text-align: left;
+  margin-bottom: 16px;
 }
 
 .create-view:hover {
