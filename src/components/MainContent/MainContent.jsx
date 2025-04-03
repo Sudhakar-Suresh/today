@@ -4,38 +4,43 @@ import AllTasks from '../pages/AllTasks';
 import Next7Days from '../pages/Next7Days';
 import Calendar from '../pages/Calendar';
 import CompletedTasks from '../pages/CompletedTasks';
-import TaskCard from '../TaskCard/TaskCard';
 import './MainContent.css';
 
-const MainContent = ({ currentPage, userLists = [], onUpdateTaskCount }) => {
+const MainContent = ({ currentPage, userLists = [], selectedList = null }) => {
   const [tasks, setTasks] = useState([
     {
       id: 1,
       title: "Sample Task",
       completed: false,
       list: "Personal"
+    },
+    {
+      id: 2,
+      title: "Work Project",
+      completed: false,
+      list: "Work"
+    },
+    {
+      id: 3,
+      title: "Buy groceries",
+      completed: false,
+      list: "Shopping"
     }
   ]);
   
-  // Update task count when tasks change
+  // For filtered tasks based on selected list
+  const [filteredTasks, setFilteredTasks] = useState([]);
+
+  // Apply list filtering 
   useEffect(() => {
-    if (onUpdateTaskCount) {
-      const listCounts = {};
-      
-      // Count active tasks per list
-      tasks.filter(task => !task.completed).forEach(task => {
-        if (task.list) {
-          listCounts[task.list] = (listCounts[task.list] || 0) + 1;
-        }
-      });
-      
-      // Update counts through parent callback
-      userLists.forEach(listName => {
-        const currentCount = listCounts[listName] || 0;
-        onUpdateTaskCount(listName, currentCount);
-      });
+    if (selectedList) {
+      // When a list is selected, filter tasks by that list
+      setFilteredTasks(tasks.filter(task => task.list === selectedList));
+    } else {
+      // Otherwise use all tasks
+      setFilteredTasks(tasks);
     }
-  }, [tasks, userLists, onUpdateTaskCount]);
+  }, [selectedList, tasks]);
   
   const handleAddTask = (newTask) => {
     setTasks([...tasks, newTask]);
@@ -76,148 +81,130 @@ const MainContent = ({ currentPage, userLists = [], onUpdateTaskCount }) => {
     ));
   };
   
-  // Check if current page is a custom list
-  const isCustomList = userLists.includes(currentPage);
-  
-  // For standard views
-  const activeTasks = tasks.filter(task => !task.completed);
-  const completedTasks = tasks.filter(task => task.completed);
-  
-  // If current page is a custom list, render list-specific view
-  if (isCustomList) {
-    const listTasks = tasks.filter(task => task.list === currentPage && !task.completed);
+  // Prepare task data for different views
+  const activeTasks = selectedList 
+    ? filteredTasks.filter(task => !task.completed) 
+    : tasks.filter(task => !task.completed);
     
-    return (
-      <div className="main-content">
-        <div className="page-content">
-          <header className="header-section">
-            <div className="greeting-container">
-              <h1>{currentPage}</h1>
-              <p className="subtitle">Tasks in your {currentPage} list</p>
-            </div>
-          </header>
-          
-          <div className="list-tasks-content">
-            {listTasks.length > 0 ? (
-              <div className="tasks-area">
-                {listTasks.map(task => (
-                  <TaskCard
-                    key={task.id}
-                    task={task}
-                    onDelete={handleDelete}
-                    onToggleComplete={handleToggleComplete}
-                    onUpdateTags={handleUpdateTags}
-                    onUpdateList={handleUpdateList}
-                    onTogglePin={handleTogglePin}
-                    onUpdateReminder={handleUpdateReminder}
-                    availableLists={userLists}
-                  />
-                ))}
-              </div>
-            ) : (
-              <p>No tasks in your {currentPage} list</p>
-            )}
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const completedTasks = selectedList 
+    ? filteredTasks.filter(task => task.completed) 
+    : tasks.filter(task => task.completed);
   
-  // Otherwise render standard pages
-  let content;
+  // Title modifier for when a list is selected
+  const getPageTitle = () => {
+    if (selectedList) {
+      return `${currentPage} - ${selectedList}`;
+    }
+    return currentPage;
+  };
+  
+  // Render pages based on currentPage
   switch(currentPage) {
     case 'My day':
-      content = (
-        <MyDay 
-          tasks={activeTasks} 
-          onAddTask={handleAddTask}
-          onToggleComplete={handleToggleComplete} 
-          onDelete={handleDelete} 
-          onUpdateTags={handleUpdateTags} 
-          onUpdateList={handleUpdateList}
-          onTogglePin={handleTogglePin}
-          onUpdateReminder={handleUpdateReminder}
-          availableLists={userLists}
-        />
+      return (
+        <div className="main-content">
+          <MyDay 
+            tasks={activeTasks} 
+            onAddTask={handleAddTask}
+            onToggleComplete={handleToggleComplete} 
+            onDelete={handleDelete} 
+            onUpdateTags={handleUpdateTags} 
+            onUpdateList={handleUpdateList}
+            onTogglePin={handleTogglePin}
+            onUpdateReminder={handleUpdateReminder}
+            availableLists={userLists}
+            listFilter={selectedList}
+            pageTitle={getPageTitle()}
+          />
+        </div>
       );
-      break;
     case 'Next 7 days':
-      content = (
-        <Next7Days 
-          tasks={activeTasks} 
-          onToggleComplete={handleToggleComplete} 
-          onDelete={handleDelete} 
-          onUpdateTags={handleUpdateTags} 
-          onUpdateList={handleUpdateList}
-          onTogglePin={handleTogglePin}
-          onUpdateReminder={handleUpdateReminder}
-          availableLists={userLists}
-        />
+      return (
+        <div className="main-content">
+          <Next7Days 
+            tasks={activeTasks} 
+            onToggleComplete={handleToggleComplete} 
+            onDelete={handleDelete} 
+            onUpdateTags={handleUpdateTags} 
+            onUpdateList={handleUpdateList}
+            onTogglePin={handleTogglePin}
+            onUpdateReminder={handleUpdateReminder}
+            availableLists={userLists}
+            listFilter={selectedList}
+            pageTitle={getPageTitle()}
+          />
+        </div>
       );
-      break;
     case 'All my tasks':
-      content = (
-        <AllTasks 
-          tasks={activeTasks} 
-          onToggleComplete={handleToggleComplete} 
-          onDelete={handleDelete} 
-          onUpdateTags={handleUpdateTags} 
-          onUpdateList={handleUpdateList}
-          onTogglePin={handleTogglePin}
-          onUpdateReminder={handleUpdateReminder}
-          availableLists={userLists}
-        />
+      return (
+        <div className="main-content">
+          <AllTasks 
+            tasks={activeTasks} 
+            onToggleComplete={handleToggleComplete} 
+            onDelete={handleDelete} 
+            onUpdateTags={handleUpdateTags} 
+            onUpdateList={handleUpdateList}
+            onTogglePin={handleTogglePin}
+            onUpdateReminder={handleUpdateReminder}
+            availableLists={userLists}
+            listFilter={selectedList}
+            pageTitle={getPageTitle()}
+          />
+        </div>
       );
-      break;
     case 'My Calendar':
-      content = (
-        <Calendar 
-          tasks={activeTasks} 
-          onToggleComplete={handleToggleComplete} 
-          onDelete={handleDelete} 
-          onUpdateTags={handleUpdateTags} 
-          onUpdateList={handleUpdateList}
-          onTogglePin={handleTogglePin}
-          onUpdateReminder={handleUpdateReminder}
-          availableLists={userLists}
-        />
+      return (
+        <div className="main-content">
+          <Calendar 
+            tasks={activeTasks} 
+            onToggleComplete={handleToggleComplete} 
+            onDelete={handleDelete} 
+            onUpdateTags={handleUpdateTags} 
+            onUpdateList={handleUpdateList}
+            onTogglePin={handleTogglePin}
+            onUpdateReminder={handleUpdateReminder}
+            availableLists={userLists}
+            listFilter={selectedList}
+            pageTitle={getPageTitle()}
+          />
+        </div>
       );
-      break;
     case 'Completed tasks':
-      content = (
-        <CompletedTasks 
-          tasks={completedTasks} 
-          onToggleComplete={handleToggleComplete}
-          onDelete={handleDelete} 
-          onUpdateTags={handleUpdateTags} 
-          onUpdateList={handleUpdateList}
-          onTogglePin={handleTogglePin}
-          onUpdateReminder={handleUpdateReminder}
-          availableLists={userLists}
-        />
+      return (
+        <div className="main-content">
+          <CompletedTasks 
+            tasks={completedTasks} 
+            onToggleComplete={handleToggleComplete}
+            onDelete={handleDelete} 
+            onUpdateTags={handleUpdateTags} 
+            onUpdateList={handleUpdateList}
+            onTogglePin={handleTogglePin}
+            onUpdateReminder={handleUpdateReminder}
+            availableLists={userLists}
+            listFilter={selectedList}
+            pageTitle={getPageTitle()}
+          />
+        </div>
       );
-      break;
     default:
-      content = (
-        <MyDay 
-          tasks={activeTasks} 
-          onAddTask={handleAddTask}
-          onToggleComplete={handleToggleComplete} 
-          onDelete={handleDelete} 
-          onUpdateTags={handleUpdateTags} 
-          onUpdateList={handleUpdateList}
-          onTogglePin={handleTogglePin}
-          onUpdateReminder={handleUpdateReminder}
-          availableLists={userLists}
-        />
+      return (
+        <div className="main-content">
+          <MyDay 
+            tasks={activeTasks} 
+            onAddTask={handleAddTask}
+            onToggleComplete={handleToggleComplete} 
+            onDelete={handleDelete} 
+            onUpdateTags={handleUpdateTags} 
+            onUpdateList={handleUpdateList}
+            onTogglePin={handleTogglePin}
+            onUpdateReminder={handleUpdateReminder}
+            availableLists={userLists}
+            listFilter={selectedList}
+            pageTitle={getPageTitle()}
+          />
+        </div>
       );
   }
-
-  return (
-    <div className="main-content">
-      {content}
-    </div>
-  );
 };
 
 export default MainContent;

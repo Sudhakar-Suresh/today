@@ -9,7 +9,7 @@ import dateData from '../../assets/sidebar/date.json';
 import taskData from '../../assets/sidebar/task.json';
 import bookData from '../../assets/sidebar/book.json';
 
-const Sidebar = ({ onPageChange, onAddList, userLists = [], activeItem = 'My day' }) => {
+const Sidebar = ({ onPageChange, onAddList, userLists = [], activeItem = 'My day', onListSelect }) => {
   const settingRef = useRef(null);
   const calendarRef = useRef(null);
   const dateRef = useRef(null);
@@ -88,7 +88,10 @@ const Sidebar = ({ onPageChange, onAddList, userLists = [], activeItem = 'My day
   };
 
   const handleListClick = (listName) => {
-    onPageChange(listName);
+    // Instead of changing the page, call a function to filter tasks by list
+    if (onListSelect) {
+      onListSelect(listName);
+    }
   };
 
   const handleAddListClick = () => {
@@ -199,10 +202,6 @@ const Sidebar = ({ onPageChange, onAddList, userLists = [], activeItem = 'My day
         </ul>
       </div>
       
-      <button className="create-view">
-        <span>+</span> Create a view
-      </button>
-      
       <div className="lists-section">
         <div className="lists-header">
           <h3>My lists</h3>
@@ -240,6 +239,10 @@ const Sidebar = ({ onPageChange, onAddList, userLists = [], activeItem = 'My day
           )}
         </ul>
       </div>
+      
+      <button className="create-view">
+        <span>+</span> Create a view
+      </button>
     </div>
   );
 };

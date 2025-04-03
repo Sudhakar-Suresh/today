@@ -5,50 +5,42 @@ import './App.css';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('My day');
-  // Use a simple array of strings for lists
   const [userLists, setUserLists] = useState([
-    'Personal', 'Work', 'Grocery List', 'New'
+    'Personal', 'Work', 'Shopping', 'Ideas'
   ]);
+  const [selectedList, setSelectedList] = useState(null);
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
+    // Reset selected list when changing pages
+    setSelectedList(null);
   };
 
-  const handleAddList = (newListName) => {
-    console.log("App - Adding new list:", newListName);
-    
-    // Only add if it doesn't already exist
-    if (!userLists.includes(newListName)) {
-      const updatedLists = [...userLists, newListName];
-      setUserLists(updatedLists);
-      console.log("App - Updated lists:", updatedLists);
+  const handleListSelect = (listName) => {
+    console.log(`List selected: ${listName}`);
+    setSelectedList(listName);
+    // Don't change the current page
+  };
+
+  const handleAddList = (newList) => {
+    if (!userLists.includes(newList)) {
+      setUserLists([...userLists, newList]);
     }
-    
-    // Switch to the new list view
-    setCurrentPage(newListName);
   };
-
-  const handleUpdateTaskCount = (listName, change) => {
-    setUserLists(userLists.map(list => 
-      list.name === listName ? { ...list, count: Math.max(0, list.count + change) } : list
-    ));
-  };
-
-  // Extract just the list names for components that need simple strings
-  const listNames = userLists.map(list => list.name);
 
   return (
     <div className="app">
       <Sidebar 
         onPageChange={handlePageChange} 
-        onAddList={handleAddList}
-        userLists={userLists}
         activeItem={currentPage}
+        userLists={userLists}
+        onAddList={handleAddList}
+        onListSelect={handleListSelect}
       />
       <MainContent 
         currentPage={currentPage} 
         userLists={userLists}
-        onUpdateTaskCount={handleUpdateTaskCount}
+        selectedList={selectedList}
       />
     </div>
   );

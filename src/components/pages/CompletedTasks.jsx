@@ -2,9 +2,18 @@ import React from 'react';
 import './CompletedTasks.css';
 import TaskCard from '../TaskCard/TaskCard';
 
-const CompletedTasks = ({ tasks, onDelete, onUpdateTags, onUpdateList, onToggleComplete, onTogglePin, onUpdateReminder }) => {
+const CompletedTasks = ({ 
+  tasks = [], 
+  onToggleComplete, 
+  onDelete, 
+  onUpdateTags, 
+  onUpdateList,
+  onTogglePin,
+  onUpdateReminder,
+  availableLists = []
+}) => {
   return (
-    <div className="page-content">
+    <div className="page-content completed-tasks-page">
       <header className="header-section">
         <div className="greeting-container">
           <h1>Completed Tasks</h1>
@@ -13,7 +22,7 @@ const CompletedTasks = ({ tasks, onDelete, onUpdateTags, onUpdateList, onToggleC
       </header>
       
       <div className="completed-tasks-content">
-        {tasks && tasks.length > 0 ? (
+        {tasks.length > 0 ? (
           <div className="tasks-area">
             {tasks.map(task => (
               <TaskCard
@@ -25,11 +34,12 @@ const CompletedTasks = ({ tasks, onDelete, onUpdateTags, onUpdateList, onToggleC
                 onUpdateList={onUpdateList}
                 onTogglePin={onTogglePin}
                 onUpdateReminder={onUpdateReminder}
+                availableLists={availableLists}
               />
             ))}
           </div>
         ) : (
-          <p>Your completed tasks will appear here</p>
+          <p className="no-tasks-message">You have no completed tasks</p>
         )}
       </div>
     </div>

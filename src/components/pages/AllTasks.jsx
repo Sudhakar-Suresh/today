@@ -1,9 +1,19 @@
 import React from 'react';
+import TaskCard from '../TaskCard/TaskCard';
 import './AllTasks.css';
 
-const AllTasks = ({ tasks, onToggleComplete, onDelete, onUpdateTags, onUpdateList }) => {
+const AllTasks = ({ 
+  tasks = [], 
+  onToggleComplete, 
+  onDelete, 
+  onUpdateTags, 
+  onUpdateList,
+  onTogglePin,
+  onUpdateReminder,
+  availableLists = []
+}) => {
   return (
-    <div className="page-content">
+    <div className="page-content all-tasks-page">
       <header className="header-section">
         <div className="greeting-container">
           <h1>All Tasks</h1>
@@ -12,7 +22,25 @@ const AllTasks = ({ tasks, onToggleComplete, onDelete, onUpdateTags, onUpdateLis
       </header>
       
       <div className="all-tasks-content">
-        <p>Your all tasks will appear here</p>
+        {tasks.length > 0 ? (
+          <div className="tasks-area">
+            {tasks.map(task => (
+              <TaskCard
+                key={task.id}
+                task={task}
+                onDelete={onDelete}
+                onToggleComplete={onToggleComplete}
+                onUpdateTags={onUpdateTags}
+                onUpdateList={onUpdateList}
+                onTogglePin={onTogglePin}
+                onUpdateReminder={onUpdateReminder}
+                availableLists={availableLists}
+              />
+            ))}
+          </div>
+        ) : (
+          <p className="no-tasks-message">You have no active tasks</p>
+        )}
       </div>
     </div>
   );
