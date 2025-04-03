@@ -10,7 +10,8 @@ const MyDay = ({
   onUpdateTags, 
   onUpdateList,
   onTogglePin,
-  onUpdateReminder
+  onUpdateReminder,
+  availableLists = []
 }) => {
   const [newTaskTitle, setNewTaskTitle] = useState('');
 
@@ -75,6 +76,7 @@ const MyDay = ({
                 onUpdateList={onUpdateList}
                 onTogglePin={onTogglePin}
                 onUpdateReminder={onUpdateReminder}
+                availableLists={availableLists}
               />
             ))
           ) : (

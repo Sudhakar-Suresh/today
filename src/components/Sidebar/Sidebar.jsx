@@ -9,20 +9,13 @@ import dateData from '../../assets/sidebar/date.json';
 import taskData from '../../assets/sidebar/task.json';
 import bookData from '../../assets/sidebar/book.json';
 
-const Sidebar = ({ onPageChange }) => {
+const Sidebar = ({ onPageChange, onAddList, userLists = [], activeItem = 'My day' }) => {
   const settingRef = useRef(null);
   const calendarRef = useRef(null);
   const dateRef = useRef(null);
   const taskRef = useRef(null);
   const bookRef = useRef(null);
   
-  const [activeItem, setActiveItem] = useState('My day');
-  const [lists, setLists] = useState([
-    { name: 'Personal', count: 6 },
-    { name: 'Work', count: 0 },
-    { name: 'Grocery List', count: 0 },
-    { name: 'New', count: 1 }
-  ]);
   const [showNewListInput, setShowNewListInput] = useState(false);
   const [newListName, setNewListName] = useState('');
   const newListInputRef = useRef(null);
@@ -91,12 +84,10 @@ const Sidebar = ({ onPageChange }) => {
   };
 
   const handleItemClick = (item) => {
-    setActiveItem(item);
     onPageChange(item);
   };
 
   const handleListClick = (listName) => {
-    setActiveItem(listName);
     onPageChange(listName);
   };
 
@@ -107,13 +98,10 @@ const Sidebar = ({ onPageChange }) => {
   const handleCreateList = (e) => {
     e.preventDefault();
     if (newListName.trim()) {
-      // Add new list to local state
-      const newList = { name: newListName.trim(), count: 0 };
-      setLists([...lists, newList]);
-      
-      // Call parent callback if exists
-      if (onPageChange) {
-        onPageChange(newListName.trim());
+      console.log("Sidebar creating new list:", newListName.trim());
+      // Call parent callback to add list
+      if (onAddList) {
+        onAddList(newListName.trim());
       }
       
       // Reset state
@@ -221,15 +209,14 @@ const Sidebar = ({ onPageChange }) => {
           <button className="add-list" onClick={handleAddListClick}>+</button>
         </div>
         <ul>
-          {lists.map((list, index) => (
+          {userLists.map((listName, index) => (
             <li 
               key={index}
-              className={`list-item ${activeItem === list.name ? 'active' : ''}`}
-              onClick={() => handleListClick(list.name)}
+              className={`list-item ${activeItem === listName ? 'active' : ''}`}
+              onClick={() => handleListClick(listName)}
             >
               <div className="nav-icon lottie-icon" ref={index === 0 ? bookRef : null}></div>
-              <span className="list-label">{list.name}</span>
-              {list.count > 0 && <span className="badge">{list.count}</span>}
+              <span className="list-label">{listName}</span>
             </li>
           ))}
           

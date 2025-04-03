@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import MyDay from '../pages/MyDay';
 import AllTasks from '../pages/AllTasks';
 import Next7Days from '../pages/Next7Days';
 import Calendar from '../pages/Calendar';
 import CompletedTasks from '../pages/CompletedTasks';
+import TaskCard from '../TaskCard/TaskCard';
 import './MainContent.css';
 
-const MainContent = ({ currentPage, userLists = ['Personal', 'Work', 'Shopping', 'Ideas'] }) => {
+const MainContent = ({ currentPage, userLists = [], onUpdateTaskCount }) => {
   const [tasks, setTasks] = useState([
     {
       id: 1,
@@ -15,6 +16,26 @@ const MainContent = ({ currentPage, userLists = ['Personal', 'Work', 'Shopping',
       list: "Personal"
     }
   ]);
+  
+  // Update task count when tasks change
+  useEffect(() => {
+    if (onUpdateTaskCount) {
+      const listCounts = {};
+      
+      // Count active tasks per list
+      tasks.filter(task => !task.completed).forEach(task => {
+        if (task.list) {
+          listCounts[task.list] = (listCounts[task.list] || 0) + 1;
+        }
+      });
+      
+      // Update counts through parent callback
+      userLists.forEach(listName => {
+        const currentCount = listCounts[listName] || 0;
+        onUpdateTaskCount(listName, currentCount);
+      });
+    }
+  }, [tasks, userLists, onUpdateTaskCount]);
   
   const handleAddTask = (newTask) => {
     setTasks([...tasks, newTask]);
@@ -37,6 +58,7 @@ const MainContent = ({ currentPage, userLists = ['Personal', 'Work', 'Shopping',
   };
   
   const handleUpdateList = (taskId, newList) => {
+    console.log("MainContent - Updating task", taskId, "to list:", newList);
     setTasks(tasks.map(task =>
       task.id === taskId ? { ...task, list: newList } : task
     ));
@@ -54,15 +76,19 @@ const MainContent = ({ currentPage, userLists = ['Personal', 'Work', 'Shopping',
     ));
   };
   
+  // Check if current page is a custom list
+  const isCustomList = userLists.includes(currentPage);
+  
+  // For standard views
   const activeTasks = tasks.filter(task => !task.completed);
   const completedTasks = tasks.filter(task => task.completed);
-
-  // Render different page content based on currentPage
-  const renderPage = () => {
-    if (userLists.includes(currentPage)) {
-      // This is a user list view
-      const listTasks = tasks.filter(task => task.list === currentPage && !task.completed);
-      return (
+  
+  // If current page is a custom list, render list-specific view
+  if (isCustomList) {
+    const listTasks = tasks.filter(task => task.list === currentPage && !task.completed);
+    
+    return (
+      <div className="main-content">
         <div className="page-content">
           <header className="header-section">
             <div className="greeting-container">
@@ -84,6 +110,7 @@ const MainContent = ({ currentPage, userLists = ['Personal', 'Work', 'Shopping',
                     onUpdateList={handleUpdateList}
                     onTogglePin={handleTogglePin}
                     onUpdateReminder={handleUpdateReminder}
+                    availableLists={userLists}
                   />
                 ))}
               </div>
@@ -92,91 +119,103 @@ const MainContent = ({ currentPage, userLists = ['Personal', 'Work', 'Shopping',
             )}
           </div>
         </div>
+      </div>
+    );
+  }
+  
+  // Otherwise render standard pages
+  let content;
+  switch(currentPage) {
+    case 'My day':
+      content = (
+        <MyDay 
+          tasks={activeTasks} 
+          onAddTask={handleAddTask}
+          onToggleComplete={handleToggleComplete} 
+          onDelete={handleDelete} 
+          onUpdateTags={handleUpdateTags} 
+          onUpdateList={handleUpdateList}
+          onTogglePin={handleTogglePin}
+          onUpdateReminder={handleUpdateReminder}
+          availableLists={userLists}
+        />
       );
-    }
-    
-    // For standard views (My day, Completed tasks, etc.)
-    switch(currentPage) {
-      case 'My day':
-        return (
-          <MyDay 
-            tasks={activeTasks} 
-            onAddTask={handleAddTask}
-            onToggleComplete={handleToggleComplete} 
-            onDelete={handleDelete} 
-            onUpdateTags={handleUpdateTags} 
-            onUpdateList={handleUpdateList}
-            onTogglePin={handleTogglePin}
-            onUpdateReminder={handleUpdateReminder}
-          />
-        );
-      case 'Next 7 days':
-        return (
-          <Next7Days 
-            tasks={activeTasks} 
-            onToggleComplete={handleToggleComplete} 
-            onDelete={handleDelete} 
-            onUpdateTags={handleUpdateTags} 
-            onUpdateList={handleUpdateList}
-            onTogglePin={handleTogglePin}
-            onUpdateReminder={handleUpdateReminder}
-          />
-        );
-      case 'All my tasks':
-        return (
-          <AllTasks 
-            tasks={activeTasks} 
-            onToggleComplete={handleToggleComplete} 
-            onDelete={handleDelete} 
-            onUpdateTags={handleUpdateTags} 
-            onUpdateList={handleUpdateList}
-            onTogglePin={handleTogglePin}
-            onUpdateReminder={handleUpdateReminder}
-          />
-        );
-      case 'My Calendar':
-        return (
-          <Calendar 
-            tasks={activeTasks} 
-            onToggleComplete={handleToggleComplete} 
-            onDelete={handleDelete} 
-            onUpdateTags={handleUpdateTags} 
-            onUpdateList={handleUpdateList}
-            onTogglePin={handleTogglePin}
-            onUpdateReminder={handleUpdateReminder}
-          />
-        );
-      case 'Completed tasks':
-        return (
-          <CompletedTasks 
-            tasks={completedTasks} 
-            onToggleComplete={handleToggleComplete}
-            onDelete={handleDelete} 
-            onUpdateTags={handleUpdateTags} 
-            onUpdateList={handleUpdateList}
-            onTogglePin={handleTogglePin}
-            onUpdateReminder={handleUpdateReminder}
-          />
-        );
-      default:
-        return (
-          <MyDay 
-            tasks={activeTasks} 
-            onAddTask={handleAddTask}
-            onToggleComplete={handleToggleComplete} 
-            onDelete={handleDelete} 
-            onUpdateTags={handleUpdateTags} 
-            onUpdateList={handleUpdateList}
-            onTogglePin={handleTogglePin}
-            onUpdateReminder={handleUpdateReminder}
-          />
-        );
-    }
-  };
+      break;
+    case 'Next 7 days':
+      content = (
+        <Next7Days 
+          tasks={activeTasks} 
+          onToggleComplete={handleToggleComplete} 
+          onDelete={handleDelete} 
+          onUpdateTags={handleUpdateTags} 
+          onUpdateList={handleUpdateList}
+          onTogglePin={handleTogglePin}
+          onUpdateReminder={handleUpdateReminder}
+          availableLists={userLists}
+        />
+      );
+      break;
+    case 'All my tasks':
+      content = (
+        <AllTasks 
+          tasks={activeTasks} 
+          onToggleComplete={handleToggleComplete} 
+          onDelete={handleDelete} 
+          onUpdateTags={handleUpdateTags} 
+          onUpdateList={handleUpdateList}
+          onTogglePin={handleTogglePin}
+          onUpdateReminder={handleUpdateReminder}
+          availableLists={userLists}
+        />
+      );
+      break;
+    case 'My Calendar':
+      content = (
+        <Calendar 
+          tasks={activeTasks} 
+          onToggleComplete={handleToggleComplete} 
+          onDelete={handleDelete} 
+          onUpdateTags={handleUpdateTags} 
+          onUpdateList={handleUpdateList}
+          onTogglePin={handleTogglePin}
+          onUpdateReminder={handleUpdateReminder}
+          availableLists={userLists}
+        />
+      );
+      break;
+    case 'Completed tasks':
+      content = (
+        <CompletedTasks 
+          tasks={completedTasks} 
+          onToggleComplete={handleToggleComplete}
+          onDelete={handleDelete} 
+          onUpdateTags={handleUpdateTags} 
+          onUpdateList={handleUpdateList}
+          onTogglePin={handleTogglePin}
+          onUpdateReminder={handleUpdateReminder}
+          availableLists={userLists}
+        />
+      );
+      break;
+    default:
+      content = (
+        <MyDay 
+          tasks={activeTasks} 
+          onAddTask={handleAddTask}
+          onToggleComplete={handleToggleComplete} 
+          onDelete={handleDelete} 
+          onUpdateTags={handleUpdateTags} 
+          onUpdateList={handleUpdateList}
+          onTogglePin={handleTogglePin}
+          onUpdateReminder={handleUpdateReminder}
+          availableLists={userLists}
+        />
+      );
+  }
 
   return (
     <div className="main-content">
-      {renderPage()}
+      {content}
     </div>
   );
 };

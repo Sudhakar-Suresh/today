@@ -16,7 +16,7 @@ import TagPopup from "../TagPopup/TagPopup";
 import ReminderPopup from "../ReminderPopup/ReminderPopup";
 import "./TaskCard.css";
 
-const TaskCard = ({ task, onDelete, onUpdateTags, onUpdateList, onToggleComplete, onUpdateReminder, onTogglePin }) => {
+const TaskCard = ({ task, onDelete, onUpdateTags, onUpdateList, onToggleComplete, onUpdateReminder, onTogglePin, availableLists = [] }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [tags, setTags] = useState([
     { name: "Priority", color: "#FFD84D" },
@@ -27,11 +27,17 @@ const TaskCard = ({ task, onDelete, onUpdateTags, onUpdateList, onToggleComplete
   const [selectedTags, setSelectedTags] = useState(task.tags || []);
   const [listPopupOpen, setListPopupOpen] = useState(false);
   const [tagsPopupOpen, setTagsPopupOpen] = useState(false);
-  const [lists, setLists] = useState(["Personal", "Work", "Shopping", "Ideas"]);
   const [selectedList, setSelectedList] = useState(task.list || "Personal");
   const [reminderPopupOpen, setReminderPopupOpen] = useState(false);
   const [reminder, setReminder] = useState(task.reminder || null);
   const [isPinned, setIsPinned] = useState(task.pinned || false);
+
+  // Use a default list if no lists are provided
+  const defaultLists = ["Personal", "Work", "Shopping", "Ideas"];
+  const listsToUse = availableLists && availableLists.length > 0 ? availableLists : defaultLists;
+  
+  console.log("TaskCard availableLists:", availableLists);
+  console.log("TaskCard listsToUse:", listsToUse);
 
   const menuRef = useRef(null);
   const popupRef = useRef(null);
@@ -64,14 +70,15 @@ const TaskCard = ({ task, onDelete, onUpdateTags, onUpdateList, onToggleComplete
   };
 
   const handleListEdit = (newListName) => {
-    setSelectedList(newListName);
+    console.log("TaskCard - updating list from", selectedList, "to:", newListName);
     
-    if (!lists.includes(newListName)) {
-      setLists([...lists, newListName]);
-    }
-
-    if (onUpdateList) {
-      onUpdateList(task.id, newListName);
+    if (newListName && newListName.trim() !== '') {
+      setSelectedList(newListName);
+      
+      if (onUpdateList) {
+        console.log("TaskCard - calling onUpdateList with:", task.id, newListName);
+        onUpdateList(task.id, newListName);
+      }
     }
 
     setListPopupOpen(false);
@@ -294,10 +301,13 @@ const TaskCard = ({ task, onDelete, onUpdateTags, onUpdateList, onToggleComplete
       {listPopupOpen && (
         <div ref={popupRef}>
           <ListEditPopup
-            lists={lists}
+            lists={listsToUse}
             selectedList={selectedList}
             onClose={() => setListPopupOpen(false)}
-            onEdit={handleListEdit}
+            onEdit={(newList) => {
+              console.log(`TaskCard - Changing list from ${selectedList} to ${newList}`);
+              handleListEdit(newList);
+            }}
           />
         </div>
       )}
@@ -337,7 +347,8 @@ TaskCard.propTypes = {
   onUpdateList: PropTypes.func,
   onToggleComplete: PropTypes.func.isRequired,
   onUpdateReminder: PropTypes.func,
-  onTogglePin: PropTypes.func
+  onTogglePin: PropTypes.func,
+  availableLists: PropTypes.arrayOf(PropTypes.string)
 };
 
 export default TaskCard;

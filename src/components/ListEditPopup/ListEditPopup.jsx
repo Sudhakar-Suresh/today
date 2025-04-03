@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import "./ListEditPopup.css";
 
@@ -6,6 +6,16 @@ const ListEditPopup = ({ lists, selectedList, onClose, onEdit }) => {
   const [editMode, setEditMode] = useState(false);
   const [editingList, setEditingList] = useState(null);
   const [newListName, setNewListName] = useState("");
+
+  console.log("ListEditPopup lists:", lists);
+  console.log("ListEditPopup selectedList:", selectedList);
+
+  useEffect(() => {
+    // Make sure the selected list exists in the lists array
+    if (selectedList && !lists.includes(selectedList) && lists.length > 0) {
+      onEdit(lists[0]);
+    }
+  }, [lists, selectedList, onEdit]);
 
   const handleListClick = (list) => {
     if (editMode && editingList === list) return;
@@ -15,6 +25,7 @@ const ListEditPopup = ({ lists, selectedList, onClose, onEdit }) => {
       setEditingList(list);
       setNewListName(list);
     } else {
+      console.log("ListEditPopup editing list to:", list);
       onEdit(list);
       onClose();
     }
@@ -22,6 +33,7 @@ const ListEditPopup = ({ lists, selectedList, onClose, onEdit }) => {
 
   const handleEdit = () => {
     if (newListName.trim() && newListName !== editingList) {
+      console.log("ListEditPopup saving edited list:", newListName);
       onEdit(newListName);
     }
     setEditMode(false);
