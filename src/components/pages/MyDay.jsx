@@ -2,15 +2,16 @@ import React, { useState } from 'react';
 import './MyDay.css';
 import TaskCard from '../TaskCard/TaskCard';
 
-const MyDay = () => {
-  const [tasks, setTasks] = useState([
-    {
-      id: 1,
-      title: "sdfSD",
-      completed: false,
-      list: "Personal"
-    }
-  ]);
+const MyDay = ({ 
+  tasks = [], 
+  onAddTask, 
+  onToggleComplete, 
+  onDelete, 
+  onUpdateTags, 
+  onUpdateList,
+  onTogglePin,
+  onUpdateReminder
+}) => {
   const [newTaskTitle, setNewTaskTitle] = useState('');
 
   // Get current date information
@@ -31,48 +32,16 @@ const MyDay = () => {
   const handleAddTask = (e) => {
     e.preventDefault();
     if (newTaskTitle.trim()) {
-      setTasks([...tasks, {
-        id: Date.now(),
-        title: newTaskTitle,
-        completed: false,
-        list: "Personal"
-      }]);
+      if (onAddTask) {
+        onAddTask({
+          id: Date.now(),
+          title: newTaskTitle,
+          completed: false,
+          list: "Personal"
+        });
+      }
       setNewTaskTitle('');
     }
-  };
-
-  const handleToggleComplete = (taskId, isCompleted) => {
-    setTasks(tasks.map(task =>
-      task.id === taskId ? { ...task, completed: isCompleted } : task
-    ));
-  };
-  
-  const handleDelete = (taskId) => {
-    setTasks(tasks.filter(task => task.id !== taskId));
-  };
-  
-  const handleUpdateTags = (taskId, newTags) => {
-    setTasks(tasks.map(task =>
-      task.id === taskId ? { ...task, tags: newTags } : task
-    ));
-  };
-  
-  const handleUpdateList = (taskId, newList) => {
-    setTasks(tasks.map(task =>
-      task.id === taskId ? { ...task, list: newList } : task
-    ));
-  };
-  
-  const handleTogglePin = (taskId, isPinned) => {
-    setTasks(tasks.map(task =>
-      task.id === taskId ? { ...task, pinned: isPinned } : task
-    ));
-  };
-  
-  const handleUpdateReminder = (taskId, reminderData) => {
-    setTasks(tasks.map(task =>
-      task.id === taskId ? { ...task, reminder: reminderData } : task
-    ));
   };
 
   return (
@@ -95,18 +64,24 @@ const MyDay = () => {
         </section>
         
         <div className="tasks-area">
-          {tasks.map(task => (
-            <TaskCard
-              key={task.id}
-              task={task}
-              onDelete={handleDelete}
-              onToggleComplete={handleToggleComplete}
-              onUpdateTags={handleUpdateTags}
-              onUpdateList={handleUpdateList}
-              onTogglePin={handleTogglePin}
-              onUpdateReminder={handleUpdateReminder}
-            />
-          ))}
+          {tasks.length > 0 ? (
+            tasks.map(task => (
+              <TaskCard
+                key={task.id}
+                task={task}
+                onDelete={onDelete}
+                onToggleComplete={onToggleComplete}
+                onUpdateTags={onUpdateTags}
+                onUpdateList={onUpdateList}
+                onTogglePin={onTogglePin}
+                onUpdateReminder={onUpdateReminder}
+              />
+            ))
+          ) : (
+            <div className="no-tasks-message">
+              <p>You have no active tasks for today</p>
+            </div>
+          )}
         </div>
         
         <div className="add-task-container">

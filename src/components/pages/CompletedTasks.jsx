@@ -1,7 +1,8 @@
 import React from 'react';
 import './CompletedTasks.css';
+import TaskCard from '../TaskCard/TaskCard';
 
-const CompletedTasks = ({ tasks, onDelete, onUpdateTags, onUpdateList }) => {
+const CompletedTasks = ({ tasks, onDelete, onUpdateTags, onUpdateList, onToggleComplete, onTogglePin, onUpdateReminder }) => {
   return (
     <div className="page-content">
       <header className="header-section">
@@ -12,7 +13,24 @@ const CompletedTasks = ({ tasks, onDelete, onUpdateTags, onUpdateList }) => {
       </header>
       
       <div className="completed-tasks-content">
-        <p>Your completed tasks will appear here</p>
+        {tasks && tasks.length > 0 ? (
+          <div className="tasks-area">
+            {tasks.map(task => (
+              <TaskCard
+                key={task.id}
+                task={task}
+                onDelete={onDelete}
+                onToggleComplete={onToggleComplete}
+                onUpdateTags={onUpdateTags}
+                onUpdateList={onUpdateList}
+                onTogglePin={onTogglePin}
+                onUpdateReminder={onUpdateReminder}
+              />
+            ))}
+          </div>
+        ) : (
+          <p>Your completed tasks will appear here</p>
+        )}
       </div>
     </div>
   );

@@ -208,19 +208,20 @@
 .add-list {
   width: 24px;
   height: 24px;
-  border: none;
-  background: none;
-  cursor: pointer;
-  font-size: 18px;
-  color: #666;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 4px;
+  border: none;
+  background-color: transparent;
+  font-size: 18px;
+  color: #5f6368;
+  cursor: pointer;
+  transition: background-color 0.2s;
 }
 
 .add-list:hover {
-  background-color: #f5f5f5;
+  background-color: rgba(0,0,0,0.05);
 }
 
 .lists-section ul {
@@ -259,4 +260,47 @@
 .nav-item:hover .lottie-icon {
   transform: scale(1.1);
   filter: brightness(1.2);
+}
+
+/* Add these styles to your Sidebar.css file */
+
+.new-list-form {
+  padding: 8px 16px;
+  cursor: default;
+}
+
+.new-list-form:hover {
+  background-color: transparent;
+}
+
+.new-list-input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.new-list-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.create-list-btn, .cancel-list-btn {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.create-list-btn {
+  background-color: #4285F4;
+  color: white;
+}
+
+.cancel-list-btn {
+  background-color: #f1f3f4;
+  color: #5f6368;
 }

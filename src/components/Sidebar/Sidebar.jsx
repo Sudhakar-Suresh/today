@@ -17,6 +17,15 @@ const Sidebar = ({ onPageChange }) => {
   const bookRef = useRef(null);
   
   const [activeItem, setActiveItem] = useState('My day');
+  const [lists, setLists] = useState([
+    { name: 'Personal', count: 6 },
+    { name: 'Work', count: 0 },
+    { name: 'Grocery List', count: 0 },
+    { name: 'New', count: 1 }
+  ]);
+  const [showNewListInput, setShowNewListInput] = useState(false);
+  const [newListName, setNewListName] = useState('');
+  const newListInputRef = useRef(null);
 
   useEffect(() => {
     // Initialize animations
@@ -70,6 +79,13 @@ const Sidebar = ({ onPageChange }) => {
     };
   }, []);
 
+  // Focus on the input when it's shown
+  useEffect(() => {
+    if (showNewListInput && newListInputRef.current) {
+      newListInputRef.current.focus();
+    }
+  }, [showNewListInput]);
+
   const handleItemHover = (anim) => {
     anim.goToAndPlay(0);
   };
@@ -78,6 +94,57 @@ const Sidebar = ({ onPageChange }) => {
     setActiveItem(item);
     onPageChange(item);
   };
+
+  const handleListClick = (listName) => {
+    setActiveItem(listName);
+    onPageChange(listName);
+  };
+
+  const handleAddListClick = () => {
+    setShowNewListInput(true);
+  };
+
+  const handleCreateList = (e) => {
+    e.preventDefault();
+    if (newListName.trim()) {
+      // Add new list to local state
+      const newList = { name: newListName.trim(), count: 0 };
+      setLists([...lists, newList]);
+      
+      // Call parent callback if exists
+      if (onPageChange) {
+        onPageChange(newListName.trim());
+      }
+      
+      // Reset state
+      setNewListName('');
+      setShowNewListInput(false);
+    }
+  };
+
+  const handleCancelNewList = () => {
+    setNewListName('');
+    setShowNewListInput(false);
+  };
+
+  // Handle click outside to cancel new list input
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        showNewListInput && 
+        newListInputRef.current && 
+        !newListInputRef.current.contains(event.target) &&
+        event.target.className !== 'add-list'
+      ) {
+        handleCancelNewList();
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showNewListInput]);
 
   return (
     <div className="sidebar">
@@ -151,35 +218,39 @@ const Sidebar = ({ onPageChange }) => {
       <div className="lists-section">
         <div className="lists-header">
           <h3>My lists</h3>
-          <button className="add-list">+</button>
+          <button className="add-list" onClick={handleAddListClick}>+</button>
         </div>
         <ul>
-          <li 
-            className={`list-item ${activeItem === 'Personal' ? 'active' : ''}`}
-          >
-            <div className="nav-icon lottie-icon" ref={bookRef}></div>
-            <span className="list-label">Personal</span>
-            <span className="badge">6</span>
-          </li>
+          {lists.map((list, index) => (
+            <li 
+              key={index}
+              className={`list-item ${activeItem === list.name ? 'active' : ''}`}
+              onClick={() => handleListClick(list.name)}
+            >
+              <div className="nav-icon lottie-icon" ref={index === 0 ? bookRef : null}></div>
+              <span className="list-label">{list.name}</span>
+              {list.count > 0 && <span className="badge">{list.count}</span>}
+            </li>
+          ))}
           
-          <li 
-            className={`list-item ${activeItem === 'Work' ? 'active' : ''}`}
-          >
-            <span className="list-label">Work</span>
-          </li>
-          
-          <li 
-            className={`list-item ${activeItem === 'Grocery List' ? 'active' : ''}`}
-          >
-            <span className="list-label">Grocery List</span>
-          </li>
-          
-          <li 
-            className={`list-item ${activeItem === 'New' ? 'active' : ''}`}
-          >
-            <span className="list-label">New</span>
-            <span className="badge">1</span>
-          </li>
+          {showNewListInput && (
+            <li className="list-item new-list-form">
+              <form onSubmit={handleCreateList}>
+                <input
+                  ref={newListInputRef}
+                  type="text"
+                  value={newListName}
+                  onChange={(e) => setNewListName(e.target.value)}
+                  placeholder="Enter list name"
+                  className="new-list-input"
+                />
+                <div className="new-list-actions">
+                  <button type="submit" className="create-list-btn">Create</button>
+                  <button type="button" className="cancel-list-btn" onClick={handleCancelNewList}>Cancel</button>
+                </div>
+              </form>
+            </li>
+          )}
         </ul>
       </div>
     </div>
