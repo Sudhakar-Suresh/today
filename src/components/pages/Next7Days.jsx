@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './Next7Days.css';
 import TaskCard from '../TaskCard/TaskCard';
+import AddTaskButton from '../AddTaskButton/AddTaskButton';
 
 const Next7Days = ({ 
   tasks = [], 
@@ -64,19 +65,6 @@ const Next7Days = ({
     });
   };
 
-  const handleAddTask = (date) => {
-    // Handle adding task for a specific date
-    if (onAddTask) {
-      onAddTask({
-        id: Date.now(),
-        title: "",
-        completed: false,
-        list: "Personal",
-        dueDate: date
-      });
-    }
-  };
-
   return (
     <div className={`next7days-container ${isSidebarExpanded ? 'with-sidebar' : 'full-width'}`}>
       <div className="next7days-header">
@@ -93,7 +81,7 @@ const Next7Days = ({
       </div>
 
       <div className="days-grid">
-        {days.map((day, index) => (
+        {days.map((day) => (
           <div key={day.key} className="day-column">
             <div className="day-header">
               <div className="day-title">
@@ -103,7 +91,7 @@ const Next7Days = ({
             </div>
 
             <div className="day-tasks">
-              {index === 0 && tasks.map(task => (
+              {getTasksForDay(day.date).map(task => (
                 <TaskCard
                   key={task.id}
                   task={task}
@@ -116,9 +104,10 @@ const Next7Days = ({
                   availableLists={availableLists}
                 />
               ))}
-              <button className="add-task-btn" onClick={() => handleAddTask(day.date)}>
-                <span>+</span> Add Task
-              </button>
+              <AddTaskButton 
+                onAddTask={onAddTask} 
+                dueDate={day.date}
+              />
             </div>
           </div>
         ))}

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -7,7 +7,21 @@ import {
   faCheck,
   faEllipsisVertical,
   faPlus,
+  faTags,
+  faPaperclip,
+  faTag,
+  faFileImage,
+  faFilePdf,
+  faFileWord,
+  faFileExcel,
+  faFilePowerpoint,
+  faFile,
+  faEye,
+  faTrash
 } from "@fortawesome/free-solid-svg-icons";
+import ReminderPopup from "../ReminderPopup/ReminderPopup";
+import TagPopup from "../TagPopup/TagPopup";
+import ListEditPopup from '../ListEditPopup/ListEditPopup';
 import "./TaskDetailPopup.css";
 
 const TaskDetailPopup = ({
@@ -20,7 +34,8 @@ const TaskDetailPopup = ({
   onUpdateReminder,
   onUpdateTags,
   onUpdateSubtasks,
-  onAddAttachment
+  onAddAttachment,
+  availableLists = ['Personal', 'Work', 'Shopping', 'Ideas']
 }) => {
   const [title, setTitle] = useState(task.title);
   const [notes, setNotes] = useState(task.notes || "");
@@ -28,7 +43,26 @@ const TaskDetailPopup = ({
   const [newSubtask, setNewSubtask] = useState("");
   const [editingSubtaskIndex, setEditingSubtaskIndex] = useState(null);
   const [list, setList] = useState(task.list || "Personal");
+  const [showReminderPopup, setShowReminderPopup] = useState(false);
+  const [showTagPopup, setShowTagPopup] = useState(false);
+  const [showListPopup, setShowListPopup] = useState(false);
+  const [tags, setTags] = useState(task.tags || []);
+  
+  // Sample tags - in a real app, these would be fetched from a database or API
+  const [allTags, setAllTags] = useState([
+    { name: "Work", color: "#FF4D4D" },
+    { name: "Personal", color: "#45AFFF" },
+    { name: "Important", color: "#FFD84D" },
+    { name: "Urgent", color: "#D32F2F" },
+    { name: "Shopping", color: "#57CC57" },
+    { name: "Ideas", color: "#AB47BC" }
+  ]);
+  
+  const [selectedReminder, setSelectedReminder] = useState(task.reminder || null);
+  const [attachments, setAttachments] = useState(task.attachments || []);
+  const fileInputRef = useRef(null);
   const popupRef = useRef(null);
+  const tagBtnRef = useRef(null);
   
   // Close popup when clicking outside
   useEffect(() => {
@@ -43,6 +77,13 @@ const TaskDetailPopup = ({
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [onClose]);
+
+  // Update local tags when task tags change
+  useEffect(() => {
+    if (task.tags) {
+      setTags(task.tags);
+    }
+  }, [task.tags]);
 
   const handleTitleChange = (e) => {
     setTitle(e.target.value);
@@ -118,23 +159,145 @@ const TaskDetailPopup = ({
   };
 
   const handleReminderClick = () => {
-    // This would typically open a date picker or reminder selection UI
-    console.log("Open reminder dialog");
+    setShowReminderPopup(true);
+  };
+
+  const handleSetReminder = (reminderData) => {
+    setSelectedReminder(reminderData);
+    if (onUpdateReminder) {
+      onUpdateReminder(task.id, reminderData);
+    }
+    setShowReminderPopup(false);
+  };
+
+  const handleTagsClick = () => {
+    setShowTagPopup(true);
+  };
+
+  // Handle saving tags from the TagPopup
+  const handleSaveTags = useCallback((updatedAllTags, selectedTags) => {
+    setAllTags(updatedAllTags);
+    setTags(selectedTags);
+    
+    if (onUpdateTags) {
+      onUpdateTags(task.id, selectedTags);
+    }
+    setShowTagPopup(false);
+  }, [task.id, onUpdateTags]);
+
+  // Handle removing a tag directly from the task
+  const handleRemoveTag = (tagToRemove) => {
+    const updatedTags = tags.filter(tag => tag.name !== tagToRemove.name);
+    setTags(updatedTags);
+    
+    if (onUpdateTags) {
+      onUpdateTags(task.id, updatedTags);
+    }
   };
 
   const handleAttachmentClick = () => {
-    // This would typically open a file picker
-    const fileInput = document.createElement('input');
-    fileInput.type = 'file';
-    fileInput.onchange = (e) => {
-      if (e.target.files.length > 0) {
-        onAddAttachment(task.id, e.target.files[0]);
+    // Create and trigger file input element
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  const handleFileChange = (e) => {
+    if (e.target.files.length > 0) {
+      const file = e.target.files[0];
+      // Create a URL for the file to display it
+      const fileUrl = URL.createObjectURL(file);
+      
+      const newAttachment = {
+        id: Date.now(),
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        file: file,
+        url: fileUrl // Add the URL to display the file
+      };
+      
+      const updatedAttachments = [...attachments, newAttachment];
+      setAttachments(updatedAttachments);
+      
+      if (onAddAttachment) {
+        onAddAttachment(task.id, newAttachment);
       }
-    };
-    fileInput.click();
+    }
+  };
+
+  // Add a function to determine file type icon
+  const getFileIcon = (fileType) => {
+    if (fileType.startsWith('image/')) {
+      return <FontAwesomeIcon icon={faFileImage} />;
+    } else if (fileType.startsWith('application/pdf')) {
+      return <FontAwesomeIcon icon={faFilePdf} />;
+    } else if (fileType.includes('document') || fileType.includes('word')) {
+      return <FontAwesomeIcon icon={faFileWord} />;
+    } else if (fileType.includes('spreadsheet') || fileType.includes('excel')) {
+      return <FontAwesomeIcon icon={faFileExcel} />;
+    } else if (fileType.includes('presentation') || fileType.includes('powerpoint')) {
+      return <FontAwesomeIcon icon={faFilePowerpoint} />;
+    } else {
+      return <FontAwesomeIcon icon={faFile} />;
+    }
+  };
+
+  // Add a function to format file size
+  const formatFileSize = (bytes) => {
+    if (bytes < 1024) return bytes + ' B';
+    else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+    else return (bytes / 1048576).toFixed(1) + ' MB';
+  };
+
+  // Add a function to handle attachment removal
+  const handleRemoveAttachment = (attachmentId) => {
+    const updatedAttachments = attachments.filter(a => a.id !== attachmentId);
+    setAttachments(updatedAttachments);
+    // Call the parent handler if it exists
+    if (onAddAttachment) {
+      onAddAttachment(task.id, updatedAttachments);
+    }
   };
 
   const completedSubtasksCount = subtasks.filter(st => st.completed).length;
+
+  // Format reminder display
+  const formatReminderText = () => {
+    if (!selectedReminder) return "Remind me";
+    
+    return `${selectedReminder.date} at ${selectedReminder.time}`;
+  };
+
+  // Stop propagation of click events within the tag popup
+  const handleTagPopupClick = (e) => {
+    e.stopPropagation();
+  };
+
+  const handleListClick = () => {
+    setShowListPopup(true);
+  };
+
+  const handleUpdateList = (newList) => {
+    setList(newList);
+    if (onUpdateList) {
+      onUpdateList(task.id, newList);
+    }
+    setShowListPopup(false);
+  };
+
+  // Add a helper function to assign colors to lists
+  const getListColor = (listName) => {
+    const colors = {
+      'Personal': '#4285f4',
+      'Work': '#ea4335',
+      'Shopping': '#34a853',
+      'Ideas': '#fbbc05',
+      // Add more colors for other lists
+    };
+    
+    return colors[listName] || '#9e9e9e'; // Default gray color
+  };
 
   return (
     <div className="task-detail-popup-backdrop">
@@ -150,10 +313,10 @@ const TaskDetailPopup = ({
               {task.completed ? "Completed" : "Mark as complete"}
             </button>
             <div className="popup-header-buttons">
-              <button className="icon-button" title="Mark as complete">
+              <button className="icon-button" title="Mark as complete" onClick={handleCompletionToggle}>
                 <FontAwesomeIcon icon={faCheck} />
               </button>
-              <button className="icon-button" title="Delete task">
+              <button className="icon-button" title="Close" onClick={onClose}>
                 <FontAwesomeIcon icon={faXmark} />
               </button>
             </div>
@@ -170,21 +333,57 @@ const TaskDetailPopup = ({
           />
           
           <div className="quick-actions">
-            <button className="quick-action-btn reminder-btn">
+            <button 
+              className="quick-action-btn reminder-btn"
+              onClick={handleReminderClick}
+            >
               <FontAwesomeIcon icon={faBell} />
-              <span>Remind me</span>
+              <span>{formatReminderText()}</span>
             </button>
             
-            <button className="quick-action-btn list-btn">
-              <span className="list-color"></span>
+            <button 
+              className="quick-action-btn list-btn"
+              onClick={handleListClick}
+            >
+              <span className="list-color" style={{ backgroundColor: getListColor(list) }}></span>
               <span>{list}</span>
             </button>
             
-            <button className="quick-action-btn tags-btn">
-              <span className="hashtag">#</span>
-              <span>Tags</span>
+            <button 
+              className="quick-action-btn tags-btn"
+              onClick={handleTagsClick}
+              ref={tagBtnRef}
+            >
+              <FontAwesomeIcon icon={faTags} />
+              <span>{tags.length > 0 ? `${tags.length} tags` : "Tags"}</span>
             </button>
           </div>
+          
+          {tags.length > 0 && (
+            <div className="tags-display">
+              {tags.map(tag => (
+                <div 
+                  key={tag.name}
+                  className="tag-badge"
+                  style={{ backgroundColor: tag.color + '20', color: tag.color }} 
+                >
+                  <FontAwesomeIcon icon={faTag} className="tag-icon" />
+                  <span className="tag-name">{tag.name}</span>
+                  <button 
+                    className="remove-tag-btn" 
+                    onClick={() => handleRemoveTag(tag)}
+                    title={`Remove ${tag.name} tag`}
+                  >
+                    <FontAwesomeIcon icon={faXmark} />
+                  </button>
+                </div>
+              ))}
+              <button className="add-tag-badge" onClick={handleTagsClick}>
+                <FontAwesomeIcon icon={faPlus} />
+                <span>Add tag</span>
+              </button>
+            </div>
+          )}
           
           <div className="notes-section">
             <h3>NOTES</h3>
@@ -250,11 +449,102 @@ const TaskDetailPopup = ({
           
           <div className="attachments-section">
             <h3>ATTACHMENTS</h3>
+            <input 
+              type="file" 
+              ref={fileInputRef} 
+              style={{ display: 'none' }} 
+              onChange={handleFileChange}
+            />
+            
+            {attachments.length > 0 && (
+              <ul className="attachments-list">
+                {attachments.map(attachment => (
+                  <li key={attachment.id} className="attachment-item">
+                    <div className="attachment-preview">
+                      {attachment.type.startsWith('image/') ? (
+                        <img 
+                          src={attachment.url} 
+                          alt={attachment.name} 
+                          className="attachment-image"
+                        />
+                      ) : (
+                        <div className="attachment-icon">
+                          {getFileIcon(attachment.type)}
+                        </div>
+                      )}
+                    </div>
+                    <div className="attachment-info">
+                      <span className="attachment-name">{attachment.name}</span>
+                      <span className="attachment-size">
+                        {formatFileSize(attachment.size)}
+                      </span>
+                    </div>
+                    <div className="attachment-actions">
+                      <a 
+                        href={attachment.url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="view-attachment-btn"
+                        title="View attachment"
+                      >
+                        <FontAwesomeIcon icon={faEye} />
+                      </a>
+                      <button 
+                        className="remove-attachment-btn"
+                        onClick={() => handleRemoveAttachment(attachment.id)}
+                        title="Remove attachment"
+                      >
+                        <FontAwesomeIcon icon={faTrash} />
+                      </button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+            
             <div className="attachments-dropzone" onClick={handleAttachmentClick}>
+              <FontAwesomeIcon icon={faPaperclip} className="attachment-icon" />
               <span className="dropzone-text">Click to add / drop your files here</span>
             </div>
           </div>
         </div>
+        
+        {showReminderPopup && (
+          <ReminderPopup 
+            onClose={() => setShowReminderPopup(false)}
+            onSetReminder={handleSetReminder}
+            initialDate={selectedReminder}
+          />
+        )}
+        
+        {showTagPopup && (
+          <>
+            <div className="tag-popup-overlay" onClick={() => setShowTagPopup(false)}></div>
+            <div onClick={handleTagPopupClick} className="tag-popup-container">
+              <TagPopup 
+                tags={allTags}
+                setTags={setAllTags}
+                selectedTags={tags}
+                setSelectedTags={setTags}
+                closePopup={() => setShowTagPopup(false)}
+                saveTags={handleSaveTags}
+                onDelete={(tag) => {
+                  setAllTags(allTags.filter(t => t.name !== tag.name));
+                  setTags(tags.filter(t => t.name !== tag.name));
+                }}
+              />
+            </div>
+          </>
+        )}
+        
+        {showListPopup && (
+          <ListEditPopup
+            lists={availableLists}
+            selectedList={list}
+            onClose={() => setShowListPopup(false)}
+            onEdit={handleUpdateList}
+          />
+        )}
       </div>
     </div>
   );
@@ -285,7 +575,8 @@ TaskDetailPopup.propTypes = {
   onUpdateReminder: PropTypes.func,
   onUpdateTags: PropTypes.func,
   onUpdateSubtasks: PropTypes.func.isRequired,
-  onAddAttachment: PropTypes.func
+  onAddAttachment: PropTypes.func,
+  availableLists: PropTypes.arrayOf(PropTypes.string)
 };
 
 export default TaskDetailPopup; 

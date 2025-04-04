@@ -12,16 +12,15 @@
 }
 
 .task-detail-popup {
-  width: 100%;
-  max-width: 528px;
-  height: 90vh;
-  max-height: 800px;
+  position: relative;
   background-color: white;
-  border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  z-index: 1001;
 }
 
 .popup-header {
@@ -269,4 +268,302 @@
 
 .attachments-dropzone:hover {
   background-color: #f8f9fa;
+}
+
+.attachment-icon {
+  margin-right: 8px;
+  color: #777;
+}
+
+.attachments-list {
+  margin-top: 16px;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.attachment-item {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+  gap: 12px;
+}
+
+.attachment-preview {
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #e9ecef;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.attachment-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.attachment-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0; /* Important for text overflow to work */
+}
+
+.attachment-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #343a40;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.attachment-size {
+  font-size: 12px;
+  color: #6c757d;
+}
+
+.attachment-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.view-attachment-btn,
+.remove-attachment-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  background-color: transparent;
+  border: none;
+  color: #6c757d;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.view-attachment-btn:hover {
+  background-color: #e9ecef;
+  color: #343a40;
+}
+
+.remove-attachment-btn:hover {
+  background-color: #f8d7da;
+  color: #dc3545;
+}
+
+.attachments-dropzone {
+  margin-top: 16px;
+  padding: 20px;
+  border: 2px dashed #ced4da;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #f8f9fa;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.attachments-dropzone:hover {
+  background-color: #e9ecef;
+  border-color: #adb5bd;
+}
+
+.attachment-icon {
+  font-size: 24px;
+  color: #6c757d;
+  margin-bottom: 8px;
+}
+
+.dropzone-text {
+  font-size: 14px;
+  color: #6c757d;
+  text-align: center;
+}
+
+.reminder-btn,
+.tags-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #ddd;
+  background: white;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #555;
+  cursor: pointer;
+}
+
+.reminder-btn:hover,
+.tags-btn:hover {
+  background-color: #f8f8f8;
+}
+
+.reminder-btn svg,
+.tags-btn svg {
+  color: #666;
+}
+
+/* Tag styling */
+.tags-display {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 16px 0;
+  padding: 0 2px;
+}
+
+.tag-badge {
+  display: flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 16px;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.tag-badge:hover {
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.tag-icon {
+  font-size: 10px;
+  margin-right: 5px;
+}
+
+.tag-name {
+  margin: 0 4px;
+}
+
+.remove-tag-btn {
+  background: transparent;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  font-size: 12px;
+  margin-left: 4px;
+  opacity: 0.6;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+}
+
+.remove-tag-btn:hover {
+  opacity: 1;
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.add-tag-badge {
+  display: flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 16px;
+  font-size: 13px;
+  font-weight: 500;
+  background-color: #f5f5f5;
+  color: #666;
+  border: 1px dashed #ccc;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.add-tag-badge:hover {
+  background-color: #efefef;
+  border-color: #aaa;
+}
+
+.add-tag-badge svg {
+  margin-right: 5px;
+  font-size: 10px;
+}
+
+/* Center the tag popup and ensure it appears on top */
+.task-detail-popup-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.task-detail-popup {
+  position: relative;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  z-index: 1001;
+}
+
+/* Overlay for the tag popup */
+.tag-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.25);
+  z-index: 1101;
+}
+
+/* Container for the tag popup to help with positioning */
+.tag-popup-container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1102;
+}
+
+/* Tag popup styling */
+.tags-popup {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  width: 350px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* List button styling */
+.list-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.list-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
 } 
