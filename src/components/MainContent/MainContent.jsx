@@ -6,7 +6,7 @@ import Calendar from '../pages/Calendar';
 import CompletedTasks from '../pages/CompletedTasks';
 import './MainContent.css';
 
-const MainContent = ({ currentPage, userLists = [], selectedList = null }) => {
+const MainContent = ({ currentPage, userLists = [], selectedList = null, isSidebarExpanded = false }) => {
   const [tasks, setTasks] = useState([
     {
       id: 1,
@@ -98,82 +98,86 @@ const MainContent = ({ currentPage, userLists = [], selectedList = null }) => {
     return currentPage;
   };
   
-  // Render pages based on currentPage
-  switch(currentPage) {
-    case 'My day':
-      return (
-        <div className="main-content">
-          <MyDay 
-            tasks={activeTasks} 
-            onAddTask={handleAddTask}
-            onToggleComplete={handleToggleComplete} 
-            onDelete={handleDelete} 
-            onUpdateTags={handleUpdateTags} 
-            onUpdateList={handleUpdateList}
-            onTogglePin={handleTogglePin}
-            onUpdateReminder={handleUpdateReminder}
-            availableLists={userLists}
-            listFilter={selectedList}
-            pageTitle={getPageTitle()}
-          />
-        </div>
-      );
-    case 'Next 7 days':
-      return <Next7Days />;
-    case 'All my tasks':
-      return (
-        <div className="main-content">
-          <AllTasks 
-            tasks={activeTasks} 
-            onToggleComplete={handleToggleComplete} 
-            onDelete={handleDelete} 
-            onUpdateTags={handleUpdateTags} 
-            onUpdateList={handleUpdateList}
-            onTogglePin={handleTogglePin}
-            onUpdateReminder={handleUpdateReminder}
-            availableLists={userLists}
-            listFilter={selectedList}
-            pageTitle={getPageTitle()}
-          />
-        </div>
-      );
-    case 'My Calendar':
-      return (
-        <div className="main-content">
-          <Calendar 
-            tasks={activeTasks} 
-            onToggleComplete={handleToggleComplete} 
-            onDelete={handleDelete} 
-            onUpdateTags={handleUpdateTags} 
-            onUpdateList={handleUpdateList}
-            onTogglePin={handleTogglePin}
-            onUpdateReminder={handleUpdateReminder}
-            availableLists={userLists}
-            listFilter={selectedList}
-            pageTitle={getPageTitle()}
-          />
-        </div>
-      );
-    case 'Completed tasks':
-      return (
-        <div className="main-content">
-          <CompletedTasks 
-            tasks={completedTasks} 
-            onToggleComplete={handleToggleComplete}
-            onDelete={handleDelete} 
-            onUpdateTags={handleUpdateTags} 
-            onUpdateList={handleUpdateList}
-            onTogglePin={handleTogglePin}
-            onUpdateReminder={handleUpdateReminder}
-            availableLists={userLists}
-            listFilter={selectedList}
-            pageTitle={getPageTitle()}
-          />
-        </div>
-      );
-    default:
-      return <MyDay />;
-  }
+  // Render the appropriate component based on currentPage
+  return (
+    <div className={`main-content ${isSidebarExpanded ? 'with-sidebar' : 'full-width'}`}>
+      {currentPage === 'My day' && (
+        <MyDay 
+          tasks={activeTasks} 
+          onAddTask={handleAddTask}
+          onToggleComplete={handleToggleComplete} 
+          onDelete={handleDelete} 
+          onUpdateTags={handleUpdateTags} 
+          onUpdateList={handleUpdateList}
+          onTogglePin={handleTogglePin}
+          onUpdateReminder={handleUpdateReminder}
+          availableLists={userLists}
+          listFilter={selectedList}
+          isSidebarExpanded={isSidebarExpanded}
+        />
+      )}
+      
+      {currentPage === 'Next 7 days' && (
+        <Next7Days 
+          tasks={activeTasks}
+          onAddTask={handleAddTask}
+          onToggleComplete={handleToggleComplete} 
+          onDelete={handleDelete} 
+          onUpdateTags={handleUpdateTags} 
+          onUpdateList={handleUpdateList}
+          onTogglePin={handleTogglePin}
+          onUpdateReminder={handleUpdateReminder}
+          availableLists={userLists}
+          isSidebarExpanded={isSidebarExpanded}
+        />
+      )}
+      
+      {currentPage === 'All my tasks' && (
+        <AllTasks 
+          tasks={activeTasks} 
+          onToggleComplete={handleToggleComplete} 
+          onDelete={handleDelete} 
+          onUpdateTags={handleUpdateTags} 
+          onUpdateList={handleUpdateList}
+          onTogglePin={handleTogglePin}
+          onUpdateReminder={handleUpdateReminder}
+          availableLists={userLists}
+          listFilter={selectedList}
+          pageTitle={getPageTitle()}
+        />
+      )}
+      
+      {currentPage === 'My Calendar' && (
+        <Calendar 
+          tasks={activeTasks} 
+          onToggleComplete={handleToggleComplete} 
+          onDelete={handleDelete} 
+          onUpdateTags={handleUpdateTags} 
+          onUpdateList={handleUpdateList}
+          onTogglePin={handleTogglePin}
+          onUpdateReminder={handleUpdateReminder}
+          availableLists={userLists}
+          listFilter={selectedList}
+          pageTitle={getPageTitle()}
+        />
+      )}
+      
+      {currentPage === 'Completed tasks' && (
+        <CompletedTasks 
+          tasks={completedTasks} 
+          onToggleComplete={handleToggleComplete}
+          onDelete={handleDelete} 
+          onUpdateTags={handleUpdateTags} 
+          onUpdateList={handleUpdateList}
+          onTogglePin={handleTogglePin}
+          onUpdateReminder={handleUpdateReminder}
+          availableLists={userLists}
+          listFilter={selectedList}
+          pageTitle={getPageTitle()}
+        />
+      )}
+    </div>
+  );
 };
 
 export default MainContent;

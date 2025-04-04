@@ -1,7 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import './Next7Days.css';
+import TaskCard from '../TaskCard/TaskCard';
 
-const Next7Days = () => {
+const Next7Days = ({ 
+  tasks = [], 
+  onAddTask, 
+  onToggleComplete, 
+  onDelete, 
+  onUpdateTags, 
+  onUpdateList,
+  onTogglePin,
+  onUpdateReminder,
+  availableLists = [],
+  isSidebarExpanded = false
+}) => {
   const [days, setDays] = useState([]);
 
   // Function to generate exactly 7 days from today
@@ -21,11 +33,10 @@ const Next7Days = () => {
 
       // Format the date (e.g., "Jun 15")
       const dateStr = date.toLocaleDateString('en-US', { 
-        month: 'short', 
-        day: 'numeric' 
+        weekday: 'short' 
       });
 
-      // Get the subheader (only for Today and Tomorrow)
+      // Get the subheader for today and tomorrow
       const subheader = i <= 1 ? date.toLocaleDateString('en-US', { weekday: 'long' }) : '';
 
       days.push({
@@ -39,52 +50,37 @@ const Next7Days = () => {
     return days;
   };
 
-  // Update days when component mounts and at midnight
+  // Generate days on component mount
   useEffect(() => {
-    // Initial generation of days
     setDays(generateSevenDays());
-
-    // Calculate time until next midnight
-    const now = new Date();
-    const tomorrow = new Date(now);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    tomorrow.setHours(0, 0, 0, 0);
-    const timeUntilMidnight = tomorrow - now;
-
-    // Set up timer to update days at midnight
-    const timer = setTimeout(() => {
-      setDays(generateSevenDays());
-      // After first update, update every 24 hours
-      const dailyTimer = setInterval(() => {
-        setDays(generateSevenDays());
-      }, 24 * 60 * 60 * 1000);
-
-      return () => clearInterval(dailyTimer);
-    }, timeUntilMidnight);
-
-    return () => clearTimeout(timer);
   }, []);
 
-  // Sample tasks (you can replace this with your actual tasks)
-  const sampleTasks = [
-    { id: 1, title: "Watch My day tutorial", list: "Personal" },
-    { id: 2, title: "Add me to My Day", list: "Personal" },
-    { id: 3, title: "Connect your calendar", list: "Personal" },
-    { id: 4, title: "Create your first task", list: "Personal" }
-  ];
+  // Filter tasks for each day
+  const getTasksForDay = (date) => {
+    return tasks.filter(task => {
+      if (!task.dueDate) return false;
+      const taskDate = new Date(task.dueDate);
+      return taskDate.toDateString() === date.toDateString();
+    });
+  };
+
+  const handleAddTask = (date) => {
+    // Handle adding task for a specific date
+    if (onAddTask) {
+      onAddTask({
+        id: Date.now(),
+        title: "",
+        completed: false,
+        list: "Personal",
+        dueDate: date
+      });
+    }
+  };
 
   return (
-    <div className="next7days-container">
+    <div className={`next7days-container ${isSidebarExpanded ? 'with-sidebar' : 'full-width'}`}>
       <div className="next7days-header">
-        <div className="view-title">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M19 4H5C3.89543 4 3 4.89543 3 6V20C3 21.1046 3.89543 22 5 22H19C20.1046 22 21 21.1046 21 20V6C21 4.89543 20.1046 4 19 4Z" stroke="#2564CF" strokeWidth="2"/>
-            <path d="M16 2V6" stroke="#2564CF" strokeWidth="2"/>
-            <path d="M8 2V6" stroke="#2564CF" strokeWidth="2"/>
-            <path d="M3 10H21" stroke="#2564CF" strokeWidth="2"/>
-          </svg>
-          <h1>Next 7 days</h1>
-        </div>
+        <h1>Next 7 days</h1>
         <div className="view-actions">
           <button className="filter-button">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -96,36 +92,36 @@ const Next7Days = () => {
         </div>
       </div>
 
-      <div className="days-scroll-wrapper">
-        <div className="days-scroll-container">
-          {days.map((day, index) => (
-            <div key={day.key} className="day-column">
-              <div className="day-header">
+      <div className="days-grid">
+        {days.map((day, index) => (
+          <div key={day.key} className="day-column">
+            <div className="day-header">
+              <div className="day-title">
                 <h2>{day.dayName}</h2>
-                {day.subheader && <span className="day-subheader">{day.subheader}</span>}
-                <span className="date-label">{day.dateStr}</span>
-              </div>
-
-              <div className="day-tasks-list">
-                {index === 0 && sampleTasks.map((task, taskIndex) => (
-                  <div key={taskIndex} className="task-item">
-                    <div className="task-checkbox"></div>
-                    <div className="task-content">
-                      <div className="task-list-indicator">
-                        <span className="list-tag">My lists • Personal</span>
-                      </div>
-                      <div className="task-title">{task.title}</div>
-                    </div>
-                  </div>
-                ))}
-                <button className="add-task-button">
-                  <span className="plus-icon">+</span>
-                  Add Task
-                </button>
+                <span className="day-label">{day.dateStr}</span>
               </div>
             </div>
-          ))}
-        </div>
+
+            <div className="day-tasks">
+              {index === 0 && tasks.map(task => (
+                <TaskCard
+                  key={task.id}
+                  task={task}
+                  onDelete={onDelete}
+                  onToggleComplete={onToggleComplete}
+                  onUpdateTags={onUpdateTags}
+                  onUpdateList={onUpdateList}
+                  onTogglePin={onTogglePin}
+                  onUpdateReminder={onUpdateReminder}
+                  availableLists={availableLists}
+                />
+              ))}
+              <button className="add-task-btn" onClick={() => handleAddTask(day.date)}>
+                <span>+</span> Add Task
+              </button>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

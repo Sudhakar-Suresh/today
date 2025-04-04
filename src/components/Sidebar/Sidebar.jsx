@@ -12,7 +12,7 @@ import dateData from '../../assets/sidebar/date.json';
 import taskData from '../../assets/sidebar/task.json';
 import bookData from '../../assets/sidebar/book.json';
 
-const Sidebar = ({ onPageChange, onAddList, userLists = [], activeItem = 'My day', onListSelect }) => {
+const Sidebar = ({ onPageChange, onAddList, userLists = [], activeItem = 'My day', onListSelect, onSidebarToggle }) => {
   const settingRef = useRef(null);
   const calendarRef = useRef(null);
   const dateRef = useRef(null);
@@ -143,12 +143,18 @@ const Sidebar = ({ onPageChange, onAddList, userLists = [], activeItem = 'My day
     };
   }, [showNewListInput]);
 
+  // Notify parent of sidebar state changes
+  useEffect(() => {
+    if (onSidebarToggle) {
+      onSidebarToggle(isExpanded);
+    }
+  }, [isExpanded, onSidebarToggle]);
+
   // Handle hover on settings icon
   const handleSettingsHover = () => {
     if (!isPinned) {
       setIsExpanded(true);
     }
-    // Play the animation when hovering
     const settingAnim = lottie.getRegisteredAnimations().find(anim => anim.wrapper === settingRef.current);
     if (settingAnim) {
       settingAnim.goToAndPlay(0);
@@ -166,7 +172,6 @@ const Sidebar = ({ onPageChange, onAddList, userLists = [], activeItem = 'My day
   const togglePin = () => {
     setIsPinned(!isPinned);
     if (!isPinned) {
-      // If we're pinning it, make sure it's expanded
       setIsExpanded(true);
     }
   };

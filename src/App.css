@@ -59,3 +59,24 @@
   padding: 20px;
   overflow-y: auto;
 }
+
+.app-container {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
+}
+
+.app-container.sidebar-closed {
+  padding-left: 0;
+}
+
+.app-container.with-sidebar {
+  padding-left: 280px; /* Width of the sidebar */
+}
+
+@media (max-width: 768px) {
+  .app-container.with-sidebar {
+    padding-left: 0;
+  }
+}

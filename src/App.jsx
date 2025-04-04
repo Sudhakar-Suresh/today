@@ -9,18 +9,15 @@ function App() {
     'Personal', 'Work', 'Shopping', 'Ideas'
   ]);
   const [selectedList, setSelectedList] = useState(null);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
-    // Reset selected list when changing pages
     setSelectedList(null);
   };
 
   const handleListSelect = (listName) => {
-    console.log(`List selected: ${listName}`);
     setSelectedList(listName);
-    // Don't change the current page
   };
 
   const handleAddList = (newList) => {
@@ -29,19 +26,25 @@ function App() {
     }
   };
 
+  const handleSidebarToggle = (expanded) => {
+    setIsSidebarExpanded(expanded);
+  };
+
   return (
-    <div className={`app-container ${isSidebarOpen ? 'with-sidebar' : 'sidebar-closed'}`}>
+    <div className="app-container">
       <Sidebar 
         onPageChange={handlePageChange} 
         activeItem={currentPage}
         userLists={userLists}
         onAddList={handleAddList}
         onListSelect={handleListSelect}
+        onSidebarToggle={handleSidebarToggle}
       />
       <MainContent 
         currentPage={currentPage} 
         userLists={userLists}
         selectedList={selectedList}
+        isSidebarExpanded={isSidebarExpanded}
       />
     </div>
   );

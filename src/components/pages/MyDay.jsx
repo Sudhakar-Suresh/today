@@ -11,7 +11,8 @@ const MyDay = ({
   onUpdateList,
   onTogglePin,
   onUpdateReminder,
-  availableLists = []
+  availableLists = [],
+  isSidebarExpanded = false
 }) => {
   const [newTaskTitle, setNewTaskTitle] = useState('');
 
@@ -46,19 +47,7 @@ const MyDay = ({
   };
 
   return (
-    <div className="myday-container">
-      <header className="page-header">
-        <div className="view-title">
-          <h1>My Day</h1>
-        </div>
-        <div className="view-actions">
-          <button className="filter-button">
-            <svg>...</svg>
-            Filter
-          </button>
-          <button className="more-button">•••</button>
-        </div>
-      </header>
+    <div className={`myday-container ${isSidebarExpanded ? 'with-sidebar' : 'full-width'}`}>
       <main className="page-content">
         <div className="my-day-content">
           <header>
@@ -92,29 +81,25 @@ const MyDay = ({
                   availableLists={availableLists}
                 />
               ))
-            ) : (
-              <div className="no-tasks-message">
-                <p>You have no active tasks for today</p>
-              </div>
-            )}
-          </div>
-          
-          <div className="add-task-container">
-            <form onSubmit={handleAddTask}>
-              <div className="add-task-input">
-                <span className="task-icon">✓</span>
-                <input 
-                  type="text" 
-                  placeholder="Enter task title" 
-                  value={newTaskTitle}
-                  onChange={(e) => setNewTaskTitle(e.target.value)}
-                />
-                <button type="submit" className="submit-arrow">↑</button>
-              </div>
-            </form>
+            ) : null}
           </div>
         </div>
       </main>
+      
+      <div className="add-task-container">
+        <form onSubmit={handleAddTask}>
+          <div className="add-task-input">
+            <span className="task-icon">✓</span>
+            <input 
+              type="text" 
+              placeholder="Enter task title" 
+              value={newTaskTitle}
+              onChange={(e) => setNewTaskTitle(e.target.value)}
+            />
+            <button type="submit" className="submit-arrow">↑</button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };
