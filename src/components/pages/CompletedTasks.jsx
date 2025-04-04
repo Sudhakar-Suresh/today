@@ -10,14 +10,25 @@ const CompletedTasks = ({
   onUpdateList,
   onTogglePin,
   onUpdateReminder,
-  availableLists = []
+  availableLists = [],
+  listFilter = null,
+  pageTitle = 'Completed Tasks'
 }) => {
   return (
     <div className="page-content completed-tasks-page">
       <header className="header-section">
         <div className="greeting-container">
-          <h1>Completed Tasks</h1>
-          <p className="subtitle">Review what you've accomplished</p>
+          <h1>{pageTitle}</h1>
+          <p className="subtitle">
+            {listFilter ? 
+              `Completed tasks from your "${listFilter}" list` : 
+              "Review what you've accomplished"}
+          </p>
+          {listFilter && (
+            <div className="list-filter-badge">
+              Filtered by: {listFilter}
+            </div>
+          )}
         </div>
       </header>
       
@@ -39,7 +50,11 @@ const CompletedTasks = ({
             ))}
           </div>
         ) : (
-          <p className="no-tasks-message">You have no completed tasks</p>
+          <p className="no-tasks-message">
+            {listFilter ? 
+              `You have no completed tasks in your "${listFilter}" list` : 
+              "You have no completed tasks"}
+          </p>
         )}
       </div>
     </div>

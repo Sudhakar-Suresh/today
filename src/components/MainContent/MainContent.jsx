@@ -119,22 +119,7 @@ const MainContent = ({ currentPage, userLists = [], selectedList = null }) => {
         </div>
       );
     case 'Next 7 days':
-      return (
-        <div className="main-content">
-          <Next7Days 
-            tasks={activeTasks} 
-            onToggleComplete={handleToggleComplete} 
-            onDelete={handleDelete} 
-            onUpdateTags={handleUpdateTags} 
-            onUpdateList={handleUpdateList}
-            onTogglePin={handleTogglePin}
-            onUpdateReminder={handleUpdateReminder}
-            availableLists={userLists}
-            listFilter={selectedList}
-            pageTitle={getPageTitle()}
-          />
-        </div>
-      );
+      return <Next7Days />;
     case 'All my tasks':
       return (
         <div className="main-content">
@@ -187,23 +172,7 @@ const MainContent = ({ currentPage, userLists = [], selectedList = null }) => {
         </div>
       );
     default:
-      return (
-        <div className="main-content">
-          <MyDay 
-            tasks={activeTasks} 
-            onAddTask={handleAddTask}
-            onToggleComplete={handleToggleComplete} 
-            onDelete={handleDelete} 
-            onUpdateTags={handleUpdateTags} 
-            onUpdateList={handleUpdateList}
-            onTogglePin={handleTogglePin}
-            onUpdateReminder={handleUpdateReminder}
-            availableLists={userLists}
-            listFilter={selectedList}
-            pageTitle={getPageTitle()}
-          />
-        </div>
-      );
+      return <MyDay />;
   }
 };
 
