@@ -1,3 +1,42 @@
+/* Setting icon that remains visible */
+.settings-icon-container {
+  display: none;
+}
+
+.settings-icon-circle {
+  display: none;
+}
+
+/* Floating settings icon that's always visible */
+.floating-settings-icon {
+  position: fixed;
+  left: 20px;
+  top: 20px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #f5f5f5;
+  border: 1px solid #e0e0e0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 1001;
+  transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+.floating-settings-icon:hover {
+  transform: scale(1.05);
+  background-color: #e8e8e8;
+}
+
+.floating-settings-icon span {
+  width: 24px;
+  height: 24px;
+  display: block;
+}
+
+/* Sidebar styles */
 .sidebar {
   width: 280px;
   height: 100vh;
@@ -9,6 +48,20 @@
   top: 0;
   border-right: 1px solid #e0e0e0;
   overflow-y: auto;
+  transition: transform 0.3s ease;
+  z-index: 1000;
+}
+
+.sidebar.collapsed {
+  transform: translateX(-100%);
+}
+
+.sidebar.expanded {
+  transform: translateX(0);
+}
+
+.sidebar.pinned {
+  transform: translateX(0) !important;
 }
 
 .sidebar::-webkit-scrollbar {
@@ -28,6 +81,7 @@
   padding-bottom: 20px;
   border-bottom: 1px solid #3c3c3c;
   margin-bottom: 20px;
+  position: relative;
 }
 
 .sidebar-menu {
@@ -57,6 +111,7 @@
   padding-bottom: 16px;
   border-bottom: 1px solid #f0f0f0;
   margin-bottom: 16px;
+  width: 100%;
 }
 
 .profile-icon {
@@ -303,4 +358,49 @@
 .cancel-list-btn {
   background-color: #f1f3f4;
   color: #5f6368;
+}
+
+/* Hide the settings icon in the sidebar when using floating one */
+.sidebar .profile-icon {
+  visibility: hidden;
+}
+
+/* Adjust profile info to fill the space */
+.sidebar .profile-info {
+  padding-left: 20px;
+}
+
+/* Add hover behavior to detect when mouse leaves the sidebar */
+.sidebar:not(:hover) {
+  transform: translateX(-100%);
+}
+
+/* Keep the sidebar visible when hovering settings icon or sidebar itself */
+.floating-settings-icon:hover + .sidebar,
+.sidebar:hover {
+  transform: translateX(0);
+}
+
+/* Pin button styles */
+.pin-button {
+  background: none;
+  border: none;
+  color: #999;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 5px;
+  transition: transform 0.3s ease, color 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto;
+}
+
+.pin-button:hover {
+  color: #555;
+}
+
+.pin-button.active {
+  color: #2196f3;
+  transform: rotate(-45deg);
 }
