@@ -1,3 +1,13 @@
+@import './shared.css';
+
+.completed-tasks-container {
+  composes: page-container;
+}
+
+.completed-tasks-header {
+  composes: page-header;
+}
+
 .completed-tasks-content {
   max-width: 800px;
   margin: 0 auto;

@@ -1,3 +1,15 @@
+@import './shared.css';
+
+.alltasks-container {
+  composes: page-container;
+}
+
+.alltasks-header {
+  composes: page-header;
+}
+
+/* Add any AllTasks-specific styles */
+
 .all-tasks-content {
   max-width: 800px;
   margin: 0 auto;

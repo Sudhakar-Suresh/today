@@ -1,0 +1,105 @@
+/* Base page container styles - to be imported by all page CSS files */
+.page-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: #faf9f8;
+  width: 100%;
+  position: relative;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 24px;
+  background: #faf9f8;
+  border-bottom: 1px solid #edebe9;
+  height: 48px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  width: 100%;
+}
+
+.view-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.view-title h1 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #292827;
+  margin: 0;
+}
+
+.view-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.filter-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid #e1dfdd;
+  border-radius: 4px;
+  background: transparent;
+  color: #616161;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.filter-button:hover {
+  background: #f3f2f1;
+}
+
+.more-button {
+  border: none;
+  background: transparent;
+  color: #616161;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 6px 12px;
+}
+
+.page-content {
+  flex: 1;
+  overflow: auto;
+  padding: 16px;
+}
+
+/* Responsive adjustments for sidebar states */
+.with-sidebar .page-container {
+  width: calc(100% - 280px);
+  margin-left: 280px;
+}
+
+.sidebar-closed .page-container {
+  width: 100%;
+  margin-left: 0;
+}
+
+/* Animation for sidebar transition */
+.page-container {
+  transition: width 0.3s ease, margin-left 0.3s ease;
+}
+
+/* Responsive adjustments for mobile */
+@media (max-width: 768px) {
+  .page-container {
+    width: 100% !important;
+    margin-left: 0 !important;
+  }
+  
+  .page-header {
+    padding: 12px 16px;
+  }
+
+  .view-title h1 {
+    font-size: 18px;
+  }
+} 

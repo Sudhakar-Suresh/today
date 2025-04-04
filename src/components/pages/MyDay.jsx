@@ -46,61 +46,75 @@ const MyDay = ({
   };
 
   return (
-    <div className="my-day-container">
-      <div className="my-day-content">
-        <header>
-          <h1>{greeting}, Sudhakar<span className="dot">.</span></h1>
-          <p className="subtitle">Run your day or your day will run you</p>
-        </header>
-        
-        <section className="date-section">
-          <div className="date-container">
-            <div className="date-label">{dayOfWeek}</div>
-            <div className="date-number">{dayNumber}</div>
-            <div className="date-month">{month}</div>
-          </div>
-          <div className="events-info">
-            <p>You have no events scheduled for today</p>
-          </div>
-        </section>
-        
-        <div className="tasks-area">
-          {tasks.length > 0 ? (
-            tasks.map(task => (
-              <TaskCard
-                key={task.id}
-                task={task}
-                onDelete={onDelete}
-                onToggleComplete={onToggleComplete}
-                onUpdateTags={onUpdateTags}
-                onUpdateList={onUpdateList}
-                onTogglePin={onTogglePin}
-                onUpdateReminder={onUpdateReminder}
-                availableLists={availableLists}
-              />
-            ))
-          ) : (
-            <div className="no-tasks-message">
-              <p>You have no active tasks for today</p>
-            </div>
-          )}
+    <div className="myday-container">
+      <header className="page-header">
+        <div className="view-title">
+          <h1>My Day</h1>
         </div>
-        
-        <div className="add-task-container">
-          <form onSubmit={handleAddTask}>
-            <div className="add-task-input">
-              <span className="task-icon">✓</span>
-              <input 
-                type="text" 
-                placeholder="Enter task title" 
-                value={newTaskTitle}
-                onChange={(e) => setNewTaskTitle(e.target.value)}
-              />
-              <button type="submit" className="submit-arrow">↑</button>
-            </div>
-          </form>
+        <div className="view-actions">
+          <button className="filter-button">
+            <svg>...</svg>
+            Filter
+          </button>
+          <button className="more-button">•••</button>
         </div>
-      </div>
+      </header>
+      <main className="page-content">
+        <div className="my-day-content">
+          <header>
+            <h1>{greeting}, Sudhakar<span className="dot">.</span></h1>
+            <p className="subtitle">Run your day or your day will run you</p>
+          </header>
+          
+          <section className="date-section">
+            <div className="date-container">
+              <div className="date-label">{dayOfWeek}</div>
+              <div className="date-number">{dayNumber}</div>
+              <div className="date-month">{month}</div>
+            </div>
+            <div className="events-info">
+              <p>You have no events scheduled for today</p>
+            </div>
+          </section>
+          
+          <div className="tasks-area">
+            {tasks.length > 0 ? (
+              tasks.map(task => (
+                <TaskCard
+                  key={task.id}
+                  task={task}
+                  onDelete={onDelete}
+                  onToggleComplete={onToggleComplete}
+                  onUpdateTags={onUpdateTags}
+                  onUpdateList={onUpdateList}
+                  onTogglePin={onTogglePin}
+                  onUpdateReminder={onUpdateReminder}
+                  availableLists={availableLists}
+                />
+              ))
+            ) : (
+              <div className="no-tasks-message">
+                <p>You have no active tasks for today</p>
+              </div>
+            )}
+          </div>
+          
+          <div className="add-task-container">
+            <form onSubmit={handleAddTask}>
+              <div className="add-task-input">
+                <span className="task-icon">✓</span>
+                <input 
+                  type="text" 
+                  placeholder="Enter task title" 
+                  value={newTaskTitle}
+                  onChange={(e) => setNewTaskTitle(e.target.value)}
+                />
+                <button type="submit" className="submit-arrow">↑</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </main>
     </div>
   );
 };

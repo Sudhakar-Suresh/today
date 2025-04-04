@@ -1,3 +1,13 @@
+@import './shared.css';
+
+.calendar-container {
+  composes: page-container;
+}
+
+.calendar-header {
+  composes: page-header;
+}
+
 .calendar-content {
   max-width: 800px;
   margin: 0 auto;

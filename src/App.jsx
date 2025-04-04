@@ -9,6 +9,7 @@ function App() {
     'Personal', 'Work', 'Shopping', 'Ideas'
   ]);
   const [selectedList, setSelectedList] = useState(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -29,7 +30,7 @@ function App() {
   };
 
   return (
-    <div className="app">
+    <div className={`app-container ${isSidebarOpen ? 'with-sidebar' : 'sidebar-closed'}`}>
       <Sidebar 
         onPageChange={handlePageChange} 
         activeItem={currentPage}
