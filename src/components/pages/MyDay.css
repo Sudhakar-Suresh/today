@@ -1,22 +1,30 @@
 @import './shared.css';
 
 .myday-container {
-  padding: 24px;
-  max-width: 800px;
+  padding: 0 24px;
+  max-width: 960px;
   margin: 0 auto;
   width: 100%;
   transition: max-width 0.3s ease, padding 0.3s ease;
+  box-sizing: border-box;
+}
+
+.myday-container.with-sidebar {
+  max-width: 860px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .myday-container.full-width {
-  max-width: 1000px;
-  padding: 24px 40px;
+  max-width: 1080px;
+  padding-left: 50px;
 }
 
 .my-day-content {
   display: flex;
   flex-direction: column;
   gap: 24px;
+  padding-top: 32px;
 }
 
 .my-day-content header {
@@ -37,8 +45,9 @@
 
 .subtitle {
   font-size: 16px;
-  color: #5f6368;
+  color: #70757a;
   margin: 8px 0 0 0;
+  font-weight: normal;
 }
 
 .date-section {
@@ -62,7 +71,8 @@
 .date-label {
   font-size: 14px;
   font-weight: 500;
-  color: #5f6368;
+  color: #70757a;
+  text-transform: uppercase;
 }
 
 .date-number {
@@ -75,7 +85,7 @@
 
 .date-month {
   font-size: 14px;
-  color: #5f6368;
+  color: #70757a;
 }
 
 .events-info {
@@ -87,7 +97,7 @@
 
 .events-info p {
   font-size: 14px;
-  color: #5f6368;
+  color: #70757a;
   margin: 0;
 }
 
@@ -196,8 +206,14 @@
   transition: max-width 0.3s ease;
 }
 
+.myday-container.with-sidebar .add-task-container {
+  max-width: 760px;
+  width: calc(100% - 320px);
+}
+
 .myday-container.full-width .add-task-container {
-  max-width: 1000px;
+  max-width: 900px;
+  width: calc(100% - 80px);
 }
 
 .add-task-input {
@@ -211,7 +227,7 @@
 }
 
 .task-icon {
-  color: #5f6368;
+  color: #70757a;
   margin-right: 12px;
   font-size: 18px;
 }
@@ -226,13 +242,13 @@
 }
 
 .add-task-input input::placeholder {
-  color: #5f6368;
+  color: #70757a;
 }
 
 .submit-arrow {
   background: none;
   border: none;
-  color: #5f6368;
+  color: #70757a;
   cursor: pointer;
   font-size: 18px;
   padding: 4px;
@@ -383,26 +399,31 @@
 }
 
 @media (max-width: 768px) {
-  .my-day-content {
-    padding: 16px;
+  .myday-container {
+    padding: 0 16px;
   }
-
-  .date-section {
-    flex-direction: column;
-    gap: 16px;
+  
+  .myday-container.with-sidebar,
+  .myday-container.full-width {
+    padding-left: 70px;
+    max-width: 100%;
   }
-
-  .calendar-buttons {
-    flex-direction: column;
+  
+  .my-day-content h1 {
+    font-size: 28px;
   }
-
-  .my-day-header {
-    flex-direction: column;
-    gap: 16px;
+  
+  .date-number {
+    font-size: 40px;
   }
-
-  .header-actions {
-    width: 100%;
-    justify-content: flex-end;
+  
+  .add-task-container {
+    width: calc(100% - 32px);
+  }
+  
+  .myday-container.with-sidebar .add-task-container,
+  .myday-container.full-width .add-task-container {
+    width: calc(100% - 80px);
+    max-width: 100%;
   }
 } 

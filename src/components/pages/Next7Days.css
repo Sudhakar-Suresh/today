@@ -9,12 +9,12 @@
 }
 
 .next7days-container.with-sidebar {
-  margin-left: 280px;
+  margin-left: 0;
 }
 
 .next7days-container.full-width {
   margin-left: 0;
-  padding-left: 80px; /* Space for the settings icon */
+  padding-left: 0;
 }
 
 .next7days-header {
@@ -73,6 +73,7 @@
   height: calc(100vh - 60px);
   padding: 16px;
   gap: 16px;
+  padding-left: 10px;
 }
 
 /* Scrollbar styling */

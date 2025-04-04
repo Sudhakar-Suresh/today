@@ -48,43 +48,41 @@ const MyDay = ({
 
   return (
     <div className={`myday-container ${isSidebarExpanded ? 'with-sidebar' : 'full-width'}`}>
-      <main className="page-content">
-        <div className="my-day-content">
-          <header>
-            <h1>{greeting}, Sudhakar<span className="dot">.</span></h1>
-            <p className="subtitle">Run your day or your day will run you</p>
-          </header>
-          
-          <section className="date-section">
-            <div className="date-container">
-              <div className="date-label">{dayOfWeek}</div>
-              <div className="date-number">{dayNumber}</div>
-              <div className="date-month">{month}</div>
-            </div>
-            <div className="events-info">
-              <p>You have no events scheduled for today</p>
-            </div>
-          </section>
-          
-          <div className="tasks-area">
-            {tasks.length > 0 ? (
-              tasks.map(task => (
-                <TaskCard
-                  key={task.id}
-                  task={task}
-                  onDelete={onDelete}
-                  onToggleComplete={onToggleComplete}
-                  onUpdateTags={onUpdateTags}
-                  onUpdateList={onUpdateList}
-                  onTogglePin={onTogglePin}
-                  onUpdateReminder={onUpdateReminder}
-                  availableLists={availableLists}
-                />
-              ))
-            ) : null}
+      <div className="my-day-content">
+        <header>
+          <h1>{greeting}, Sudhakar<span className="dot">.</span></h1>
+          <p className="subtitle">Run your day or your day will run you</p>
+        </header>
+        
+        <section className="date-section">
+          <div className="date-container">
+            <div className="date-label">{dayOfWeek}</div>
+            <div className="date-number">{dayNumber}</div>
+            <div className="date-month">{month}</div>
           </div>
+          <div className="events-info">
+            <p>You have no events scheduled for today</p>
+          </div>
+        </section>
+        
+        <div className="tasks-area">
+          {tasks.length > 0 ? (
+            tasks.map(task => (
+              <TaskCard
+                key={task.id}
+                task={task}
+                onDelete={onDelete}
+                onToggleComplete={onToggleComplete}
+                onUpdateTags={onUpdateTags}
+                onUpdateList={onUpdateList}
+                onTogglePin={onTogglePin}
+                onUpdateReminder={onUpdateReminder}
+                availableLists={availableLists}
+              />
+            ))
+          ) : null}
         </div>
-      </main>
+      </div>
       
       <div className="add-task-container">
         <form onSubmit={handleAddTask}>
@@ -92,7 +90,7 @@ const MyDay = ({
             <span className="task-icon">✓</span>
             <input 
               type="text" 
-              placeholder="Enter task title" 
+              placeholder="Add task" 
               value={newTaskTitle}
               onChange={(e) => setNewTaskTitle(e.target.value)}
             />
