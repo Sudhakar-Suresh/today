@@ -2,11 +2,12 @@ import React, { useState, useRef, useEffect } from 'react';
 import './AllTasksPage.css';
 
 const AllTasksPage = () => {
+  // Initial data state
   const [sections, setSections] = useState([
     {
       id: 'newgas',
       title: 'Newgas',
-      tasks: [{ id: 1, text: 'asfd', progress: '20%' }]
+      tasks: [{ id: 1, text: 'asfd', progress: '20%', assignee: '', startDate: '', dueDate: '', duration: '4.9.25', tags: '', attachments: [] }]
     },
     {
       id: 'new',
@@ -16,19 +17,22 @@ const AllTasksPage = () => {
     {
       id: 'completed',
       title: 'Completed',
-      tasks: [{ id: 2, text: 'sdafyhg', progress: '0%' }]
+      tasks: [{ id: 2, text: 'sdafyhg', progress: '0%', assignee: '', startDate: '', dueDate: '', duration: '', tags: '', attachments: [] }]
     }
   ]);
 
+  // State for view management and UI interactions
   const [currentView, setCurrentView] = useState('kanban');
   const [showViewPopup, setShowViewPopup] = useState(false);
-  const viewPopupRef = useRef(null);
-  const viewButtonRef = useRef(null);
-  
-  // Dragging state
   const [draggedTask, setDraggedTask] = useState(null);
   const [draggedSection, setDraggedSection] = useState(null);
-  const [dragOverSectionId, setDragOverSectionId] = useState(null);
+  const [dragGhost, setDragGhost] = useState(null);
+  const [editingSectionId, setEditingSectionId] = useState(null);
+  
+  // Refs
+  const viewPopupRef = useRef(null);
+  const viewButtonRef = useRef(null);
+  const editSectionInputRef = useRef(null);
 
   // Close popup when clicking outside
   useEffect(() => {
@@ -47,13 +51,27 @@ const AllTasksPage = () => {
     };
   }, []);
 
+  // Focus edit input when editing section title
+  useEffect(() => {
+    if (editingSectionId && editSectionInputRef.current) {
+      editSectionInputRef.current.focus();
+    }
+  }, [editingSectionId]);
+
+  // Task Management Functions
   const addTask = (sectionId) => {
     setSections(sections.map(section => {
       if (section.id === sectionId) {
         const newTask = {
           id: Date.now(),
           text: '',
-          progress: '0%'
+          progress: '0%',
+          assignee: '',
+          startDate: '',
+          dueDate: '',
+          duration: '',
+          tags: '',
+          attachments: []
         };
         return {
           ...section,
@@ -64,13 +82,13 @@ const AllTasksPage = () => {
     }));
   };
 
-  const updateTaskText = (sectionId, taskId, newText) => {
+  const updateTask = (sectionId, taskId, updates) => {
     setSections(sections.map(section => {
       if (section.id === sectionId) {
         return {
           ...section,
           tasks: section.tasks.map(task => 
-            task.id === taskId ? { ...task, text: newText } : task
+            task.id === taskId ? { ...task, ...updates } : task
           )
         };
       }
@@ -78,13 +96,47 @@ const AllTasksPage = () => {
     }));
   };
 
+  const deleteTask = (sectionId, taskId) => {
+    setSections(sections.map(section => {
+      if (section.id === sectionId) {
+        return {
+          ...section,
+          tasks: section.tasks.filter(task => task.id !== taskId)
+        };
+      }
+      return section;
+    }));
+  };
+
+  // Section Management Functions
   const addSection = () => {
-    const newSection = {
-      id: `section-${Date.now()}`,
-      title: 'New Section',
-      tasks: []
-    };
-    setSections([...sections, newSection]);
+    const sectionName = prompt('Enter section name:', 'New Section');
+    if (sectionName) {
+      setSections([...sections, {
+        id: `section-${Date.now()}`,
+        title: sectionName,
+        tasks: []
+      }]);
+    }
+  };
+
+  const updateSectionTitle = (sectionId, newTitle) => {
+    setSections(sections.map(section => 
+      section.id === sectionId ? { ...section, title: newTitle } : section
+    ));
+    setEditingSectionId(null);
+  };
+
+  const startEditingSection = (sectionId) => {
+    setEditingSectionId(sectionId);
+  };
+
+  const handleEditSectionKeyDown = (e, sectionId) => {
+    if (e.key === 'Enter') {
+      updateSectionTitle(sectionId, e.target.value);
+    } else if (e.key === 'Escape') {
+      setEditingSectionId(null);
+    }
   };
 
   // View change handler
@@ -93,21 +145,24 @@ const AllTasksPage = () => {
     setShowViewPopup(false);
   };
 
-  // Add this to your component for the custom drag ghost in table view
-  const [dragGhost, setDragGhost] = useState(null);
-
-  // Updated task drag start handler
+  // Drag and Drop Handlers for both views
   const handleTaskDragStart = (e, sectionId, taskId) => {
     setDraggedTask({ sectionId, taskId });
     e.currentTarget.classList.add('dragging');
     
-    // Get the task content
-    const taskText = e.currentTarget.querySelector('.task-title-input').value;
-    
     // Create custom drag ghost with slant effect
     const ghost = document.createElement('div');
-    ghost.className = 'table-drag-ghost';
-    ghost.innerText = taskText;
+    ghost.className = 'drag-ghost';
+    
+    // Get task text based on the view
+    let taskText = '';
+    if (currentView === 'kanban') {
+      taskText = e.currentTarget.querySelector('input')?.value || 'Task';
+    } else {
+      taskText = e.currentTarget.querySelector('.task-title-input')?.value || 'Task';
+    }
+    
+    ghost.textContent = taskText;
     ghost.style.transform = 'rotate(3deg)';
     
     document.body.appendChild(ghost);
@@ -131,7 +186,6 @@ const AllTasksPage = () => {
     }
   };
 
-  // Clean up the ghost when drag ends
   const handleTaskDragEnd = (e) => {
     e.currentTarget.classList.remove('dragging');
     
@@ -142,25 +196,36 @@ const AllTasksPage = () => {
     }
     
     setDraggedTask(null);
-    setDragOverSectionId(null);
     
     // Remove drag-over styling
-    document.querySelectorAll('.drop-zone-row').forEach(row => {
-      row.classList.remove('drag-over');
-    });
+    if (currentView === 'kanban') {
+      document.querySelectorAll('.kanban-section').forEach(section => {
+        section.classList.remove('drag-over');
+      });
+    } else {
+      document.querySelectorAll('.drop-zone-row').forEach(row => {
+        row.classList.remove('drag-over');
+      });
+    }
   };
 
-  // Handle section drag with a different ghost effect
   const handleSectionDragStart = (e, sectionId) => {
     setDraggedSection(sectionId);
-    e.currentTarget.classList.add('dragging');
-    
-    const sectionTitle = e.currentTarget.querySelector('.section-title').innerText;
+    e.currentTarget.classList.add('dragging-section');
     
     // Create custom drag ghost
     const ghost = document.createElement('div');
-    ghost.className = 'table-drag-ghost section-ghost';
-    ghost.innerText = `Section: ${sectionTitle}`;
+    ghost.className = 'drag-ghost section-ghost';
+    
+    // Get section title
+    let sectionTitle = '';
+    if (currentView === 'kanban') {
+      sectionTitle = e.currentTarget.querySelector('h2')?.textContent || 'Section';
+    } else {
+      sectionTitle = e.currentTarget.querySelector('.section-title')?.textContent || 'Section';
+    }
+    
+    ghost.textContent = `Section: ${sectionTitle}`;
     
     document.body.appendChild(ghost);
     setDragGhost(ghost);
@@ -176,9 +241,8 @@ const AllTasksPage = () => {
     document.addEventListener('dragover', updateGhostPosition);
   };
 
-  // Update the section drag end handler
   const handleSectionDragEnd = (e) => {
-    e.currentTarget.classList.remove('dragging');
+    e.currentTarget.classList.remove('dragging-section');
     
     if (dragGhost) {
       document.removeEventListener('dragover', updateGhostPosition);
@@ -189,8 +253,34 @@ const AllTasksPage = () => {
     setDraggedSection(null);
   };
 
-  const handleBoardDragOver = (e) => {
+  const handleTaskDrop = (e, targetSectionId) => {
     e.preventDefault();
+    if (!draggedTask) return;
+
+    const { sectionId: sourceSectionId, taskId } = draggedTask;
+    
+    // Don't do anything if dropping in the same section
+    if (sourceSectionId === targetSectionId) return;
+
+    // Move the task between sections
+    setSections(prevSections => {
+      const newSections = JSON.parse(JSON.stringify(prevSections));
+      
+      const sourceSection = newSections.find(s => s.id === sourceSectionId);
+      const targetSection = newSections.find(s => s.id === targetSectionId);
+      
+      if (!sourceSection || !targetSection) return prevSections;
+      
+      const taskIndex = sourceSection.tasks.findIndex(t => t.id === taskId);
+      if (taskIndex === -1) return prevSections;
+      
+      const task = sourceSection.tasks[taskIndex];
+      
+      sourceSection.tasks.splice(taskIndex, 1);
+      targetSection.tasks.push(task);
+      
+      return newSections;
+    });
   };
 
   const handleSectionDrop = (e, targetIndex) => {
@@ -209,11 +299,31 @@ const AllTasksPage = () => {
     });
   };
 
+  const handleDragOver = (e) => {
+    e.preventDefault();
+  };
+
+  const handleSectionDragOver = (e, sectionId) => {
+    e.preventDefault();
+    
+    if (draggedTask) {
+      // Add visual feedback for task being dragged over a section
+      document.querySelectorAll('.kanban-section').forEach(section => {
+        if (section.getAttribute('data-section-id') === sectionId) {
+          section.classList.add('drag-over');
+        } else {
+          section.classList.remove('drag-over');
+        }
+      });
+    }
+  };
+
+  // Render Kanban View
   const renderKanbanView = () => {
     return (
       <div 
         className="kanban-board"
-        onDragOver={handleBoardDragOver}
+        onDragOver={handleDragOver}
       >
         {sections.map((section, index) => (
           <div 
@@ -233,7 +343,18 @@ const AllTasksPage = () => {
             }}
           >
             <div className="section-header">
-              <h2>{section.title}</h2>
+              {editingSectionId === section.id ? (
+                <input
+                  ref={editSectionInputRef}
+                  type="text"
+                  className="section-title-input"
+                  defaultValue={section.title}
+                  onBlur={(e) => updateSectionTitle(section.id, e.target.value)}
+                  onKeyDown={(e) => handleEditSectionKeyDown(e, section.id)}
+                />
+              ) : (
+                <h2 onClick={() => startEditingSection(section.id)}>{section.title}</h2>
+              )}
               <div className="section-actions">
                 <button className="section-menu-btn">•••</button>
               </div>
@@ -251,7 +372,7 @@ const AllTasksPage = () => {
                     <input
                       type="text"
                       value={task.text}
-                      onChange={(e) => updateTaskText(section.id, task.id, e.target.value)}
+                      onChange={(e) => updateTask(section.id, task.id, { text: e.target.value })}
                       placeholder="Enter task..."
                       className="task-input"
                     />
@@ -261,6 +382,12 @@ const AllTasksPage = () => {
                       <div className="task-progress">
                         <span className="progress-badge">{task.progress}</span>
                       </div>
+                      <button 
+                        className="task-delete-btn"
+                        onClick={() => deleteTask(section.id, task.id)}
+                      >
+                        🗑️
+                      </button>
                     </div>
                   )}
                 </div>
@@ -286,146 +413,123 @@ const AllTasksPage = () => {
     );
   };
 
+  // Render Table View
   const renderTableView = () => {
     return (
       <div className="table-view">
-        <table className="tasks-table">
-          <thead>
-            <tr>
-              <th className="th-title">TITLE</th>
-              <th className="th-assignees">ASSIGNEES</th>
-              <th className="th-start-date">START DATE</th>
-              <th className="th-due-date">DUE DATE</th>
-              <th className="th-duration">DURATION</th>
-              <th className="th-tags">TAGS</th>
-              <th className="th-attachments">ATTACHMENTS</th>
-              <th className="th-progress">PROGRESS</th>
-              <th className="th-add">
-                <button className="add-column-btn">+</button>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {sections.map((section, sectionIndex) => (
-              <React.Fragment key={section.id}>
-                <tr 
-                  className="section-row"
-                  draggable
-                  onDragStart={(e) => handleSectionDragStart(e, section.id)}
-                  onDragEnd={handleSectionDragEnd}
-                >
-                  <td 
-                    colSpan="9" 
-                    className="section-cell"
-                    onDragOver={(e) => e.preventDefault()}
-                    onDrop={(e) => {
-                      if (draggedSection) {
-                        handleSectionDrop(e, sectionIndex);
-                      }
-                    }}
-                  >
-                    <span className="section-drag-handle">≡</span>
-                    <span className="section-title">{section.title}</span>
-                  </td>
-                </tr>
-                
-                {section.tasks.map(task => (
-                  <tr 
-                    key={task.id} 
-                    className="task-row"
-                    draggable
-                    onDragStart={(e) => handleTaskDragStart(e, section.id, task.id)}
-                    onDragEnd={handleTaskDragEnd}
-                  >
-                    <td 
-                      className="task-title-cell"
-                      onDragOver={(e) => e.preventDefault()}
-                    >
-                      <input
-                        type="text"
-                        value={task.text}
-                        onChange={(e) => updateTaskText(section.id, task.id, e.target.value)}
-                        className="task-title-input"
-                        placeholder="Enter task..."
-                      />
-                      <span className="task-drag-handle">⋮⋮</span>
-                    </td>
-                    <td className="task-assignees">
-                      {section.id === 'newgas' && <div className="assignee-icon">👤</div>}
-                    </td>
-                    <td className="task-start-date">
-                      {section.id === 'newgas' && <div className="date-icon">📅</div>}
-                    </td>
-                    <td className="task-due-date"></td>
-                    <td className="task-duration">
-                      {section.id === 'newgas' ? '4.9.25' : ''}
-                    </td>
-                    <td className="task-tags">
-                      {section.id === 'newgas' && <div className="tag-icon">#</div>}
-                    </td>
-                    <td className="task-attachments">
-                      {section.id === 'newgas' && <div className="attachment-icon">📎</div>}
-                    </td>
-                    <td className="task-progress">
-                      <div className="progress-pill">
-                        <span className="progress-text">{task.progress || '0%'}</span>
-                      </div>
-                    </td>
-                    <td></td>
-                  </tr>
-                ))}
-                
-                {/* Drop Zone Row for Tasks */}
-                <tr 
-                  className={`drop-zone-row ${draggedTask && draggedTask.sectionId !== section.id ? 'active' : ''}`}
-                  onDragOver={(e) => {
-                    e.preventDefault();
-                    e.currentTarget.classList.add('drag-over');
-                  }}
-                  onDragLeave={(e) => {
-                    e.currentTarget.classList.remove('drag-over');
-                  }}
-                  onDrop={(e) => {
-                    e.preventDefault();
-                    e.currentTarget.classList.remove('drag-over');
-                    if (draggedTask && draggedTask.sectionId !== section.id) {
-                      handleTaskDrop(e, section.id);
-                    }
-                  }}
-                >
-                  <td colSpan="9" className="drop-zone-cell">
-                    <div className="drop-zone-message">Drop task here</div>
-                  </td>
-                </tr>
-                
-                <tr className="add-task-row">
-                  <td colSpan="9" className="add-task-cell">
-                    <button 
-                      className="add-task-btn"
-                      onClick={() => addTask(section.id)}
-                    >
-                      <span className="plus-icon">+</span> Add task
-                    </button>
-                  </td>
-                </tr>
-              </React.Fragment>
-            ))}
-          </tbody>
-        </table>
-        
-        <div className="add-section-container">
-          <button 
-            className="add-section-btn"
-            onClick={addSection}
-          >
-            <span className="plus-icon">+</span> Add section
-          </button>
+        <div className="table-container">
+          <table className="tasks-table">
+            <thead>
+              <tr>
+                <th className="th-title">TITLE</th>
+                <th className="th-assignees">ASSIGNEES</th>
+                <th className="th-start-date">START DATE</th>
+                <th className="th-due-date">DUE DATE</th>
+                <th className="th-duration">DURATION</th>
+                <th className="th-tags">TAGS</th>
+                <th className="th-attachments">ATTACHMENTS</th>
+                <th className="th-progress">PROGRESS</th>
+                <th className="th-add">
+                  <button className="add-column-btn">+</button>
+                </th>
+              </tr>
+            </thead>
+          </table>
         </div>
+
+        {/* Section Cards */}
+        <div className="section-cards">
+          {/* Newgas Card */}
+          <div className="section-card">
+            <div className="section-header">Newgas</div>
+            <table className="section-table">
+              <tbody>
+                <tr className="task-row">
+                  <td className="task-title-cell">asfd</td>
+                  <td className="task-assignees">
+                    <div className="cell-icon assignee-icon">👤</div>
+                  </td>
+                  <td className="task-start-date">
+                    <div className="cell-icon date-icon">📅</div>
+                  </td>
+                  <td className="task-due-date"></td>
+                  <td className="task-duration">4.9.25</td>
+                  <td className="task-tags">
+                    <div className="cell-icon tag-icon">#</div>
+                  </td>
+                  <td className="task-attachments">
+                    <div className="cell-icon attachment-icon">📎</div>
+                  </td>
+                  <td className="task-progress">
+                    <div className="progress-pill">
+                      <span className="progress-text">20%</span>
+                    </div>
+                  </td>
+                  <td className="task-actions"></td>
+                </tr>
+              </tbody>
+            </table>
+            <div className="add-task-wrapper">
+              <button className="add-task-btn">
+                <span className="plus-icon">+</span> Add task
+              </button>
+            </div>
+          </div>
+
+          {/* New Card */}
+          <div className="section-card">
+            <div className="section-header">New</div>
+            <table className="section-table">
+              <tbody>
+                {/* No tasks */}
+              </tbody>
+            </table>
+            <div className="add-task-wrapper">
+              <button className="add-task-btn">
+                <span className="plus-icon">+</span> Add task
+              </button>
+            </div>
+          </div>
+
+          {/* Completed Card */}
+          <div className="section-card">
+            <div className="section-header">Completed</div>
+            <table className="section-table">
+              <tbody>
+                <tr className="task-row">
+                  <td className="task-title-cell">sdafyhg</td>
+                  <td className="task-assignees"></td>
+                  <td className="task-start-date"></td>
+                  <td className="task-due-date"></td>
+                  <td className="task-duration"></td>
+                  <td className="task-tags"></td>
+                  <td className="task-attachments"></td>
+                  <td className="task-progress">
+                    <div className="progress-pill">
+                      <span className="progress-text">0%</span>
+                    </div>
+                  </td>
+                  <td className="task-actions"></td>
+                </tr>
+              </tbody>
+            </table>
+            <div className="add-task-wrapper">
+              <button className="add-task-btn">
+                <span className="plus-icon">+</span> Add task
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        {/* Add Section Button */}
+        <button className="add-section-btn">
+          <span className="plus-icon">+</span> Add section
+        </button>
       </div>
     );
   };
 
-  // Rendering different views
+  // Render different views
   const renderCurrentView = () => {
     switch(currentView) {
       case 'table':
@@ -435,47 +539,6 @@ const AllTasksPage = () => {
         return renderKanbanView();
     }
   };
-
-  // Add a DragPreview component to the main component
-
-  const DragPreview = ({ task, isVisible }) => {
-    if (!isVisible) return null;
-    
-    return (
-      <div className="drag-preview">
-        <div className="preview-card">
-          <div className="preview-content">{task.text}</div>
-          {task.progress && (
-            <div className="preview-progress">
-              <span className="preview-badge">{task.progress}</span>
-            </div>
-          )}
-        </div>
-      </div>
-    );
-  };
-
-  // Add state to track mouse position
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-
-  // Add useEffect to track mouse movement
-  useEffect(() => {
-    const handleMouseMove = (e) => {
-      if (draggedTask) {
-        setMousePosition({ x: e.clientX, y: e.clientY });
-      }
-    };
-    
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-    };
-  }, [draggedTask]);
-
-  // Get the dragged task details for the preview
-  const draggedTaskDetails = draggedTask 
-    ? sections.find(s => s.id === draggedTask.sectionId)?.tasks.find(t => t.id === draggedTask.taskId)
-    : null;
 
   return (
     <div className="kanban-page">
@@ -554,20 +617,6 @@ const AllTasksPage = () => {
 
       {/* Current View */}
       {renderCurrentView()}
-
-      {draggedTask && draggedTaskDetails && (
-        <DragPreview 
-          task={draggedTaskDetails} 
-          isVisible={true}
-          style={{
-            position: 'fixed',
-            left: mousePosition.x + 15,
-            top: mousePosition.y + 15,
-            pointerEvents: 'none',
-            zIndex: 9999
-          }}
-        />
-      )}
     </div>
   );
 };
