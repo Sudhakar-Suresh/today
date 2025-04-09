@@ -34,6 +34,20 @@ const AllTasksPage = () => {
   const viewButtonRef = useRef(null);
   const editSectionInputRef = useRef(null);
 
+  // Create state for column visibility outside the render function
+  const [tableColumns] = useState([
+    { key: 'text', label: 'Task' },
+    { key: 'progress', label: 'Progress' },
+    { key: 'assignee', label: 'Assignee' },
+    { key: 'startDate', label: 'Start Date' },
+    { key: 'dueDate', label: 'Due Date' },
+    { key: 'duration', label: 'Duration' },
+    { key: 'tags', label: 'Tags' },
+    { key: 'actions', label: 'Actions' },
+  ]);
+  const [visibleColumns, setVisibleColumns] = useState(['text', 'progress', 'assignee', 'dueDate', 'actions']);
+  const [showColumnSelector, setShowColumnSelector] = useState(false);
+
   // Close popup when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -150,33 +164,24 @@ const AllTasksPage = () => {
     setDraggedTask({ sectionId, taskId });
     e.currentTarget.classList.add('dragging');
     
-    // Create custom drag ghost with slant effect
+    // Create a simple transparent drag image instead of a visible popup
     const ghost = document.createElement('div');
-    ghost.className = 'drag-ghost';
+    ghost.className = 'drag-ghost hidden-ghost';
     
-    // Get task text based on the view
-    let taskText = '';
-    if (currentView === 'kanban') {
-      taskText = e.currentTarget.querySelector('input')?.value || 'Task';
-    } else {
-      taskText = e.currentTarget.querySelector('.task-title-input')?.value || 'Task';
-    }
-    
-    ghost.textContent = taskText;
-    ghost.style.transform = 'rotate(3deg)';
+    // Add minimal styling for the ghost element but keep it invisible
+    ghost.style.width = '1px';
+    ghost.style.height = '1px';
+    ghost.style.opacity = '0.01'; // Nearly invisible but still exists for technical reasons
     
     document.body.appendChild(ghost);
     setDragGhost(ghost);
     
-    // Set initial position off-screen
-    ghost.style.left = '-1000px';
-    ghost.style.top = '-1000px';
+    // Set drag image to the invisible element
+    e.dataTransfer.setDragImage(ghost, 0, 0);
     
-    // Set as drag image
-    e.dataTransfer.setDragImage(ghost, 20, 20);
-    
-    // Update the ghost position during drag
-    document.addEventListener('dragover', updateGhostPosition);
+    // No need to update ghost position during drag since it's invisible
+    // Remove the event listener that tracks cursor position
+    document.removeEventListener('dragover', updateGhostPosition);
   };
 
   const updateGhostPosition = (e) => {
@@ -213,32 +218,21 @@ const AllTasksPage = () => {
     setDraggedSection(sectionId);
     e.currentTarget.classList.add('dragging-section');
     
-    // Create custom drag ghost
+    // Create invisible drag ghost
     const ghost = document.createElement('div');
-    ghost.className = 'drag-ghost section-ghost';
-    
-    // Get section title
-    let sectionTitle = '';
-    if (currentView === 'kanban') {
-      sectionTitle = e.currentTarget.querySelector('h2')?.textContent || 'Section';
-    } else {
-      sectionTitle = e.currentTarget.querySelector('.section-title')?.textContent || 'Section';
-    }
-    
-    ghost.textContent = `Section: ${sectionTitle}`;
+    ghost.className = 'drag-ghost hidden-ghost';
+    ghost.style.width = '1px';
+    ghost.style.height = '1px';
+    ghost.style.opacity = '0.01';
     
     document.body.appendChild(ghost);
     setDragGhost(ghost);
     
-    // Set initial position off-screen
-    ghost.style.left = '-1000px';
-    ghost.style.top = '-1000px';
+    // Set as invisible drag image
+    e.dataTransfer.setDragImage(ghost, 0, 0);
     
-    // Set as drag image
-    e.dataTransfer.setDragImage(ghost, 20, 20);
-    
-    // Update the ghost position during drag
-    document.addEventListener('dragover', updateGhostPosition);
+    // Remove event listener for position tracking
+    document.removeEventListener('dragover', updateGhostPosition);
   };
 
   const handleSectionDragEnd = (e) => {
@@ -413,118 +407,205 @@ const AllTasksPage = () => {
     );
   };
 
-  // Render Table View
+  // Fixed table view implementation
   const renderTableView = () => {
+    const toggleColumn = (columnKey) => {
+      if (visibleColumns.includes(columnKey)) {
+        setVisibleColumns(visibleColumns.filter(key => key !== columnKey));
+      } else {
+        setVisibleColumns([...visibleColumns, columnKey]);
+      }
+    };
+    
     return (
       <div className="table-view">
-        <div className="table-container">
-          <table className="tasks-table">
-            <thead>
-              <tr>
-                <th className="th-title">TITLE</th>
-                <th className="th-assignees">ASSIGNEES</th>
-                <th className="th-start-date">START DATE</th>
-                <th className="th-due-date">DUE DATE</th>
-                <th className="th-duration">DURATION</th>
-                <th className="th-tags">TAGS</th>
-                <th className="th-attachments">ATTACHMENTS</th>
-                <th className="th-progress">PROGRESS</th>
-                <th className="th-add">
-                  <button className="add-column-btn">+</button>
-                </th>
-              </tr>
-            </thead>
-          </table>
-        </div>
-
-        {/* Section Cards */}
-        <div className="section-cards">
-          {/* Newgas Card */}
-          <div className="section-card">
-            <div className="section-header">Newgas</div>
-            <table className="section-table">
-              <tbody>
-                <tr className="task-row">
-                  <td className="task-title-cell">asfd</td>
-                  <td className="task-assignees">
-                    <div className="cell-icon assignee-icon">👤</div>
-                  </td>
-                  <td className="task-start-date">
-                    <div className="cell-icon date-icon">📅</div>
-                  </td>
-                  <td className="task-due-date"></td>
-                  <td className="task-duration">4.9.25</td>
-                  <td className="task-tags">
-                    <div className="cell-icon tag-icon">#</div>
-                  </td>
-                  <td className="task-attachments">
-                    <div className="cell-icon attachment-icon">📎</div>
-                  </td>
-                  <td className="task-progress">
-                    <div className="progress-pill">
-                      <span className="progress-text">20%</span>
-                    </div>
-                  </td>
-                  <td className="task-actions"></td>
-                </tr>
-              </tbody>
-            </table>
-            <div className="add-task-wrapper">
-              <button className="add-task-btn">
-                <span className="plus-icon">+</span> Add task
-              </button>
+        <div className="table-controls">
+          <button 
+            className="column-selector-btn"
+            onClick={() => setShowColumnSelector(!showColumnSelector)}
+          >
+            <span className="btn-icon">⚙</span>
+            <span>Columns</span>
+          </button>
+          
+          {showColumnSelector && (
+            <div className="column-selector">
+              {tableColumns.map(column => (
+                <div key={column.key} className="column-option">
+                  <input
+                    type="checkbox"
+                    id={`column-${column.key}`}
+                    checked={visibleColumns.includes(column.key)}
+                    onChange={() => toggleColumn(column.key)}
+                  />
+                  <label htmlFor={`column-${column.key}`}>{column.label}</label>
+                </div>
+              ))}
             </div>
-          </div>
-
-          {/* New Card */}
-          <div className="section-card">
-            <div className="section-header">New</div>
-            <table className="section-table">
-              <tbody>
-                {/* No tasks */}
-              </tbody>
-            </table>
-            <div className="add-task-wrapper">
-              <button className="add-task-btn">
-                <span className="plus-icon">+</span> Add task
-              </button>
-            </div>
-          </div>
-
-          {/* Completed Card */}
-          <div className="section-card">
-            <div className="section-header">Completed</div>
-            <table className="section-table">
-              <tbody>
-                <tr className="task-row">
-                  <td className="task-title-cell">sdafyhg</td>
-                  <td className="task-assignees"></td>
-                  <td className="task-start-date"></td>
-                  <td className="task-due-date"></td>
-                  <td className="task-duration"></td>
-                  <td className="task-tags"></td>
-                  <td className="task-attachments"></td>
-                  <td className="task-progress">
-                    <div className="progress-pill">
-                      <span className="progress-text">0%</span>
-                    </div>
-                  </td>
-                  <td className="task-actions"></td>
-                </tr>
-              </tbody>
-            </table>
-            <div className="add-task-wrapper">
-              <button className="add-task-btn">
-                <span className="plus-icon">+</span> Add task
-              </button>
-            </div>
-          </div>
+          )}
         </div>
         
-        {/* Add Section Button */}
-        <button className="add-section-btn">
-          <span className="plus-icon">+</span> Add section
-        </button>
+        <div className="table-wrapper">
+          {sections.map(section => (
+            <div key={section.id} className="section-table">
+              <div className="section-header">
+                {editingSectionId === section.id ? (
+                  <input
+                    ref={editSectionInputRef}
+                    type="text"
+                    defaultValue={section.title}
+                    onKeyDown={(e) => handleEditSectionKeyDown(e, section.id)}
+                    onBlur={(e) => updateSectionTitle(section.id, e.target.value)}
+                    className="section-title-input"
+                  />
+                ) : (
+                  <h3 
+                    className="section-title" 
+                    onClick={() => startEditingSection(section.id)}
+                  >
+                    {section.title}
+                  </h3>
+                )}
+              </div>
+              
+              <div className="table-content">
+                {/* Simple table header */}
+                <div className="table-header">
+                  {visibleColumns.map(colKey => {
+                    const column = tableColumns.find(col => col.key === colKey);
+                    return column ? (
+                      <div key={colKey} className="header-cell">
+                        {column.label}
+                      </div>
+                    ) : null;
+                  })}
+                </div>
+                
+                {/* Table rows */}
+                <div className="table-body">
+                  {section.tasks.length > 0 ? (
+                    section.tasks.map(task => (
+                      <div 
+                        key={task.id} 
+                        className="table-row"
+                        draggable
+                        onDragStart={(e) => handleTaskDragStart(e, section.id, task.id)}
+                        onDragEnd={handleTaskDragEnd}
+                      >
+                        {visibleColumns.includes('text') && (
+                          <div className="table-cell">
+                            <input
+                              type="text"
+                              value={task.text || ''}
+                              onChange={(e) => updateTask(section.id, task.id, { text: e.target.value })}
+                              placeholder="Task name"
+                            />
+                          </div>
+                        )}
+                        
+                        {visibleColumns.includes('progress') && (
+                          <div className="table-cell">
+                            <select 
+                              value={task.progress || '0%'}
+                              onChange={(e) => updateTask(section.id, task.id, { progress: e.target.value })}
+                            >
+                              <option value="0%">0%</option>
+                              <option value="25%">25%</option>
+                              <option value="50%">50%</option>
+                              <option value="75%">75%</option>
+                              <option value="100%">100%</option>
+                            </select>
+                          </div>
+                        )}
+                        
+                        {visibleColumns.includes('assignee') && (
+                          <div className="table-cell">
+                            <input
+                              type="text"
+                              value={task.assignee || ''}
+                              onChange={(e) => updateTask(section.id, task.id, { assignee: e.target.value })}
+                              placeholder="Assignee"
+                            />
+                          </div>
+                        )}
+                        
+                        {visibleColumns.includes('startDate') && (
+                          <div className="table-cell">
+                            <input
+                              type="date"
+                              value={task.startDate || ''}
+                              onChange={(e) => updateTask(section.id, task.id, { startDate: e.target.value })}
+                            />
+                          </div>
+                        )}
+                        
+                        {visibleColumns.includes('dueDate') && (
+                          <div className="table-cell">
+                            <input
+                              type="date"
+                              value={task.dueDate || ''}
+                              onChange={(e) => updateTask(section.id, task.id, { dueDate: e.target.value })}
+                            />
+                          </div>
+                        )}
+                        
+                        {visibleColumns.includes('duration') && (
+                          <div className="table-cell">
+                            <input
+                              type="text"
+                              value={task.duration || ''}
+                              onChange={(e) => updateTask(section.id, task.id, { duration: e.target.value })}
+                              placeholder="Duration"
+                            />
+                          </div>
+                        )}
+                        
+                        {visibleColumns.includes('tags') && (
+                          <div className="table-cell">
+                            <input
+                              type="text"
+                              value={task.tags || ''}
+                              onChange={(e) => updateTask(section.id, task.id, { tags: e.target.value })}
+                              placeholder="Tags"
+                            />
+                          </div>
+                        )}
+                        
+                        {visibleColumns.includes('actions') && (
+                          <div className="table-cell action-cell">
+                            <button 
+                              className="task-delete-btn"
+                              onClick={() => deleteTask(section.id, task.id)}
+                            >
+                              🗑️
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    ))
+                  ) : (
+                    <div className="empty-section">
+                      <p>No tasks in this section</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+              
+              <div className="section-footer">
+                <button 
+                  className="add-task-btn"
+                  onClick={() => addTask(section.id)}
+                >
+                  + Add Task
+                </button>
+              </div>
+            </div>
+          ))}
+          
+          <button className="add-section-btn" onClick={addSection}>
+            + Add Section
+          </button>
+        </div>
       </div>
     );
   };
@@ -554,7 +635,7 @@ const AllTasksPage = () => {
                 </h2>
               )}
             </div>
-            
+
             <div className="card-tasks-container">
               {section.tasks.map(task => (
                 <div 
@@ -578,7 +659,7 @@ const AllTasksPage = () => {
                       </button>
                     </div>
                   </div>
-                  
+
                   <div className="task-card-body">
                     <div className="task-card-field">
                       <span className="field-label">Progress:</span>
