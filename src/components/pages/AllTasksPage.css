@@ -21,6 +21,7 @@
   padding: 6px 8px;
   border-radius: 8px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  position: relative;
 }
 
 .settings-btn {
@@ -68,6 +69,7 @@
   display: flex;
   gap: 4px;
   margin-left: auto;
+  position: relative;
 }
 
 .header-btn {
@@ -91,6 +93,12 @@
   background: #f9f9f9;
 }
 
+.header-btn.active {
+  background-color: #f0f8ff;
+  border-color: #cce5ff;
+  color: #0066ff;
+}
+
 .kanban-board {
   display: flex;
   gap: 16px;
@@ -104,15 +112,41 @@
   background: white;
   border-radius: 8px;
   width: 280px;
+  min-height: 100px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  position: relative;
+  transition: box-shadow 0.2s ease, opacity 0.2s ease;
+}
+
+.kanban-section.dragging-section {
+  opacity: 0.8;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+}
+
+.kanban-section.drag-over {
+  background-color: #f8f9ff;
+  box-shadow: 0 0 0 2px #4f91ff;
+}
+
+.kanban-section.drag-over .tasks-container {
+  background-color: rgba(79, 145, 255, 0.05);
 }
 
 .section-header {
   padding: 12px 16px;
   border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: grab;
+}
+
+.section-header:active {
+  cursor: grabbing;
 }
 
 .section-header h2 {
@@ -122,6 +156,23 @@
   color: #333;
 }
 
+.section-actions {
+  display: flex;
+}
+
+.section-menu-btn {
+  background: none;
+  border: none;
+  color: #999;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 2px 6px;
+}
+
+.section-menu-btn:hover {
+  color: #666;
+}
+
 .tasks-container {
   padding: 8px;
   flex-grow: 1;
@@ -129,24 +180,20 @@
   transition: background-color 0.2s;
 }
 
-.tasks-container.drag-over {
-  background-color: rgba(0, 123, 255, 0.05);
-}
-
 .task-card {
   background: white;
   border: 1px solid #e8e8e8;
   border-radius: 4px;
   margin-bottom: 8px;
-  padding: 10px 12px;
-  font-size: 14px;
-  color: #333;
+  padding: 10px;
+  transition: box-shadow 0.2s ease, opacity 0.2s ease;
   cursor: grab;
-  transition: opacity 0.2s, transform 0.2s, box-shadow 0.2s;
+  position: relative;
+  z-index: 1;
 }
 
 .task-card:hover {
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .task-card:active {
@@ -154,27 +201,48 @@
 }
 
 .task-card.dragging {
-  opacity: 0.5;
-  transform: scale(0.98);
-  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+  opacity: 0.7;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  z-index: 10;
 }
 
-.task-card input {
+.task-content {
+  margin-bottom: 8px;
+}
+
+.task-input {
   width: 100%;
   border: none;
   outline: none;
   font-size: 14px;
   color: #333;
+  font-family: inherit;
   background: transparent;
   padding: 0;
-  font-family: inherit;
 }
 
-.task-card input::placeholder {
-  color: #999;
+.task-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.task-progress {
+  display: flex;
+  align-items: center;
+}
+
+.progress-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  background-color: #f8f0e3;
+  border-radius: 12px;
+  font-size: 12px;
+  color: #b5651d;
 }
 
 .add-task-btn {
+  width: 100%;
   padding: 8px 16px;
   border: none;
   background: none;
@@ -182,16 +250,11 @@
   font-size: 14px;
   text-align: left;
   cursor: pointer;
-  width: 100%;
 }
 
 .add-task-btn:hover {
   color: #666;
-}
-
-.add-task-btn::before {
-  content: "+";
-  margin-right: 6px;
+  background-color: #f9f9f9;
 }
 
 .add-section-btn {
@@ -207,6 +270,7 @@
   align-items: center;
   justify-content: center;
   align-self: flex-start;
+  transition: border-color 0.2s, background-color 0.2s;
 }
 
 .add-section-btn:hover {
@@ -214,7 +278,510 @@
   border-color: #d4d4d4;
 }
 
-/* Add this for visual indication when dragging over a column */
+/* Drag handle effect */
+.task-card::before {
+  content: "⋮⋮";
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  color: #ddd;
+  font-size: 12px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.task-card:hover::before {
+  opacity: 1;
+}
+
+/* View Popup Styles */
+.view-popup {
+  position: absolute;
+  top: 40px;
+  right: 180px;
+  width: 300px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  overflow: hidden;
+}
+
+.popup-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid #eee;
+}
+
+.popup-header h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+.view-options {
+  padding: 8px 0;
+}
+
+.view-option {
+  display: flex;
+  align-items: center;
+  padding: 10px 16px;
+  cursor: pointer;
+}
+
+.view-option:hover {
+  background-color: #f5f5f5;
+}
+
+.view-option.active {
+  background-color: #f0f8ff;
+}
+
+.option-icon {
+  font-size: 18px;
+  margin-right: 12px;
+  color: #555;
+}
+
+.option-details {
+  flex: 1;
+}
+
+.option-name {
+  font-weight: 500;
+  font-size: 14px;
+  color: #333;
+}
+
+.option-description {
+  font-size: 12px;
+  color: #777;
+  margin-top: 2px;
+}
+
+.option-check {
+  color: #0066ff;
+  font-weight: bold;
+}
+
+/* Table View Styles with Drag and Drop Support */
+
+.table-view {
+  height: calc(100vh - 60px);
+  background-color: #fff;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.tasks-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.tasks-table th,
+.tasks-table td {
+  text-align: left;
+  padding: 12px 16px;
+  border-right: 1px solid #eaeaea;
+  font-size: 14px;
+}
+
+.tasks-table th {
+  font-weight: 500;
+  font-size: 12px;
+  color: #606060;
+  background-color: #fafafa;
+  border-bottom: 1px solid #eaeaea;
+  height: 42px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.th-title {
+  width: 280px;
+}
+
+.th-add {
+  width: 40px;
+  text-align: center;
+  border-right: none;
+}
+
+.section-row {
+  background-color: #fafafa;
+  cursor: grab;
+}
+
+.section-row:active {
+  cursor: grabbing;
+}
+
+.section-row.dragging {
+  opacity: 0.6;
+}
+
+.section-cell {
+  font-weight: 600;
+  font-size: 14px;
+  color: #333;
+  padding: 10px 16px;
+  border-bottom: 1px solid #eaeaea;
+  display: flex;
+  align-items: center;
+}
+
+.section-drag-handle {
+  color: #ccc;
+  margin-right: 8px;
+  cursor: grab;
+}
+
+.section-title {
+  flex: 1;
+}
+
+.task-row {
+  cursor: grab;
+  transition: background-color 0.2s;
+}
+
+.task-row:hover {
+  background-color: #fafafa;
+}
+
+.task-row.dragging {
+  opacity: 0.6;
+  background-color: #f5f5f5;
+}
+
+.task-row:active {
+  cursor: grabbing;
+}
+
+.task-title-cell {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.task-title-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  color: #333;
+  background: transparent;
+  padding: 0;
+}
+
+.task-drag-handle {
+  position: absolute;
+  right: 10px;
+  color: #ddd;
+  font-size: 14px;
+  cursor: grab;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.task-row:hover .task-drag-handle {
+  opacity: 1;
+}
+
+.drop-zone-row {
+  display: none;
+  height: 0;
+  transition: height 0.2s;
+}
+
+.drop-zone-row.active {
+  display: table-row;
+  height: 0;
+}
+
+.drop-zone-row.drag-over {
+  height: 40px;
+  background-color: rgba(79, 145, 255, 0.1);
+}
+
+.drop-zone-cell {
+  padding: 0;
+  border-bottom: 2px dashed rgba(79, 145, 255, 0.4);
+}
+
+.drop-zone-message {
+  text-align: center;
+  color: #4f91ff;
+  font-size: 14px;
+  padding: 10px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.drop-zone-row.drag-over .drop-zone-message {
+  opacity: 1;
+}
+
+.assignee-icon, 
+.date-icon, 
+.tag-icon, 
+.attachment-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  color: #606060;
+  opacity: 0.7;
+}
+
+.progress-pill {
+  display: inline-block;
+  padding: 2px 10px;
+  background-color: #f8f0e3;
+  border-radius: 12px;
+  min-width: 50px;
+  text-align: center;
+}
+
+.progress-text {
+  font-size: 12px;
+  color: #b5651d;
+}
+
+.add-task-row {
+  height: 40px;
+}
+
+.add-task-cell {
+  border-bottom: 1px solid #f3f3f3;
+}
+
+.add-task-btn {
+  display: flex;
+  align-items: center;
+  background: none;
+  border: none;
+  color: #909090;
+  font-size: 14px;
+  padding: 0;
+  cursor: pointer;
+}
+
+.add-task-btn:hover {
+  color: #666;
+}
+
+.plus-icon {
+  font-size: 16px;
+  margin-right: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.add-section-container {
+  padding: 16px;
+}
+
+.add-section-btn {
+  display: flex;
+  align-items: center;
+  background: none;
+  border: none;
+  color: #909090;
+  font-size: 14px;
+  padding: 0;
+  cursor: pointer;
+}
+
+.add-section-btn:hover {
+  color: #666;
+}
+
+/* Custom drag ghost for table view */
+.table-drag-ghost {
+  position: fixed;
+  background: white;
+  border: 1px solid #ccc;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  padding: 8px 12px;
+  border-radius: 4px;
+  z-index: 9999;
+  pointer-events: none;
+  transform: rotate(3deg);
+  opacity: 0.9;
+}
+
+/* Card View Styles */
+.card-view {
+  padding: 16px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 16px;
+  height: calc(100vh - 60px);
+  overflow: auto;
+}
+
+.card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.card-content {
+  padding: 16px;
+}
+
+.card-input {
+  width: 100%;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  color: #333;
+  background: transparent;
+  padding: 0;
+  font-family: inherit;
+  margin-bottom: 8px;
+}
+
+.card-status {
+  display: inline-block;
+  padding: 4px 8px;
+  background-color: #f0f0f0;
+  border-radius: 4px;
+  font-size: 12px;
+  color: #666;
+}
+
+/* List View Styles */
+.list-view {
+  padding: 16px;
+  height: calc(100vh - 60px);
+  overflow: auto;
+}
+
+.list-section {
+  margin-bottom: 24px;
+}
+
+.list-section-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 12px 0;
+  color: #333;
+}
+
+.list-tasks {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  padding: 0;
+  margin: 0;
+  list-style-type: none;
+}
+
+.list-task-item {
+  padding: 12px 16px;
+  border-bottom: 1px solid #eee;
+}
+
+.list-task-item:last-child {
+  border-bottom: none;
+}
+
+.list-input {
+  width: 100%;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  color: #333;
+  background: transparent;
+  padding: 0;
+  font-family: inherit;
+}
+
+.list-task-add {
+  padding: 8px 16px;
+  border-top: 1px solid #eee;
+}
+
+.list-add-btn {
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  color: #888;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 4px 0;
+}
+
+.list-add-btn:hover {
+  color: #666;
+}
+
+/* Add this to ensure the drag feedback is visible during drag operations */
+:root {
+  --drag-ghost-rotation: 3deg;
+}
+
+/* These styles affect the drag ghost image */
+[draggable="true"] {
+  user-select: none;
+  -webkit-user-drag: element;
+}
+
+@keyframes pulse-border {
+  0% { box-shadow: 0 0 0 1px rgba(79, 145, 255, 0.5); }
+  50% { box-shadow: 0 0 0 3px rgba(79, 145, 255, 0.5); }
+  100% { box-shadow: 0 0 0 1px rgba(79, 145, 255, 0.5); }
+}
+
 .kanban-section.drag-over {
-  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.5);
+  animation: pulse-border 1.5s infinite;
+  background-color: #f8f9ff;
+}
+
+/* Add these styles for the drag preview */
+
+.drag-preview {
+  position: fixed;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%) rotate(3deg);
+  opacity: 0.8;
+}
+
+.preview-card {
+  background: white;
+  border: 1px solid #e8e8e8;
+  border-radius: 4px;
+  padding: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  width: 250px;
+}
+
+.preview-content {
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: #333;
+}
+
+.preview-progress {
+  display: flex;
+}
+
+.preview-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  background-color: #f8f0e3;
+  border-radius: 12px;
+  font-size: 12px;
+  color: #b5651d;
 } 
