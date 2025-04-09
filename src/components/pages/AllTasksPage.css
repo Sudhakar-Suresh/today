@@ -821,4 +821,159 @@
 
 .kanban-section.drag-over::before {
   animation: pulse-border 1.5s infinite;
+}
+
+/* Card View Styles */
+.card-view-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 20px;
+}
+
+.card-section {
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.card-section-header {
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-section-header h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.section-title-input {
+  font-size: 18px;
+  font-weight: 600;
+  border: none;
+  border-bottom: 2px solid #0078d7;
+  background: transparent;
+  width: 100%;
+  padding: 4px 0;
+  outline: none;
+}
+
+.card-tasks-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+.task-card {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 16px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.task-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.task-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.task-title-input {
+  font-size: 16px;
+  font-weight: 500;
+  border: none;
+  width: 80%;
+  padding: 0;
+  margin: 0;
+  outline: none;
+}
+
+.task-card-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.task-card-actions button {
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+}
+
+.task-card-actions button:hover {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+.task-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.task-card-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.field-label {
+  font-size: 14px;
+  color: #666;
+  min-width: 70px;
+}
+
+.task-card-field input,
+.task-card-field select {
+  flex: 1;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 6px 8px;
+  font-size: 14px;
+}
+
+.task-card-dates {
+  display: flex;
+  gap: 12px;
+}
+
+.add-task-button,
+.add-section-button {
+  background-color: transparent;
+  border: 2px dashed #ddd;
+  border-radius: 8px;
+  padding: 12px;
+  color: #666;
+  cursor: pointer;
+  font-size: 14px;
+  text-align: center;
+  margin-top: 16px;
+  transition: all 0.2s;
+}
+
+.add-task-button {
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.add-task-button:hover,
+.add-section-button:hover {
+  background-color: #f0f0f0;
+  border-color: #bbb;
+  color: #333;
 } 
