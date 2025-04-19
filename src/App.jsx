@@ -69,11 +69,14 @@ function App() {
     myDay: tasks.filter(task => 
       !task.completed && (
         task.sourceView === 'myday' || 
-        isTaskDueToday(task)
+        (isTaskDueToday(task) && task.sourceView !== 'next7days')
       )
     ).length,
     next7Days: tasks.filter(task => 
-      !task.completed && isTaskDueInNext7Days(task)
+      !task.completed && (
+        isTaskDueInNext7Days(task) || 
+        task.sourceView === 'next7days'
+      )
     ).length,
     allTasks: tasks.filter(task => !task.completed).length,
     completed: tasks.filter(task => task.completed).length

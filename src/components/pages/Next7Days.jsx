@@ -21,19 +21,18 @@ const Next7Days = ({
   const generateSevenDays = () => {
     const days = [];
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // Normalize to start of day
+    today.setHours(0, 0, 0, 0);
     
     for (let i = 0; i < 7; i++) {
       const date = new Date(today);
       date.setDate(today.getDate() + i);
+      date.setHours(0, 0, 0, 0);
       
-      // Format the day name
       let dayName = '';
       if (i === 0) dayName = 'Today';
       else if (i === 1) dayName = 'Tomorrow';
       else dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
 
-      // Format the date
       const dateStr = date.toLocaleDateString('en-US', { 
         weekday: 'short',
         month: 'short',
@@ -51,12 +50,14 @@ const Next7Days = ({
     return days;
   };
 
+  // Update days when tasks change
   useEffect(() => {
     setDays(generateSevenDays());
-  }, []);
+  }, [tasks]); // Update when tasks change
 
-  // Simple function to check if two dates are the same day
+  // Simplified date comparison
   const isSameDay = (date1, date2) => {
+    if (!date1 || !date2) return false;
     const d1 = new Date(date1);
     const d2 = new Date(date2);
     d1.setHours(0, 0, 0, 0);
@@ -64,25 +65,29 @@ const Next7Days = ({
     return d1.getTime() === d2.getTime();
   };
 
-  // Filter tasks for each day
+  // Simplified task filtering
   const getTasksForDay = (date) => {
     return tasks.filter(task => {
       if (!task.dueDate) return false;
-      return isSameDay(task.dueDate, date);
+      return isSameDay(new Date(task.dueDate), date);
     });
   };
 
-  // Handle adding a task for a specific day
+  // Simplified task addition
   const handleAddTask = (dayDate) => (newTask) => {
+    const taskDate = new Date(dayDate);
+    taskDate.setHours(0, 0, 0, 0);
+
     const task = {
       id: Date.now(),
       title: newTask.title,
       completed: false,
       list: newTask.list || 'Personal',
-      dueDate: dayDate.toISOString(),
+      dueDate: taskDate.toISOString(),
       sourceView: 'next7days'
     };
     
+    // Call the parent's onAddTask
     onAddTask(task);
   };
 
@@ -103,7 +108,6 @@ const Next7Days = ({
 
       <div className="days-grid">
         {days.map((day) => {
-          // Get tasks for this specific day
           const dayTasks = getTasksForDay(day.date);
           
           return (
@@ -119,7 +123,6 @@ const Next7Days = ({
               </div>
 
               <div className="day-tasks">
-                {/* Render tasks for this day */}
                 {dayTasks.map(task => (
                   <TaskCard
                     key={task.id}
@@ -134,7 +137,6 @@ const Next7Days = ({
                   />
                 ))}
                 
-                {/* Add task button for this day */}
                 <AddTaskButton 
                   onAddTask={handleAddTask(day.date)}
                   dueDate={day.date}

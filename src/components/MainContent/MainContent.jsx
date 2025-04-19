@@ -12,7 +12,8 @@ const MainContent = ({
   selectedList = null, 
   isSidebarExpanded = false,
   tasks = [],
-  onTaskUpdate
+  onTaskUpdate,
+  onAddTask
 }) => {
   const [filteredTasks, setFilteredTasks] = useState([]);
 
@@ -23,10 +24,6 @@ const MainContent = ({
       setFilteredTasks(tasks);
     }
   }, [selectedList, tasks]);
-
-  const handleAddTask = (newTask) => {
-    onTaskUpdate([...tasks, newTask]);
-  };
 
   const handleToggleComplete = (taskId, isCompleted) => {
     onTaskUpdate(tasks.map(task =>
@@ -101,7 +98,12 @@ const MainContent = ({
   });
   
   // Filter tasks for Next 7 Days view
-  const next7DaysTasks = activeTasks.filter(task => isTaskDueInNext7Days(task));
+  const next7DaysTasks = tasks.filter(task => {
+    // Include all tasks that:
+    // 1. Are not completed AND
+    // 2. Either have a due date in next 7 days OR were created in next7days view
+    return !task.completed && (isTaskDueInNext7Days(task) || task.sourceView === 'next7days');
+  });
   
   // Title modifier for when a list is selected
   const getPageTitle = () => {
@@ -131,7 +133,7 @@ const MainContent = ({
         return (
           <MyDay 
             tasks={myDayTasks}
-            onAddTask={handleAddTask}
+            onAddTask={onAddTask}
             onToggleComplete={handleToggleComplete} 
             onDelete={handleDelete} 
             onUpdateTags={handleUpdateTags} 
@@ -147,7 +149,7 @@ const MainContent = ({
         return (
           <Next7Days 
             tasks={next7DaysTasks}
-            onAddTask={handleAddTask}
+            onAddTask={onAddTask}
             onToggleComplete={handleToggleComplete} 
             onDelete={handleDelete} 
             onUpdateTags={handleUpdateTags} 
