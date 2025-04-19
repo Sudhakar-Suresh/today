@@ -63,6 +63,23 @@ const MainContent = ({
     ));
   };
   
+  // Helper functions for date checking (copied from App.jsx)
+  const isTaskDueToday = (task) => {
+    if (!task.dueDate) return false;
+    const today = new Date();
+    const dueDate = new Date(task.dueDate);
+    return today.toDateString() === dueDate.toDateString();
+  };
+
+  const isTaskDueInNext7Days = (task) => {
+    if (!task.dueDate) return false;
+    const today = new Date();
+    const next7Days = new Date();
+    next7Days.setDate(today.getDate() + 7);
+    const dueDate = new Date(task.dueDate);
+    return dueDate >= today && dueDate <= next7Days;
+  };
+  
   // Prepare task data for different views
   const activeTasks = selectedList 
     ? filteredTasks.filter(task => !task.completed) 
@@ -71,6 +88,12 @@ const MainContent = ({
   const completedTasks = selectedList 
     ? filteredTasks.filter(task => task.completed) 
     : tasks.filter(task => task.completed);
+  
+  // Filter tasks for My Day view
+  const myDayTasks = activeTasks.filter(task => isTaskDueToday(task));
+  
+  // Filter tasks for Next 7 Days view
+  const next7DaysTasks = activeTasks.filter(task => isTaskDueInNext7Days(task));
   
   // Title modifier for when a list is selected
   const getPageTitle = () => {
@@ -84,11 +107,22 @@ const MainContent = ({
     switch (currentPage) {
       case 'All My Tasks':
       case 'All my tasks':
-        return <AllTasksPage />;
+        return <AllTasksPage 
+          tasks={activeTasks}
+          onToggleComplete={handleToggleComplete} 
+          onDelete={handleDelete} 
+          onUpdateTags={handleUpdateTags} 
+          onUpdateList={handleUpdateList}
+          onTogglePin={handleTogglePin}
+          onUpdateReminder={handleUpdateReminder}
+          availableLists={userLists}
+          listFilter={selectedList}
+          pageTitle={getPageTitle()}
+        />;
       case 'My day':
         return (
           <MyDay 
-            tasks={activeTasks} 
+            tasks={myDayTasks} // Only pass tasks due today
             onAddTask={handleAddTask}
             onToggleComplete={handleToggleComplete} 
             onDelete={handleDelete} 
@@ -104,7 +138,7 @@ const MainContent = ({
       case 'Next 7 days':
         return (
           <Next7Days 
-            tasks={activeTasks}
+            tasks={next7DaysTasks} // Only pass tasks due in next 7 days
             onAddTask={handleAddTask}
             onToggleComplete={handleToggleComplete} 
             onDelete={handleDelete} 
