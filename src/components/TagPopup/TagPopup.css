@@ -11,6 +11,10 @@
   align-items: center;
 }
 
+.tag-popup-container {
+  z-index: 1001;
+}
+
 .tag-popup {
   width: 340px;
   background-color: white;

@@ -214,20 +214,22 @@ const TaskModal = ({ onClose, onSave, availableLists = ['Personal', 'Work', 'Sho
       {showTagPopup && (
         <>
           <div className="tag-popup-overlay" onClick={() => setShowTagPopup(false)} />
-          <TagPopup
-            tags={allTags}
-            setTags={setAllTags}
-            selectedTags={taskData.tags}
-            setSelectedTags={(tags) => setTaskData(prev => ({ ...prev, tags }))}
-            closePopup={() => setShowTagPopup(false)}
-            saveTags={handleSaveTags}
-            onDelete={(tag) => {
-              const updatedTags = allTags.filter(t => t.name !== tag.name);
-              const updatedSelectedTags = taskData.tags.filter(t => t.name !== tag.name);
-              setAllTags(updatedTags);
-              setTaskData(prev => ({ ...prev, tags: updatedSelectedTags }));
-            }}
-          />
+          <div className="tag-popup-container">
+            <TagPopup
+              tags={allTags}
+              setTags={setAllTags}
+              selectedTags={taskData.tags}
+              setSelectedTags={(tags) => setTaskData(prev => ({ ...prev, tags }))}
+              closePopup={() => setShowTagPopup(false)}
+              saveTags={handleSaveTags}
+              onDelete={(tag) => {
+                const updatedTags = allTags.filter(t => t.name !== tag.name);
+                const updatedSelectedTags = taskData.tags.filter(t => t.name !== tag.name);
+                setAllTags(updatedTags);
+                setTaskData(prev => ({ ...prev, tags: updatedSelectedTags }));
+              }}
+            />
+          </div>
         </>
       )}
 

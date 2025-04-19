@@ -417,23 +417,28 @@ const TaskCard = ({
         )}
 
         {tagsPopupOpen && (
-          <TagPopup
-            tags={tags}
-            setTags={setTags}
-            selectedTags={selectedTags}
-            setSelectedTags={setSelectedTags}
-            closePopup={() => setTagsPopupOpen(false)}
-            saveTags={handleSaveTags}
-            onDelete={(tag) => {
-              const updatedTags = tags.filter(t => t.name !== tag.name);
-              const updatedSelectedTags = selectedTags.filter(t => t.name !== tag.name);
-              setTags(updatedTags);
-              setSelectedTags(updatedSelectedTags);
-              if (onUpdateTags) {
-                onUpdateTags(task.id, updatedSelectedTags);
-              }
-            }}
-          />
+          <>
+            <div className="tag-popup-overlay" onClick={() => setTagsPopupOpen(false)}></div>
+            <div className="tag-popup-container">
+              <TagPopup
+                tags={tags}
+                setTags={setTags}
+                selectedTags={selectedTags}
+                setSelectedTags={setSelectedTags}
+                closePopup={() => setTagsPopupOpen(false)}
+                saveTags={handleSaveTags}
+                onDelete={(tag) => {
+                  const updatedTags = tags.filter(t => t.name !== tag.name);
+                  const updatedSelectedTags = selectedTags.filter(t => t.name !== tag.name);
+                  setTags(updatedTags);
+                  setSelectedTags(updatedSelectedTags);
+                  if (onUpdateTags) {
+                    onUpdateTags(task.id, updatedSelectedTags);
+                  }
+                }}
+              />
+            </div>
+          </>
         )}
       </div>
 
