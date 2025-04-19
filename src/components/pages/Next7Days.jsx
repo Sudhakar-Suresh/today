@@ -16,13 +16,12 @@ const Next7Days = ({
   isSidebarExpanded = false
 }) => {
   const [days, setDays] = useState([]);
-  // Store newly added tasks locally before they appear in the props
-  const [newlyAddedTasks, setNewlyAddedTasks] = useState([]);
   
   // Function to generate exactly 7 days from today
   const generateSevenDays = () => {
     const days = [];
     const today = new Date();
+    today.setHours(0, 0, 0, 0); // Normalize to start of day
     
     for (let i = 0; i < 7; i++) {
       const date = new Date(today);
@@ -34,54 +33,47 @@ const Next7Days = ({
       else if (i === 1) dayName = 'Tomorrow';
       else dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
 
-      // Format the date (e.g., "Jun 15")
+      // Format the date
       const dateStr = date.toLocaleDateString('en-US', { 
-        weekday: 'short' 
+        weekday: 'short',
+        month: 'short',
+        day: 'numeric'
       });
-
-      // Get the subheader for today and tomorrow
-      const subheader = i <= 1 ? date.toLocaleDateString('en-US', { weekday: 'long' }) : '';
 
       days.push({
         date,
         dayName,
         dateStr,
-        subheader,
-        key: date.toISOString(), // Unique key for React
-        isToday: i === 0 // Flag to identify today
+        key: date.toISOString(),
+        isToday: i === 0
       });
     }
     return days;
   };
 
-  // Generate days on component mount
   useEffect(() => {
     setDays(generateSevenDays());
   }, []);
 
   // Simple function to check if two dates are the same day
   const isSameDay = (date1, date2) => {
-    return date1.getDate() === date2.getDate() &&
-           date1.getMonth() === date2.getMonth() &&
-           date1.getFullYear() === date2.getFullYear();
+    const d1 = new Date(date1);
+    const d2 = new Date(date2);
+    d1.setHours(0, 0, 0, 0);
+    d2.setHours(0, 0, 0, 0);
+    return d1.getTime() === d2.getTime();
   };
 
-  // Filter tasks for each day, including newly added ones
+  // Filter tasks for each day
   const getTasksForDay = (date) => {
-    // Combine tasks from props with newly added tasks
-    const allTasks = [...tasks, ...newlyAddedTasks];
-    
-    // Filter tasks for this specific day
-    return allTasks.filter(task => {
+    return tasks.filter(task => {
       if (!task.dueDate) return false;
-      const taskDate = new Date(task.dueDate);
-      return isSameDay(taskDate, date);
+      return isSameDay(task.dueDate, date);
     });
   };
 
   // Handle adding a task for a specific day
   const handleAddTask = (dayDate) => (newTask) => {
-    // Create a clean task object
     const task = {
       id: Date.now(),
       title: newTask.title,
@@ -91,13 +83,6 @@ const Next7Days = ({
       sourceView: 'next7days'
     };
     
-    // Debug log to see what we're adding
-    console.log(`Adding task for ${dayDate.toDateString()}:`, task);
-    
-    // Add to local state for immediate visual feedback
-    setNewlyAddedTasks(prev => [...prev, task]);
-    
-    // Also send to parent component
     onAddTask(task);
   };
 

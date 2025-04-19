@@ -47,16 +47,20 @@ function App() {
   const isTaskDueToday = (task) => {
     if (!task.dueDate) return false;
     const today = new Date();
+    today.setHours(0, 0, 0, 0);
     const dueDate = new Date(task.dueDate);
-    return today.toDateString() === dueDate.toDateString();
+    dueDate.setHours(0, 0, 0, 0);
+    return today.getTime() === dueDate.getTime();
   };
 
   const isTaskDueInNext7Days = (task) => {
     if (!task.dueDate) return false;
     const today = new Date();
-    const next7Days = new Date();
+    today.setHours(0, 0, 0, 0);
+    const next7Days = new Date(today);
     next7Days.setDate(today.getDate() + 7);
     const dueDate = new Date(task.dueDate);
+    dueDate.setHours(0, 0, 0, 0);
     return dueDate >= today && dueDate <= next7Days;
   };
 
@@ -65,7 +69,7 @@ function App() {
     myDay: tasks.filter(task => 
       !task.completed && (
         task.sourceView === 'myday' || 
-        (isTaskDueToday(task) && task.sourceView !== 'next7days')
+        isTaskDueToday(task)
       )
     ).length,
     next7Days: tasks.filter(task => 
@@ -98,6 +102,10 @@ function App() {
     setTasks(updatedTasks);
   };
 
+  const handleAddTask = (newTask) => {
+    setTasks(prevTasks => [...prevTasks, newTask]);
+  };
+
   return (
     <div className="app-container">
       <Sidebar 
@@ -116,6 +124,7 @@ function App() {
         isSidebarExpanded={isSidebarExpanded}
         tasks={tasks}
         onTaskUpdate={handleTaskUpdate}
+        onAddTask={handleAddTask}
       />
     </div>
   );
