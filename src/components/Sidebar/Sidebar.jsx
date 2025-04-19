@@ -4,6 +4,7 @@ import './Sidebar.css';
 // Import Font Awesome components
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faThumbtack } from '@fortawesome/free-solid-svg-icons';
+import AddListPopup from '../AddListPopup/AddListPopup';
 
 // Import animation data
 import settingData from '../../assets/sidebar/setting.json';
@@ -25,6 +26,7 @@ const Sidebar = ({ onPageChange, onAddList, userLists = [], activeItem = 'My day
   const [isExpanded, setIsExpanded] = useState(false);
   const [isPinned, setIsPinned] = useState(false);
   const newListInputRef = useRef(null);
+  const [showAddListPopup, setShowAddListPopup] = useState(false);
 
   useEffect(() => {
     // Initialize animations
@@ -101,47 +103,14 @@ const Sidebar = ({ onPageChange, onAddList, userLists = [], activeItem = 'My day
   };
 
   const handleAddListClick = () => {
-    setShowNewListInput(true);
+    setShowAddListPopup(true);
   };
 
-  const handleCreateList = (e) => {
-    e.preventDefault();
-    if (newListName.trim()) {
-      console.log("Sidebar creating new list:", newListName.trim());
-      // Call parent callback to add list
-      if (onAddList) {
-        onAddList(newListName.trim());
-      }
-      
-      // Reset state
-      setNewListName('');
-      setShowNewListInput(false);
+  const handleCreateList = (listName) => {
+    if (onAddList) {
+      onAddList(listName);
     }
   };
-
-  const handleCancelNewList = () => {
-    setNewListName('');
-    setShowNewListInput(false);
-  };
-
-  // Handle click outside to cancel new list input
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (
-        showNewListInput && 
-        newListInputRef.current && 
-        !newListInputRef.current.contains(event.target) &&
-        event.target.className !== 'add-list'
-      ) {
-        handleCancelNewList();
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [showNewListInput]);
 
   // Notify parent of sidebar state changes
   useEffect(() => {
@@ -267,7 +236,7 @@ const Sidebar = ({ onPageChange, onAddList, userLists = [], activeItem = 'My day
         
         <div className="lists-section">
           <div className="lists-header">
-            <h3>My lists</h3>
+            <h3>MY LISTS</h3>
             <button className="add-list" onClick={handleAddListClick}>+</button>
           </div>
           <ul>
@@ -281,32 +250,16 @@ const Sidebar = ({ onPageChange, onAddList, userLists = [], activeItem = 'My day
                 <span className="list-label">{listName}</span>
               </li>
             ))}
-            
-            {showNewListInput && (
-              <li className="list-item new-list-form">
-                <form onSubmit={handleCreateList}>
-                  <input
-                    ref={newListInputRef}
-                    type="text"
-                    value={newListName}
-                    onChange={(e) => setNewListName(e.target.value)}
-                    placeholder="Enter list name"
-                    className="new-list-input"
-                  />
-                  <div className="new-list-actions">
-                    <button type="submit" className="create-list-btn">Create</button>
-                    <button type="button" className="cancel-list-btn" onClick={handleCancelNewList}>Cancel</button>
-                  </div>
-                </form>
-              </li>
-            )}
           </ul>
         </div>
-        
-        <button className="create-view">
-          <span>+</span> Create a view
-        </button>
       </div>
+
+      {showAddListPopup && (
+        <AddListPopup
+          onClose={() => setShowAddListPopup(false)}
+          onAdd={handleCreateList}
+        />
+      )}
     </>
   );
 };
