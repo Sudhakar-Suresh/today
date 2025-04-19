@@ -71,14 +71,20 @@ const TagPopup = ({ tags, setTags, selectedTags, setSelectedTags, closePopup, sa
     tag.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // Update the click handler to prevent propagation
+  const handlePopupClick = (e) => {
+    e.stopPropagation();
+  };
+
   return (
-    <div className="tags-popup">
+    <div className="tags-popup" onClick={handlePopupClick}>
       <div className="tags-header">
         <h3>Tags</h3>
         <div className="header-actions">
           <button 
             className="add-tag-btn"
-            onClick={() => {
+            onClick={(e) => {
+              e.stopPropagation();
               setEditingTag(null);
               setShowEditPopup(true);
             }}
@@ -107,7 +113,10 @@ const TagPopup = ({ tags, setTags, selectedTags, setSelectedTags, closePopup, sa
               <input
                 type="checkbox"
                 checked={localSelectedTags.some(t => t.name === tag.name)}
-                onChange={() => handleTagToggle(tag)}
+                onChange={(e) => {
+                  e.stopPropagation();
+                  handleTagToggle(tag);
+                }}
               />
               <span 
                 className="tag-color"
@@ -118,7 +127,10 @@ const TagPopup = ({ tags, setTags, selectedTags, setSelectedTags, closePopup, sa
             <div className="tag-item-actions">
               <button 
                 className="edit-tag-btn"
-                onClick={() => handleEditTag(tag)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleEditTag(tag);
+                }}
               >
                 <FontAwesomeIcon icon={faEdit} />
               </button>

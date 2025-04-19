@@ -76,14 +76,25 @@
   color: #999;
 }
 
-/* Logo Section */
-.logo-section {
+/* Title Section */
+.title-section {
   padding: 16px;
 }
 
-.task-logo {
-  height: 24px;
-  width: auto;
+.task-title-input {
+  width: 100%;
+  border: none;
+  outline: none;
+  font-size: 16px;
+  color: #333;
+  font-weight: 500;
+  padding: 0;
+  background: transparent;
+}
+
+.task-title-input::placeholder {
+  color: #999;
+  font-weight: normal;
 }
 
 /* Quick Actions */
@@ -109,7 +120,14 @@
 .reminder-btn {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   flex: 1;
+}
+
+.btn-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .toggle-switch {
@@ -215,7 +233,7 @@ select {
   color: #666;
 }
 
-/* Add these styles for tag popup */
+/* Popup Overlays */
 .tag-popup-overlay {
   position: fixed;
   top: 0;
