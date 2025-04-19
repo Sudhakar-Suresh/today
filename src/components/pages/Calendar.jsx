@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import TaskCard from '../TaskCard/TaskCard';
 import './Calendar.css';
+import TaskCard from '../TaskCard/TaskCard';
 
 const Calendar = ({ 
   tasks = [], 
+  onAddTask,
   onToggleComplete, 
   onDelete, 
   onUpdateTags, 
@@ -12,22 +13,25 @@ const Calendar = ({
   onUpdateReminder,
   availableLists = []
 }) => {
-  const [currentMonth, setCurrentMonth] = useState(new Date());
-  
-  // Generate calendar days for the current month
-  const generateCalendarDays = () => {
-    const year = currentMonth.getFullYear();
-    const month = currentMonth.getMonth();
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [selectedTask, setSelectedTask] = useState(null);
+
+  const navigateMonth = (direction) => {
+    setCurrentDate(prev => {
+      const newDate = new Date(prev);
+      newDate.setMonth(prev.getMonth() + direction);
+      return newDate;
+    });
+  };
+
+  const getCalendarDays = () => {
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
     
-    // Get first day of month
     const firstDay = new Date(year, month, 1).getDay();
-    // Adjust for Monday start (0 = Monday, 6 = Sunday)
     const firstDayIndex = firstDay === 0 ? 6 : firstDay - 1;
     
-    // Get number of days in current month
     const daysInMonth = new Date(year, month + 1, 0).getDate();
-    
-    // Get number of days in previous month
     const daysInPrevMonth = new Date(year, month, 0).getDate();
     
     const days = [];
@@ -35,20 +39,19 @@ const Calendar = ({
     // Previous month days
     for (let i = firstDayIndex - 1; i >= 0; i--) {
       days.push({
-        day: daysInPrevMonth - i,
-        month: month - 1,
-        year: month === 0 ? year - 1 : year,
-        currentMonth: false
+        date: new Date(year, month - 1, daysInPrevMonth - i),
+        dayNumber: daysInPrevMonth - i,
+        isCurrentMonth: false
       });
     }
     
     // Current month days
     for (let i = 1; i <= daysInMonth; i++) {
       days.push({
-        day: i,
-        month,
-        year,
-        currentMonth: true
+        date: new Date(year, month, i),
+        dayNumber: i,
+        isCurrentMonth: true,
+        isToday: isToday(new Date(year, month, i))
       });
     }
     
@@ -56,88 +59,90 @@ const Calendar = ({
     const remainingDays = 42 - days.length;
     for (let i = 1; i <= remainingDays; i++) {
       days.push({
-        day: i,
-        month: month + 1,
-        year: month === 11 ? year + 1 : year,
-        currentMonth: false
+        date: new Date(year, month + 1, i),
+        dayNumber: i,
+        isCurrentMonth: false
       });
     }
     
     return days;
   };
-  
-  const days = generateCalendarDays();
-  const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-  
-  const prevMonth = () => {
-    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1));
+
+  const isToday = (date) => {
+    const today = new Date();
+    return date.getDate() === today.getDate() &&
+           date.getMonth() === today.getMonth() &&
+           date.getFullYear() === today.getFullYear();
   };
-  
-  const nextMonth = () => {
-    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1));
+
+  const handleAddTask = (date) => {
+    const task = {
+      id: Date.now(),
+      title: '',
+      completed: false,
+      dueDate: date.toISOString(),
+      list: 'Personal'
+    };
+    onAddTask(task);
   };
-  
+
+  const weekDays = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
+  const calendarDays = getCalendarDays();
+
   return (
-    <div className="page-content calendar-page">
-      <header className="header-section">
-        <div className="greeting-container">
-          <h1>Calendar</h1>
-          <p className="subtitle">View your tasks on a calendar</p>
+    <div className="calendar-page">
+      <div className="calendar-header">
+        <div className="header-left">
+          <button className="today-btn">TODAY</button>
+          <div className="month-navigation">
+            <button className="nav-btn" onClick={() => navigateMonth(-1)}>&lt;</button>
+            <h2>{currentDate.toLocaleString('default', { month: 'long', year: 'numeric' })}</h2>
+            <button className="nav-btn" onClick={() => navigateMonth(1)}>&gt;</button>
+          </div>
+          <button className="connect-btn">Connect</button>
         </div>
-      </header>
-      
-      <div className="calendar-container">
-        <div className="calendar-header">
-          <button onClick={prevMonth} className="month-nav">&#10094;</button>
-          <h2>{currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</h2>
-          <button onClick={nextMonth} className="month-nav">&#10095;</button>
+        <div className="header-right">
+          <select className="view-select" defaultValue="MONTH">
+            <option value="MONTH">MONTH</option>
+          </select>
+          <button className="more-btn">•••</button>
         </div>
-        
-        <div className="calendar-grid">
-          {weekdays.map(day => (
+      </div>
+
+      <div className="calendar-grid">
+        <div className="weekdays-header">
+          {weekDays.map(day => (
             <div key={day} className="weekday">{day}</div>
           ))}
-          
-          {days.map((day, index) => (
+        </div>
+
+        <div className="days-grid">
+          {calendarDays.map((day, index) => (
             <div 
-              key={index} 
-              className={`calendar-day ${day.currentMonth ? '' : 'other-month'}`}
+              key={index}
+              className={`calendar-day ${
+                day.isCurrentMonth ? 'current-month' : 'other-month'
+              } ${day.isToday ? 'today' : ''}`}
             >
-              <div className="day-number">{day.day}</div>
-              <div className="day-tasks">
-                {/* In a real app, you'd filter tasks for this specific day */}
-                {day.currentMonth && index % 7 === 0 && tasks.length > 0 && (
-                  <div className="task-indicator">
-                    {tasks.length > 2 ? `${tasks.length} tasks` : `${tasks.length} task`}
-                  </div>
-                )}
+              <div className="day-content">
+                <span className="day-number">{day.dayNumber}</span>
+                <div className="task-input-wrapper">
+                  <input 
+                    type="text" 
+                    className="task-input"
+                    placeholder="Add to My Day"
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter' && e.target.value.trim()) {
+                        handleAddTask(day.date);
+                        e.target.value = '';
+                      }
+                    }}
+                  />
+                </div>
               </div>
             </div>
           ))}
         </div>
-      </div>
-      
-      <div className="tasks-for-selected-day">
-        <h3>Today's Tasks</h3>
-        {tasks.length > 0 ? (
-          <div className="tasks-area">
-            {tasks.map(task => (
-              <TaskCard
-                key={task.id}
-                task={task}
-                onDelete={onDelete}
-                onToggleComplete={onToggleComplete}
-                onUpdateTags={onUpdateTags}
-                onUpdateList={onUpdateList}
-                onTogglePin={onTogglePin}
-                onUpdateReminder={onUpdateReminder}
-                availableLists={availableLists}
-              />
-            ))}
-          </div>
-        ) : (
-          <p className="no-tasks-message">No tasks for today</p>
-        )}
       </div>
     </div>
   );
