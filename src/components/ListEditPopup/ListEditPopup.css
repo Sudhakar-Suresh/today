@@ -162,7 +162,6 @@
   padding: 12px;
   cursor: pointer;
   transition: background-color 0.2s;
-  background-color: #fff;
 }
 
 .list-item:hover {
