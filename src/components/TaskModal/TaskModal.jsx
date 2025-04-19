@@ -119,43 +119,27 @@ const TaskModal = ({ onClose, onSave, initialDate, availableLists = ['Personal',
     <div className="task-modal-overlay" onClick={(e) => {
       if (e.target === e.currentTarget) onClose();
     }}>
-      <div className="task-modal" onClick={e => e.stopPropagation()}>
+      <div className="task-modal">
         {/* Header */}
         <div className="task-modal-header">
+          <div className="breadcrumb-nav">
+            <span>My lists</span>
+            <span className="breadcrumb-separator">></span>
+            <span>Personal</span>
+          </div>
           <div className="task-type-selector">
-            <button className="type-btn active">
-              <svg width="16" height="16" viewBox="0 0 16 16">
-                <path d="M14 3v10H2V3h12m0-1H2c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1V3c0-.55-.45-1-1-1z"/>
-              </svg>
+            <button className={`type-btn ${!taskData.isShared ? 'active' : ''}`}>
               Task
             </button>
-            <button className="type-btn">
-              <svg width="16" height="16" viewBox="0 0 16 16">
-                <path d="M8 1C4.14 1 1 4.14 1 8s3.14 7 7 7 7-3.14 7-7-3.14-7-7-7zm0 12.25c-2.9 0-5.25-2.35-5.25-5.25S5.1 2.75 8 2.75 13.25 5.1 13.25 8 10.9 13.25 8 13.25z"/>
-              </svg>
+            <button className={`type-btn ${taskData.isShared ? 'active' : ''}`}>
               Shared task
             </button>
           </div>
           <button className="close-btn" onClick={onClose}>×</button>
         </div>
 
-        {/* List Selection */}
-        <div className="list-selection">
-          <svg width="16" height="16" viewBox="0 0 16 16">
-            <path d="M14 5H2v2h12V5zm0 4H2v2h12V9z"/>
-          </svg>
-          <select 
-            value={taskData.list}
-            onChange={(e) => setTaskData({ ...taskData, list: e.target.value })}
-          >
-            {availableLists.map(list => (
-              <option key={list} value={list}>{list}</option>
-            ))}
-          </select>
-        </div>
-
         {/* Task Form */}
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className="task-form">
           <input
             type="text"
             className={`title-input ${errors.title ? 'error' : ''}`}
@@ -174,9 +158,7 @@ const TaskModal = ({ onClose, onSave, initialDate, availableLists = ['Personal',
               <svg width="16" height="16" viewBox="0 0 16 16">
                 <path d="M8 14c1.1 0 2-.9 2-2H6c0 1.1.9 2 2 2zm4-6V6c0-2.21-1.79-4-4-4S4 3.79 4 6v2l-2 2v1h12V9l-2-1z"/>
               </svg>
-              <span onClick={() => setTaskData({ ...taskData, isReminderSet: !taskData.isReminderSet })}>
-                {formatDate(taskData.dueDate)}
-              </span>
+              <span>{formatDate(taskData.dueDate)}</span>
               <div className="toggle-switch">
                 <input
                   type="checkbox"
@@ -191,7 +173,14 @@ const TaskModal = ({ onClose, onSave, initialDate, availableLists = ['Personal',
               <svg width="16" height="16" viewBox="0 0 16 16">
                 <path d="M14 5H2v2h12V5zm0 4H2v2h12V9z"/>
               </svg>
-              {taskData.list}
+              <select 
+                value={taskData.list}
+                onChange={(e) => setTaskData({ ...taskData, list: e.target.value })}
+              >
+                {availableLists.map(list => (
+                  <option key={list} value={list}>{list}</option>
+                ))}
+              </select>
             </div>
 
             <div className="option-item tags">
@@ -206,7 +195,7 @@ const TaskModal = ({ onClose, onSave, initialDate, availableLists = ['Personal',
             className="notes-input"
             placeholder="Add notes..."
             value={taskData.notes}
-            onChange={(e) => setTaskData({ ...taskData, notes: e.target.notes })}
+            onChange={(e) => setTaskData({ ...taskData, notes: e.target.value })}
           />
 
           {errors.submit && <div className="error-message submit-error">{errors.submit}</div>}
@@ -217,7 +206,7 @@ const TaskModal = ({ onClose, onSave, initialDate, availableLists = ['Personal',
               className="save-btn" 
               disabled={isSubmitting}
             >
-              {isSubmitting ? 'Saving...' : 'Save'}
+              Save
             </button>
           </div>
         </form>
