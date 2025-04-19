@@ -1,4 +1,4 @@
-.popup-overlay {
+.add-list-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -11,18 +11,20 @@
   z-index: 1000;
 }
 
-.popup-content {
+.add-list-popup {
   background: white;
-  padding: 20px;
   border-radius: 8px;
-  min-width: 380px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  width: 500px;
+  max-width: 90vw;
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  position: relative;
 }
 
-.popup-header {
+.add-list-header {
   display: flex;
   justify-content: flex-end;
-  margin-bottom: 15px;
+  padding: 12px;
 }
 
 .close-btn {
@@ -33,47 +35,66 @@
   cursor: pointer;
   padding: 0;
   line-height: 1;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .close-btn:hover {
   color: #333;
 }
 
+.input-container {
+  padding: 0 24px 24px;
+}
+
 .list-title-input {
   width: 100%;
-  padding: 12px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 16px;
-  margin-bottom: 20px;
+  padding: 8px 0;
+  border: none;
+  border-bottom: 1px solid #ddd;
+  font-size: 32px;
+  color: #757575;
+  font-weight: 300;
+  background: transparent;
+}
+
+.list-title-input::placeholder {
+  color: #BBBBBB;
+  opacity: 1;
 }
 
 .list-title-input:focus {
   outline: none;
-  border-color: #4285f4;
+  border-bottom-color: #4285f4;
 }
 
-.popup-actions {
+.add-list-actions {
   display: flex;
   justify-content: flex-end;
+  padding: 16px 24px;
 }
 
 .continue-btn {
-  background-color: #4285f4;
+  background-color: #a9d1f8;
   color: white;
   border: none;
-  padding: 8px 24px;
-  border-radius: 4px;
+  padding: 12px 32px;
+  border-radius: 24px;
   font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
   transition: background-color 0.2s;
 }
 
-.continue-btn:hover {
-  background-color: #3367d6;
+.continue-btn:hover:not(:disabled) {
+  background-color: #88c0f8;
 }
 
 .continue-btn:disabled {
-  background-color: #ccc;
+  background-color: #a9d1f8;
   cursor: not-allowed;
+  opacity: 0.7;
 } 
