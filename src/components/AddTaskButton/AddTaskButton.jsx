@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import './AddTaskButton.css';
 
-const AddTaskButton = ({ onAddTask, dueDate }) => {
+const AddTaskButton = ({ onAddTask, dueDate, sourceView = 'default' }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [taskTitle, setTaskTitle] = useState('');
   const formRef = useRef(null);
@@ -34,7 +34,8 @@ const AddTaskButton = ({ onAddTask, dueDate }) => {
         title: taskTitle,
         completed: false,
         list: 'Personal',
-        dueDate: dueDate
+        dueDate: dueDate,
+        sourceView: sourceView
       });
       setTaskTitle('');
       setIsExpanded(false);

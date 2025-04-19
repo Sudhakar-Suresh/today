@@ -63,7 +63,7 @@ const MainContent = ({
     ));
   };
   
-  // Helper functions for date checking (copied from App.jsx)
+  // Helper functions for date checking
   const isTaskDueToday = (task) => {
     if (!task.dueDate) return false;
     const today = new Date();
@@ -90,7 +90,15 @@ const MainContent = ({
     : tasks.filter(task => task.completed);
   
   // Filter tasks for My Day view
-  const myDayTasks = activeTasks.filter(task => isTaskDueToday(task));
+  const myDayTasks = activeTasks.filter(task => {
+    // A task should appear in My Day if:
+    // 1. It was created in My Day view (sourceView === 'myday'), OR
+    // 2. It is due today AND wasn't created in Next7Days view
+    return (
+      task.sourceView === 'myday' || 
+      (isTaskDueToday(task) && task.sourceView !== 'next7days')
+    );
+  });
   
   // Filter tasks for Next 7 Days view
   const next7DaysTasks = activeTasks.filter(task => isTaskDueInNext7Days(task));
@@ -122,7 +130,7 @@ const MainContent = ({
       case 'My day':
         return (
           <MyDay 
-            tasks={myDayTasks} // Only pass tasks due today
+            tasks={myDayTasks}
             onAddTask={handleAddTask}
             onToggleComplete={handleToggleComplete} 
             onDelete={handleDelete} 
@@ -138,7 +146,7 @@ const MainContent = ({
       case 'Next 7 days':
         return (
           <Next7Days 
-            tasks={next7DaysTasks} // Only pass tasks due in next 7 days
+            tasks={next7DaysTasks}
             onAddTask={handleAddTask}
             onToggleComplete={handleToggleComplete} 
             onDelete={handleDelete} 

@@ -65,6 +65,15 @@ const Next7Days = ({
     });
   };
 
+  // Higher-order function to wrap onAddTask with sourceView
+  const handleAddTask = (task) => {
+    // Add sourceView directly here to ensure all tasks added from this view have the property
+    onAddTask({
+      ...task,
+      sourceView: 'next7days'
+    });
+  };
+
   return (
     <div className={`next7days-container ${isSidebarExpanded ? 'with-sidebar' : 'full-width'}`}>
       <div className="next7days-header">
@@ -105,8 +114,9 @@ const Next7Days = ({
                 />
               ))}
               <AddTaskButton 
-                onAddTask={onAddTask} 
+                onAddTask={handleAddTask} 
                 dueDate={day.date}
+                sourceView="next7days"
               />
             </div>
           </div>

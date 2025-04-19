@@ -39,7 +39,9 @@ const MyDay = ({
           id: Date.now(),
           title: newTaskTitle,
           completed: false,
-          list: "Personal"
+          list: "Personal",
+          dueDate: today.toISOString(),
+          sourceView: "myday"
         });
       }
       setNewTaskTitle('');

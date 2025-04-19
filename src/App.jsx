@@ -62,8 +62,15 @@ function App() {
 
   // Calculate task counts
   const taskCounts = {
-    myDay: tasks.filter(task => !task.completed && isTaskDueToday(task)).length,
-    next7Days: tasks.filter(task => !task.completed && isTaskDueInNext7Days(task)).length,
+    myDay: tasks.filter(task => 
+      !task.completed && (
+        task.sourceView === 'myday' || 
+        (isTaskDueToday(task) && task.sourceView !== 'next7days')
+      )
+    ).length,
+    next7Days: tasks.filter(task => 
+      !task.completed && isTaskDueInNext7Days(task)
+    ).length,
     allTasks: tasks.filter(task => !task.completed).length,
     completed: tasks.filter(task => task.completed).length
   };
