@@ -1,21 +1,28 @@
 import React, { useState } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTimes, faTrash } from '@fortawesome/free-solid-svg-icons';
 import './EditTagPopup.css';
 
 const EditTagPopup = ({ tag, onSave, onDelete, onClose }) => {
   const [tagName, setTagName] = useState(tag ? tag.name : '');
-  const [selectedColor, setSelectedColor] = useState(tag ? tag.color : '#4285f4');
+  const [selectedColor, setSelectedColor] = useState(tag ? tag.color : '#03A9F4');
 
   const colors = [
-    '#4285f4', // Blue
-    '#34a853', // Green
-    '#fbbc05', // Yellow
-    '#ea4335', // Red
-    '#ff7043', // Orange
-    '#9c27b0', // Purple
-    '#795548', // Brown
-    '#607d8b', // Gray
+    '#FF4D4D', // Red
+    '#FF7E45', // Orange
+    '#FFBD36', // Amber
+    '#FFEB3B', // Yellow
+    '#4CAF50', // Green
+    
+    '#8BC34A', // Light Green
+    '#00BCD4', // Teal
+    '#03A9F4', // Light Blue
+    '#2196F3', // Blue
+    '#3F51B5', // Indigo
+    
+    '#9C27B0', // Purple
+    '#C62828', // Dark Red
+    '#E91E63', // Pink
+    '#F48FB1', // Light Pink
+    '#9E9E9E', // Grey
   ];
 
   const handleSave = () => {
@@ -33,63 +40,49 @@ const EditTagPopup = ({ tag, onSave, onDelete, onClose }) => {
   };
 
   return (
-    <div className="edit-tag-popup">
-      <div className="edit-tag-header">
-        <h3>{tag ? 'Edit Tag' : 'New Tag'}</h3>
-        <button className="close-btn" onClick={onClose}>
-          <FontAwesomeIcon icon={faTimes} />
-        </button>
-      </div>
-
-      <div className="edit-tag-content">
-        <div className="input-group">
-          <label>Name</label>
-          <input
-            type="text"
-            value={tagName}
-            onChange={(e) => setTagName(e.target.value)}
-            placeholder="Enter tag name"
-            autoFocus
-          />
-        </div>
-
-        <div className="color-picker">
-          <label>Color</label>
-          <div className="color-options">
-            {colors.map((color) => (
-              <button
-                key={color}
-                className={`color-option ${selectedColor === color ? 'selected' : ''}`}
-                style={{ backgroundColor: color }}
-                onClick={() => setSelectedColor(color)}
-              />
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <div className="edit-tag-footer">
-        {tag && (
-          <button 
-            className="delete-btn"
-            onClick={() => {
-              onDelete(tag);
-              onClose();
-            }}
-          >
-            <FontAwesomeIcon icon={faTrash} />
-            Delete
+    <div className="edit-tag-overlay">
+      <div className="edit-tag-popup" onClick={(e) => e.stopPropagation()}>
+        <div className="edit-tag-header">
+          <button className="back-btn" onClick={onClose}>
+            ←
           </button>
-        )}
-        <div className="right-actions">
-          <button className="cancel-btn" onClick={onClose}>Cancel</button>
+          <span>{tag ? 'Edit Tag' : 'New Tag'}</span>
           <button 
-            className="save-btn"
+            className="save-tag-btn"
             onClick={handleSave}
             disabled={!tagName.trim()}
           >
-            Save
+            SAVE
           </button>
+        </div>
+
+        <div className="edit-tag-content">
+          <div className="tag-name-section">
+            <label>TAG NAME</label>
+            <input
+              type="text"
+              value={tagName}
+              onChange={(e) => setTagName(e.target.value)}
+              placeholder="Type a name"
+              autoFocus
+            />
+          </div>
+
+          <div className="color-section">
+            <label>COLOR</label>
+            <div className="color-grid">
+              {colors.map((color, index) => (
+                <button
+                  key={index}
+                  className={`color-option ${selectedColor === color ? 'selected' : ''}`}
+                  style={{ backgroundColor: color }}
+                  onClick={() => setSelectedColor(color)}
+                >
+                  {selectedColor === color && '✓'}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </div>

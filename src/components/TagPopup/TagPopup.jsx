@@ -82,54 +82,60 @@ const TagPopup = ({ tags, setTags, selectedTags, setSelectedTags, closePopup, sa
   );
 
   return (
-    <div className="tag-popup" onClick={(e) => e.stopPropagation()}>
-      <div className="tag-popup-header">
-        <span>Tags</span>
-        <button className="add-tag-btn" onClick={handleAddTag}>+</button>
-      </div>
-      
-      <div className="tag-popup-search">
-        <span className="search-icon">🔍</span>
-        <input
-          type="text"
-          placeholder="Search tags"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
-      </div>
-      
-      <div className="tag-popup-list">
-        {filteredTags.map((tag) => (
-          <div key={tag.name} className="tag-item">
-            <label className="tag-checkbox">
-              <input
-                type="checkbox"
-                checked={localSelectedTags.some(t => t.name === tag.name)}
-                onChange={() => handleTagToggle(tag)}
-              />
-              <span className="checkmark"></span>
-            </label>
+    <>
+      <div className="tag-popup" onClick={(e) => e.stopPropagation()}>
+        <div className="tag-popup-header">
+          <span>Tags</span>
+          <button className="add-tag-btn" onClick={handleAddTag}>+</button>
+        </div>
+        
+        <div className="tag-popup-search">
+          <span className="search-icon">🔍</span>
+          <input
+            type="text"
+            placeholder="Search tags"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+        
+        <div className="tag-popup-list">
+          {filteredTags.map((tag) => (
             <div 
-              className="tag-label"
-              style={{ backgroundColor: tag.color }}
+              key={tag.name} 
+              className={`tag-item ${tag.name === 'Priority' ? 'priority-tag' : ''}`}
+              style={tag.name !== 'Priority' ? {backgroundColor: tag.color} : {}}
             >
-              {tag.name}
+              <label className="tag-checkbox">
+                <input
+                  type="checkbox"
+                  checked={localSelectedTags.some(t => t.name === tag.name)}
+                  onChange={() => handleTagToggle(tag)}
+                />
+                <span className="checkmark"></span>
+              </label>
+              <div className="tag-label">
+                {tag.name}
+              </div>
+              {tag.name !== "Priority" && (
+                <button 
+                  className="edit-tag-btn" 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleEditTag(tag);
+                  }}
+                >
+                  ✏️
+                </button>
+              )}
             </div>
-            {tag.name !== "Priority" && (
-              <button 
-                className="edit-tag-btn" 
-                onClick={() => handleEditTag(tag)}
-              >
-                ✏️
-              </button>
-            )}
-          </div>
-        ))}
-      </div>
-      
-      <div className="tag-popup-footer">
-        <button className="cancel-btn" onClick={closePopup}>Cancel</button>
-        <button className="save-btn" onClick={handleSave}>Save</button>
+          ))}
+        </div>
+        
+        <div className="tag-popup-footer">
+          <button className="cancel-btn" onClick={closePopup}>Cancel</button>
+          <button className="save-btn" onClick={handleSave}>Save</button>
+        </div>
       </div>
 
       {showEditPopup && (
@@ -140,7 +146,7 @@ const TagPopup = ({ tags, setTags, selectedTags, setSelectedTags, closePopup, sa
           onClose={() => setShowEditPopup(false)}
         />
       )}
-    </div>
+    </>
   );
 };
 
