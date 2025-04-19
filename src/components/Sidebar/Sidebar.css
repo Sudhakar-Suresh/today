@@ -202,13 +202,17 @@
 }
 
 .badge {
-  padding: 2px 8px;
-  border-radius: 12px;
-  font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 10px;
   background-color: #f1f3f4;
   color: #5f6368;
-  min-width: 20px;
-  text-align: center;
+  font-size: 12px;
+  font-weight: 500;
   margin-left: auto;
   transition: all 0.2s ease;
 }

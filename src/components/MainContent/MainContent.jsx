@@ -6,77 +6,59 @@ import CompletedTasks from '../pages/CompletedTasks';
 import AllTasksPage from '../pages/AllTasksPage';
 import './MainContent.css';
 
-const MainContent = ({ currentPage, userLists = [], selectedList = null, isSidebarExpanded = false }) => {
-  const [tasks, setTasks] = useState([
-    {
-      id: 1,
-      title: "Sample Task",
-      completed: false,
-      list: "Personal"
-    },
-    {
-      id: 2,
-      title: "Work Project",
-      completed: false,
-      list: "Work"
-    },
-    {
-      id: 3,
-      title: "Buy groceries",
-      completed: false,
-      list: "Shopping"
-    }
-  ]);
-  
-  // For filtered tasks based on selected list
+const MainContent = ({ 
+  currentPage, 
+  userLists = [], 
+  selectedList = null, 
+  isSidebarExpanded = false,
+  tasks = [],
+  onTaskUpdate
+}) => {
   const [filteredTasks, setFilteredTasks] = useState([]);
 
-  // Apply list filtering 
   useEffect(() => {
     if (selectedList) {
-      // When a list is selected, filter tasks by that list
       setFilteredTasks(tasks.filter(task => task.list === selectedList));
     } else {
-      // Otherwise use all tasks
       setFilteredTasks(tasks);
     }
   }, [selectedList, tasks]);
-  
+
   const handleAddTask = (newTask) => {
-    setTasks([...tasks, newTask]);
+    onTaskUpdate([...tasks, newTask]);
   };
-  
+
   const handleToggleComplete = (taskId, isCompleted) => {
-    setTasks(tasks.map(task =>
+    onTaskUpdate(tasks.map(task =>
       task.id === taskId ? { ...task, completed: isCompleted } : task
     ));
   };
-  
+
   const handleDelete = (taskId) => {
-    setTasks(tasks.filter(task => task.id !== taskId));
+    onTaskUpdate(tasks.filter(task => task.id !== taskId));
   };
   
   const handleUpdateTags = (taskId, newTags) => {
-    setTasks(tasks.map(task =>
+    onTaskUpdate(tasks.map(task =>
       task.id === taskId ? { ...task, tags: newTags } : task
     ));
   };
   
   const handleUpdateList = (taskId, newList) => {
     console.log("MainContent - Updating task", taskId, "to list:", newList);
-    setTasks(tasks.map(task =>
+    onTaskUpdate(tasks.map(task =>
       task.id === taskId ? { ...task, list: newList } : task
     ));
   };
   
   const handleTogglePin = (taskId, isPinned) => {
-    setTasks(tasks.map(task =>
+    onTaskUpdate(tasks.map(task =>
       task.id === taskId ? { ...task, pinned: isPinned } : task
     ));
   };
   
   const handleUpdateReminder = (taskId, reminderData) => {
-    setTasks(tasks.map(task =>
+    onTaskUpdate(tasks.map(task =>
       task.id === taskId ? { ...task, reminder: reminderData } : task
     ));
   };

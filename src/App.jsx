@@ -11,21 +11,21 @@ function App() {
   const [selectedList, setSelectedList] = useState(null);
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
   
-  // Sample tasks with due dates
+  // Define tasks at the App level
   const [tasks, setTasks] = useState([
     {
       id: 1,
       title: "Complete project documentation",
       completed: false,
       list: "Work",
-      dueDate: new Date().toISOString() // Today
+      dueDate: new Date().toISOString()
     },
     {
       id: 2,
       title: "Review weekly goals",
       completed: false,
       list: "Personal",
-      dueDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString() // 3 days from now
+      dueDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString()
     },
     {
       id: 3,
@@ -33,6 +33,13 @@ function App() {
       completed: true,
       list: "Shopping",
       dueDate: new Date().toISOString()
+    },
+    {
+      id: 4,
+      title: "Team meeting preparation",
+      completed: false,
+      list: "Work",
+      dueDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString()
     }
   ]);
 
@@ -53,7 +60,7 @@ function App() {
     return dueDate >= today && dueDate <= next7Days;
   };
 
-  // Calculate task counts for badges
+  // Calculate task counts
   const taskCounts = {
     myDay: tasks.filter(task => !task.completed && isTaskDueToday(task)).length,
     next7Days: tasks.filter(task => !task.completed && isTaskDueInNext7Days(task)).length,
