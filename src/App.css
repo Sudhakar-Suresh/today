@@ -10,10 +10,10 @@
 }
 
 .sidebar {
-  width: 250px;
-  background-color: #ffffff;
+  background-color: rgb(253, 253, 253);
   height: 100vh;
-  padding: 20px;
+  padding: 0px;
+  
 }
 
 .main-content {
@@ -29,6 +29,7 @@
   overflow: hidden;
   position: relative;
   background-color: white;
+  margin-right: -100px;
 }
 
 .app-container.sidebar-closed {

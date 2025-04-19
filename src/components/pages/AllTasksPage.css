@@ -932,7 +932,6 @@
 .add-task-button,
 .add-section-button {
   background-color: transparent;
-  border: 2px dashed #ddd;
   border-radius: 8px;
   padding: 12px;
   color: #666;
@@ -944,7 +943,6 @@
 }
 
 .add-task-button {
-  height: 100px;
   display: flex;
   align-items: center;
   justify-content: center;
