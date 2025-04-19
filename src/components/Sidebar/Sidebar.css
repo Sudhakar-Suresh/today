@@ -39,15 +39,13 @@
 /* Sidebar styles */
 .sidebar {
   width: 250px;
-  background-color: #f8f9fa;
+  background-color: #ffffff;
   height: 100vh;
   padding: 20px;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-  color: #1f1d1d;
   position: fixed;
   left: 0;
   top: 0;
-  border-right: 1px solid #eeecec;
+  border-right: 1px solid #ffffff;
   overflow-y: auto;
   transition: transform 0.3s ease;
   z-index: 1000;
