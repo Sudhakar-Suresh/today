@@ -12,15 +12,21 @@ import calendarData from '../../assets/sidebar/calendar.json';
 import dateData from '../../assets/sidebar/date.json';
 import taskData from '../../assets/sidebar/task.json';
 import bookData from '../../assets/sidebar/book.json';
+import homeData from '../../assets/sidebar/home.json';
 
 const Sidebar = ({ onPageChange, onAddList, userLists = [], activeItem = 'My day', onListSelect, onSidebarToggle }) => {
+  // Create refs for each icon
   const settingRef = useRef(null);
   const calendarRef = useRef(null);
   const dateRef = useRef(null);
   const taskRef = useRef(null);
   const bookRef = useRef(null);
+  const homeRef = useRef(null);
   const sidebarRef = useRef(null);
   
+  // Store animation references
+  const animationsRef = useRef({});
+
   const [showNewListInput, setShowNewListInput] = useState(false);
   const [newListName, setNewListName] = useState('');
   const [isExpanded, setIsExpanded] = useState(false);
@@ -28,9 +34,20 @@ const Sidebar = ({ onPageChange, onAddList, userLists = [], activeItem = 'My day
   const newListInputRef = useRef(null);
   const [showAddListPopup, setShowAddListPopup] = useState(false);
 
+  // Create a ref array for list icons
+  const listIconRefs = useRef([]);
+
   useEffect(() => {
-    // Initialize animations
-    const settingAnim = lottie.loadAnimation({
+    // Resize the refs array when userLists changes
+    listIconRefs.current = userLists.map(() => ({
+      ref: React.createRef(),
+      animation: null
+    }));
+  }, [userLists]);
+
+  useEffect(() => {
+    // Initialize animations and store them in animationsRef
+    animationsRef.current.setting = lottie.loadAnimation({
       container: settingRef.current,
       renderer: 'svg',
       loop: false,
@@ -38,7 +55,7 @@ const Sidebar = ({ onPageChange, onAddList, userLists = [], activeItem = 'My day
       animationData: settingData
     });
 
-    const calendarAnim = lottie.loadAnimation({
+    animationsRef.current.calendar = lottie.loadAnimation({
       container: calendarRef.current,
       renderer: 'svg',
       loop: false,
@@ -46,7 +63,7 @@ const Sidebar = ({ onPageChange, onAddList, userLists = [], activeItem = 'My day
       animationData: calendarData
     });
 
-    const dateAnim = lottie.loadAnimation({
+    animationsRef.current.date = lottie.loadAnimation({
       container: dateRef.current,
       renderer: 'svg',
       loop: false,
@@ -54,7 +71,7 @@ const Sidebar = ({ onPageChange, onAddList, userLists = [], activeItem = 'My day
       animationData: dateData
     });
 
-    const taskAnim = lottie.loadAnimation({
+    animationsRef.current.task = lottie.loadAnimation({
       container: taskRef.current,
       renderer: 'svg',
       loop: false,
@@ -62,23 +79,48 @@ const Sidebar = ({ onPageChange, onAddList, userLists = [], activeItem = 'My day
       animationData: taskData
     });
     
-    const bookAnim = lottie.loadAnimation({
+    animationsRef.current.book = lottie.loadAnimation({
       container: bookRef.current,
       renderer: 'svg',
       loop: false,
       autoplay: false,
       animationData: bookData
     });
+
+    animationsRef.current.home = lottie.loadAnimation({
+      container: homeRef.current,
+      renderer: 'svg',
+      loop: false,
+      autoplay: false,
+      animationData: homeData
+    });
+    
+    // Initialize animations for list icons
+    listIconRefs.current.forEach((iconRef, index) => {
+      if (iconRef.ref.current) {
+        iconRef.animation = lottie.loadAnimation({
+          container: iconRef.ref.current,
+          renderer: 'svg',
+          loop: false,
+          autoplay: false,
+          animationData: bookData
+        });
+      }
+    });
     
     // Clean up animations on unmount
     return () => {
-      settingAnim.destroy();
-      calendarAnim.destroy();
-      dateAnim.destroy();
-      taskAnim.destroy();
-      bookAnim.destroy();
+      Object.values(animationsRef.current).forEach(anim => {
+        if (anim) anim.destroy();
+      });
+      // Clean up list icon animations
+      listIconRefs.current.forEach(iconRef => {
+        if (iconRef.animation) {
+          iconRef.animation.destroy();
+        }
+      });
     };
-  }, []);
+  }, [userLists]);
 
   // Focus on the input when it's shown
   useEffect(() => {
@@ -87,8 +129,11 @@ const Sidebar = ({ onPageChange, onAddList, userLists = [], activeItem = 'My day
     }
   }, [showNewListInput]);
 
-  const handleItemHover = (anim) => {
-    anim.goToAndPlay(0);
+  const handleItemHover = (animKey) => {
+    const anim = animationsRef.current[animKey];
+    if (anim) {
+      anim.goToAndPlay(0);
+    }
   };
 
   const handleItemClick = (item) => {
@@ -124,10 +169,7 @@ const Sidebar = ({ onPageChange, onAddList, userLists = [], activeItem = 'My day
     if (!isPinned) {
       setIsExpanded(true);
     }
-    const settingAnim = lottie.getRegisteredAnimations().find(anim => anim.wrapper === settingRef.current);
-    if (settingAnim) {
-      settingAnim.goToAndPlay(0);
-    }
+    handleItemHover('setting');
   };
 
   // Handle mouse leave from sidebar
@@ -142,6 +184,14 @@ const Sidebar = ({ onPageChange, onAddList, userLists = [], activeItem = 'My day
     setIsPinned(!isPinned);
     if (!isPinned) {
       setIsExpanded(true);
+    }
+  };
+
+  // Add a handler for list icon hover
+  const handleListIconHover = (index) => {
+    const iconRef = listIconRefs.current[index];
+    if (iconRef && iconRef.animation) {
+      iconRef.animation.goToAndPlay(0);
     }
   };
 
@@ -186,9 +236,9 @@ const Sidebar = ({ onPageChange, onAddList, userLists = [], activeItem = 'My day
             <li 
               className={`nav-item ${activeItem === 'My day' ? 'active' : ''}`}
               onClick={() => handleItemClick('My day')}
-              onMouseEnter={() => handleItemHover(lottie.getRegisteredAnimations().find(anim => anim.wrapper === dateRef.current))}
+              onMouseEnter={() => handleItemHover('home')}
             >
-              <div className="nav-icon lottie-icon" ref={dateRef}></div>
+              <div className="nav-icon lottie-icon" ref={homeRef}></div>
               <span className="nav-label">My day</span>
               <span className="badge">1</span>
             </li>
@@ -196,9 +246,9 @@ const Sidebar = ({ onPageChange, onAddList, userLists = [], activeItem = 'My day
             <li 
               className={`nav-item ${activeItem === 'Next 7 days' ? 'active' : ''}`}
               onClick={() => handleItemClick('Next 7 days')}
-              onMouseEnter={() => handleItemHover(lottie.getRegisteredAnimations().find(anim => anim.wrapper === calendarRef.current))}
+              onMouseEnter={() => handleItemHover('date')}
             >
-              <div className="nav-icon lottie-icon" ref={calendarRef}></div>
+              <div className="nav-icon lottie-icon" ref={dateRef}></div>
               <span className="nav-label">Next 7 days</span>
               <span className="badge">7</span>
             </li>
@@ -206,7 +256,7 @@ const Sidebar = ({ onPageChange, onAddList, userLists = [], activeItem = 'My day
             <li 
               className={`nav-item ${activeItem === 'All my tasks' ? 'active' : ''}`}
               onClick={() => handleItemClick('All my tasks')}
-              onMouseEnter={() => handleItemHover(lottie.getRegisteredAnimations().find(anim => anim.wrapper === taskRef.current))}
+              onMouseEnter={() => handleItemHover('task')}
             >
               <div className="nav-icon lottie-icon" ref={taskRef}></div>
               <span className="nav-label">All my tasks</span>
@@ -216,7 +266,7 @@ const Sidebar = ({ onPageChange, onAddList, userLists = [], activeItem = 'My day
             <li 
               className={`nav-item ${activeItem === 'My Calendar' ? 'active' : ''}`}
               onClick={() => handleItemClick('My Calendar')}
-              onMouseEnter={() => handleItemHover(lottie.getRegisteredAnimations().find(anim => anim.wrapper === calendarRef.current))}
+              onMouseEnter={() => handleItemHover('calendar')}
             >
               <div className="nav-icon lottie-icon" ref={calendarRef}></div>
               <span className="nav-label">My Calendar</span>
@@ -226,9 +276,9 @@ const Sidebar = ({ onPageChange, onAddList, userLists = [], activeItem = 'My day
             <li 
               className={`nav-item ${activeItem === 'Completed tasks' ? 'active' : ''}`}
               onClick={() => handleItemClick('Completed tasks')}
-              onMouseEnter={() => handleItemHover(lottie.getRegisteredAnimations().find(anim => anim.wrapper === taskRef.current))}
+              onMouseEnter={() => handleItemHover('book')}
             >
-              <div className="nav-icon lottie-icon" ref={taskRef}></div>
+              <div className="nav-icon lottie-icon" ref={bookRef}></div>
               <span className="nav-label">Completed tasks</span>
             </li>
           </ul>
@@ -245,8 +295,12 @@ const Sidebar = ({ onPageChange, onAddList, userLists = [], activeItem = 'My day
                 key={index}
                 className={`list-item ${activeItem === listName ? 'active' : ''}`}
                 onClick={() => handleListClick(listName)}
+                onMouseEnter={() => handleListIconHover(index)}
               >
-                <div className="nav-icon lottie-icon" ref={index === 0 ? bookRef : null}></div>
+                <div 
+                  className="nav-icon lottie-icon" 
+                  ref={listIconRefs.current[index]?.ref}
+                ></div>
                 <span className="list-label">{listName}</span>
               </li>
             ))}
