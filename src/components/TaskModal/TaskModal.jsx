@@ -1,173 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faBell,
-  faTags,
-  faPlus,
-  faTag,
-  faXmark
-} from "@fortawesome/free-solid-svg-icons";
-import ListEditPopup from '../ListEditPopup/ListEditPopup';
-import TagPopup from '../TagPopup/TagPopup';
+import React, { useState } from 'react';
 import './TaskModal.css';
 
-const TaskModal = ({ onClose, onSave, initialDate, availableLists = ['Personal', 'Work', 'Shopping', 'Ideas'] }) => {
+const TaskModal = ({ onClose, onSave }) => {
   const [taskData, setTaskData] = useState({
     title: '',
     notes: '',
-    dueDate: initialDate || new Date(),
+    reminder: 'Later today, 2:22PM',
     list: 'Personal',
-    isReminderSet: false,
-    reminder: formatTimeForToday(new Date()),
-    tags: [],
-    completed: false
+    reminderEnabled: false
   });
 
-  const [errors, setErrors] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showListPopup, setShowListPopup] = useState(false);
-  const [showTagPopup, setShowTagPopup] = useState(false);
-  const [allTags, setAllTags] = useState([
-    { name: "Work", color: "#FF4D4D" },
-    { name: "Personal", color: "#45AFFF" },
-    { name: "Important", color: "#FFD84D" },
-    { name: "Urgent", color: "#D32F2F" },
-    { name: "Shopping", color: "#57CC57" },
-    { name: "Ideas", color: "#AB47BC" }
-  ]);
-
-  // Format time for today's reminder
-  function formatTimeForToday(date) {
-    return new Date().toLocaleTimeString([], { 
-      hour: '2-digit', 
-      minute: '2-digit',
-      hour12: true 
-    });
-  }
-
-  // Format date for display
-  function formatDate(date) {
-    const today = new Date();
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    
-    const taskDate = new Date(date);
-    
-    if (isSameDay(taskDate, today)) {
-      return `Later today, ${formatTimeForToday(taskDate)}`;
-    } else if (isSameDay(taskDate, tomorrow)) {
-      return `Tomorrow, ${formatTimeForToday(taskDate)}`;
-    } else {
-      return taskDate.toLocaleDateString('en-US', {
-        weekday: 'long',
-        month: 'short',
-        day: 'numeric'
-      }) + `, ${formatTimeForToday(taskDate)}`;
-    }
-  }
-
-  function isSameDay(date1, date2) {
-    return date1.getDate() === date2.getDate() &&
-           date1.getMonth() === date2.getMonth() &&
-           date1.getFullYear() === date2.getFullYear();
-  }
-
-  const validateForm = () => {
-    const newErrors = {};
-    if (!taskData.title.trim()) {
-      newErrors.title = 'Title is required';
-    }
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    
-    if (!validateForm()) {
-      return;
-    }
-
-    setIsSubmitting(true);
-    setErrors({});
-
-    try {
-      // Create the final task object
-      const finalTaskData = {
-        ...taskData,
-        dueDate: new Date(taskData.dueDate).toISOString(),
-        reminder: taskData.isReminderSet ? new Date(
-          taskData.dueDate.getFullYear(),
-          taskData.dueDate.getMonth(),
-          taskData.dueDate.getDate(),
-          ...taskData.reminder.split(':')
-        ).toISOString() : null
-      };
-
-      const success = await onSave(finalTaskData);
-      
-      if (success) {
-        onClose();
-      } else {
-        setErrors({ submit: 'Failed to save task. Please try again.' });
-      }
-    } catch (error) {
-      console.error('Error saving task:', error);
-      setErrors({ submit: 'Failed to save task. Please try again.' });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleKeyDown = (e) => {
-    // Close on Escape
-    if (e.key === 'Escape') {
-      onClose();
-    }
-    // Save on Ctrl/Cmd + Enter
-    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-      handleSubmit(e);
-    }
-  };
-
-  useEffect(() => {
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [taskData]);
-
-  const handleListClick = () => {
-    setShowListPopup(true);
-  };
-
-  const handleUpdateList = (newList) => {
-    setTaskData({ ...taskData, list: newList });
-    setShowListPopup(false);
-  };
-
-  const handleTagsClick = () => {
-    setShowTagPopup(true);
-  };
-
-  const handleSaveTags = (updatedAllTags, selectedTags) => {
-    setAllTags(updatedAllTags);
-    setTaskData({ ...taskData, tags: selectedTags });
-    setShowTagPopup(false);
-  };
-
-  const handleRemoveTag = (tagToRemove) => {
-    const updatedTags = taskData.tags.filter(tag => tag.name !== tagToRemove.name);
-    setTaskData({ ...taskData, tags: updatedTags });
-  };
-
-  // Get list color helper function
-  const getListColor = (listName) => {
-    const colors = {
-      'Personal': '#4285f4',
-      'Work': '#ea4335',
-      'Shopping': '#34a853',
-      'Ideas': '#fbbc05',
-    };
-    return colors[listName] || '#9e9e9e';
+    onSave(taskData);
   };
 
   return (
@@ -176,144 +21,67 @@ const TaskModal = ({ onClose, onSave, initialDate, availableLists = ['Personal',
     }}>
       <div className="task-modal">
         {/* Header */}
-        <div className="task-modal-header">
-          <div className="breadcrumb-nav">
-            <span>My lists</span>
-            <span className="breadcrumb-separator">></span>
-            <span>{taskData.list}</span>
-          </div>
-          <div className="task-type-selector">
-            <button className={`type-btn ${!taskData.isShared ? 'active' : ''}`}>
-              Task
-            </button>
-            <button className={`type-btn ${taskData.isShared ? 'active' : ''}`}>
-              Shared task
-            </button>
+        <div className="modal-header">
+          <div className="task-type-toggle">
+            <button className="type-btn active">Task</button>
+            <button className="type-btn">Shared task</button>
           </div>
           <button className="close-btn" onClick={onClose}>×</button>
         </div>
 
-        {/* Task Form */}
-        <form onSubmit={handleSubmit} className="task-form">
-          <input
-            type="text"
-            className={`title-input ${errors.title ? 'error' : ''}`}
-            placeholder="Add title"
-            value={taskData.title}
-            onChange={(e) => {
-              setTaskData({ ...taskData, title: e.target.value });
-              if (errors.title) setErrors({ ...errors, title: '' });
-            }}
-            autoFocus
-          />
-          {errors.title && <div className="error-message">{errors.title}</div>}
+        {/* Breadcrumb */}
+        <div className="breadcrumb">
+          <span className="breadcrumb-text">My lists</span>
+          <span className="breadcrumb-separator">></span>
+          <span className="breadcrumb-text">Personal</span>
+        </div>
 
-          <div className="quick-actions">
-            <button 
-              type="button"
-              className="quick-action-btn reminder-btn"
-              onClick={() => setTaskData({ ...taskData, isReminderSet: !taskData.isReminderSet })}
-            >
-              <FontAwesomeIcon icon={faBell} />
-              <span>{formatDate(taskData.dueDate)}</span>
-            </button>
-            
-            <button 
-              type="button"
-              className="quick-action-btn list-btn"
-              onClick={handleListClick}
-            >
-              <span className="list-color" style={{ backgroundColor: getListColor(taskData.list) }}></span>
-              <span>{taskData.list}</span>
-            </button>
-            
-            <button 
-              type="button"
-              className="quick-action-btn tags-btn"
-              onClick={handleTagsClick}
-            >
-              <FontAwesomeIcon icon={faTags} />
-              <span>{taskData.tags.length > 0 ? `${taskData.tags.length} tags` : "Tags"}</span>
-            </button>
-          </div>
+        {/* Logo */}
+        <div className="logo-section">
+          <img src="path-to-your-logo.png" alt="sdf" className="task-logo" />
+        </div>
 
-          {taskData.tags.length > 0 && (
-            <div className="tags-display">
-              {taskData.tags.map(tag => (
-                <div 
-                  key={tag.name}
-                  className="tag-badge"
-                  style={{ backgroundColor: tag.color + '20', color: tag.color }} 
-                >
-                  <FontAwesomeIcon icon={faTag} className="tag-icon" />
-                  <span className="tag-name">{tag.name}</span>
-                  <button 
-                    type="button"
-                    className="remove-tag-btn" 
-                    onClick={() => handleRemoveTag(tag)}
-                  >
-                    <FontAwesomeIcon icon={faXmark} />
-                  </button>
-                </div>
-              ))}
-              <button type="button" className="add-tag-badge" onClick={handleTagsClick}>
-                <FontAwesomeIcon icon={faPlus} />
-                <span>Add tag</span>
-              </button>
+        {/* Quick Actions */}
+        <div className="quick-actions">
+          <button 
+            className={`action-btn reminder-btn ${taskData.reminderEnabled ? 'active' : ''}`}
+            onClick={() => setTaskData({ 
+              ...taskData, 
+              reminderEnabled: !taskData.reminderEnabled 
+            })}
+          >
+            <span className="reminder-icon">⏰</span>
+            <span>Later today, 2:22PM</span>
+            <div className="toggle-switch">
+              <div className={`toggle-slider ${taskData.reminderEnabled ? 'active' : ''}`} />
             </div>
-          )}
+          </button>
 
-          <textarea
-            className="notes-input"
-            placeholder="Add notes..."
-            value={taskData.notes}
-            onChange={(e) => setTaskData({ ...taskData, notes: e.target.value })}
-          />
+          <button className="action-btn list-btn">
+            <span className="list-icon">📁</span>
+            <span>Personal</span>
+          </button>
 
-          {errors.submit && <div className="error-message submit-error">{errors.submit}</div>}
+          <button className="action-btn tags-btn">
+            <span className="tags-icon">#</span>
+            <span>Tags</span>
+          </button>
+        </div>
 
-          <div className="modal-footer">
-            <button 
-              type="submit" 
-              className="save-btn" 
-              disabled={isSubmitting}
-            >
-              Save
-            </button>
-          </div>
-        </form>
+        {/* Notes Input */}
+        <textarea
+          className="notes-input"
+          placeholder="Add notes..."
+          value={taskData.notes}
+          onChange={(e) => setTaskData({ ...taskData, notes: e.target.value })}
+        />
 
-        {showListPopup && (
-          <ListEditPopup
-            lists={availableLists}
-            selectedList={taskData.list}
-            onClose={() => setShowListPopup(false)}
-            onEdit={handleUpdateList}
-          />
-        )}
-
-        {showTagPopup && (
-          <>
-            <div className="tag-popup-overlay" onClick={() => setShowTagPopup(false)}></div>
-            <div className="tag-popup-container">
-              <TagPopup 
-                tags={allTags}
-                setTags={setAllTags}
-                selectedTags={taskData.tags}
-                setSelectedTags={(tags) => setTaskData({ ...taskData, tags })}
-                closePopup={() => setShowTagPopup(false)}
-                saveTags={handleSaveTags}
-                onDelete={(tag) => {
-                  setAllTags(allTags.filter(t => t.name !== tag.name));
-                  setTaskData({
-                    ...taskData,
-                    tags: taskData.tags.filter(t => t.name !== tag.name)
-                  });
-                }}
-              />
-            </div>
-          </>
-        )}
+        {/* Save Button */}
+        <div className="modal-footer">
+          <button className="save-btn" onClick={handleSubmit}>
+            Save
+          </button>
+        </div>
       </div>
     </div>
   );
