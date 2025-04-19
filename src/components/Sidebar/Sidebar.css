@@ -202,13 +202,24 @@
 }
 
 .badge {
-  padding: 2px 6px;
-  border-radius: 10px;
+  padding: 2px 8px;
+  border-radius: 12px;
   font-size: 12px;
-  background-color: #e0e0e0;
-  color: #666;
+  background-color: #f1f3f4;
+  color: #5f6368;
   min-width: 20px;
   text-align: center;
+  margin-left: auto;
+  transition: all 0.2s ease;
+}
+
+.nav-item:hover .badge:not(.beta) {
+  background-color: #e8eaed;
+}
+
+.nav-item.active .badge:not(.beta) {
+  background-color: #1a73e8;
+  color: white;
 }
 
 .badge.beta {
@@ -216,7 +227,7 @@
   color: white;
   text-transform: uppercase;
   font-size: 10px;
-  transition: background-color 0.3s ease;
+  padding: 2px 6px;
 }
 
 /* Create View Button */

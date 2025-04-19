@@ -14,7 +14,7 @@ import taskData from '../../assets/sidebar/task.json';
 import bookData from '../../assets/sidebar/book.json';
 import homeData from '../../assets/sidebar/home.json';
 
-const Sidebar = ({ onPageChange, onAddList, userLists = [], activeItem = 'My day', onListSelect, onSidebarToggle }) => {
+const Sidebar = ({ onPageChange, onAddList, userLists = [], activeItem = 'My day', onListSelect, onSidebarToggle, taskCounts = {} }) => {
   // Create refs for each icon
   const settingRef = useRef(null);
   const calendarRef = useRef(null);
@@ -240,7 +240,9 @@ const Sidebar = ({ onPageChange, onAddList, userLists = [], activeItem = 'My day
             >
               <div className="nav-icon lottie-icon" ref={homeRef}></div>
               <span className="nav-label">My day</span>
-              <span className="badge">1</span>
+              {taskCounts.myDay > 0 && (
+                <span className="badge">{taskCounts.myDay}</span>
+              )}
             </li>
             
             <li 
@@ -250,7 +252,9 @@ const Sidebar = ({ onPageChange, onAddList, userLists = [], activeItem = 'My day
             >
               <div className="nav-icon lottie-icon" ref={dateRef}></div>
               <span className="nav-label">Next 7 days</span>
-              <span className="badge">7</span>
+              {taskCounts.next7Days > 0 && (
+                <span className="badge">{taskCounts.next7Days}</span>
+              )}
             </li>
             
             <li 
@@ -260,7 +264,9 @@ const Sidebar = ({ onPageChange, onAddList, userLists = [], activeItem = 'My day
             >
               <div className="nav-icon lottie-icon" ref={taskRef}></div>
               <span className="nav-label">All my tasks</span>
-              <span className="badge">7</span>
+              {taskCounts.allTasks > 0 && (
+                <span className="badge">{taskCounts.allTasks}</span>
+              )}
             </li>
             
             <li 
@@ -280,6 +286,9 @@ const Sidebar = ({ onPageChange, onAddList, userLists = [], activeItem = 'My day
             >
               <div className="nav-icon lottie-icon" ref={bookRef}></div>
               <span className="nav-label">Completed tasks</span>
+              {taskCounts.completed > 0 && (
+                <span className="badge">{taskCounts.completed}</span>
+              )}
             </li>
           </ul>
         </div>
