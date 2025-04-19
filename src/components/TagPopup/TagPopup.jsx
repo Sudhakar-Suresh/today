@@ -1,22 +1,15 @@
 import React, { useState } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus, faEdit, faArrowLeft, faCheck, faTrash, faTimes } from "@fortawesome/free-solid-svg-icons";
 import EditTagPopup from './EditTagPopup';
 import "./TagPopup.css";
 
-const TagPopup = ({ tags, setTags, selectedTags, setSelectedTags, closePopup, saveTags, onDelete }) => {
+const TagPopup = ({ tags, setTags, selectedTags, setSelectedTags, closePopup, saveTags }) => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [localSelectedTags, setLocalSelectedTags] = useState(selectedTags || []);
   const [showEditPopup, setShowEditPopup] = useState(false);
   const [editingTag, setEditingTag] = useState(null);
-  const [localTags, setLocalTags] = useState(tags);
-  const [localSelectedTags, setLocalSelectedTags] = useState(selectedTags);
+  const [localTags, setLocalTags] = useState(tags || []);
 
-  const colorOptions = [
-    "#FF4D4D", "#FF804D", "#FFC24D", "#FFD84D", "#57CC57",
-    "#45D6B6", "#45AFFF", "#3273FF", "#1F3CFF", "#AB47BC",
-    "#D32F2F", "#E91E63", "#F06292", "#9E9E9E"
-  ];
-
+  // Toggle tag selection
   const handleTagToggle = (tag) => {
     const isSelected = localSelectedTags.some(t => t.name === tag.name);
     let updatedSelectedTags;
@@ -30,18 +23,20 @@ const TagPopup = ({ tags, setTags, selectedTags, setSelectedTags, closePopup, sa
     setLocalSelectedTags(updatedSelectedTags);
   };
 
+  // Edit tag functionality
   const handleEditTag = (tag) => {
     setEditingTag(tag);
     setShowEditPopup(true);
   };
 
   const handleUpdateTag = (oldTag, updatedTag) => {
+    // Update in all tags list
     const updatedTags = localTags.map(tag => 
       tag.name === oldTag.name ? updatedTag : tag
     );
     setLocalTags(updatedTags);
 
-    // Update selected tags if the edited tag was selected
+    // Update in selected tags if needed
     const updatedSelectedTags = localSelectedTags.map(tag =>
       tag.name === oldTag.name ? updatedTag : tag
     );
@@ -50,9 +45,10 @@ const TagPopup = ({ tags, setTags, selectedTags, setSelectedTags, closePopup, sa
     setShowEditPopup(false);
   };
 
-  const handleDeleteTag = (tagToDelete) => {
-    setLocalTags(localTags.filter(tag => tag.name !== tagToDelete.name));
-    setLocalSelectedTags(localSelectedTags.filter(tag => tag.name !== tagToDelete.name));
+  // Create new tag
+  const handleAddTag = () => {
+    setEditingTag(null);
+    setShowEditPopup(true);
   };
 
   const handleCreateTag = (newTag) => {
@@ -61,97 +57,87 @@ const TagPopup = ({ tags, setTags, selectedTags, setSelectedTags, closePopup, sa
     setShowEditPopup(false);
   };
 
+  // Delete tag
+  const handleDeleteTag = (tagToDelete) => {
+    setLocalTags(localTags.filter(tag => tag.name !== tagToDelete.name));
+    setLocalSelectedTags(localSelectedTags.filter(tag => tag.name !== tagToDelete.name));
+  };
+
+  // Save changes
   const handleSave = () => {
-    setTags(localSelectedTags);
-    saveTags(localTags, localSelectedTags);
+    setSelectedTags(localSelectedTags);
+    if (saveTags) {
+      saveTags(localTags, localSelectedTags);
+    }
     closePopup();
   };
 
+  // Filter tags based on search
   const filteredTags = localTags.filter(tag =>
     tag.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Update the click handler to prevent propagation
-  const handlePopupClick = (e) => {
-    e.stopPropagation();
-  };
-
   return (
-    <div className="tags-popup" onClick={handlePopupClick}>
-      <div className="tags-header">
-        <h3>Tags</h3>
-        <div className="header-actions">
-          <button 
-            className="add-tag-btn"
-            onClick={(e) => {
-              e.stopPropagation();
-              setEditingTag(null);
-              setShowEditPopup(true);
-            }}
-          >
-            <FontAwesomeIcon icon={faPlus} />
-          </button>
-          <button className="close-btn" onClick={closePopup}>
-            <FontAwesomeIcon icon={faTimes} />
-          </button>
+    <div className="tag-popup-overlay" onClick={closePopup}>
+      <div className="tag-popup" onClick={(e) => e.stopPropagation()}>
+        <div className="tag-popup-header">
+          <span>Tags</span>
+          <button className="add-tag-btn" onClick={handleAddTag}>+</button>
         </div>
-      </div>
-
-      <div className="tags-search">
-        <input
-          type="text"
-          placeholder="Search tags..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
-      </div>
-
-      <div className="tags-list">
-        {filteredTags.map((tag) => (
-          <div key={tag.name} className="tag-item">
-            <div className="tag-item-left">
-              <input
-                type="checkbox"
-                checked={localSelectedTags.some(t => t.name === tag.name)}
-                onChange={(e) => {
-                  e.stopPropagation();
-                  handleTagToggle(tag);
-                }}
-              />
-              <span 
-                className="tag-color"
+        
+        <div className="tag-popup-search">
+          <span className="search-icon">🔍</span>
+          <input
+            type="text"
+            placeholder="Search tags"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+        
+        <div className="tag-popup-list">
+          {filteredTags.map((tag) => (
+            <div key={tag.name} className="tag-item">
+              <label className="tag-checkbox">
+                <input
+                  type="checkbox"
+                  checked={localSelectedTags.some(t => t.name === tag.name)}
+                  onChange={() => handleTagToggle(tag)}
+                />
+                <span className="checkmark"></span>
+              </label>
+              <div 
+                className="tag-label"
                 style={{ backgroundColor: tag.color }}
-              ></span>
-              <span className="tag-name">{tag.name}</span>
-            </div>
-            <div className="tag-item-actions">
-              <button 
-                className="edit-tag-btn"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleEditTag(tag);
-                }}
               >
-                <FontAwesomeIcon icon={faEdit} />
-              </button>
+                {tag.name}
+              </div>
+              {tag.name !== "Priority" && (
+                <button 
+                  className="edit-tag-btn" 
+                  onClick={() => handleEditTag(tag)}
+                >
+                  ✏️
+                </button>
+              )}
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+        
+        <div className="tag-popup-footer">
+          <button className="cancel-btn" onClick={closePopup}>Cancel</button>
+          <button className="save-btn" onClick={handleSave}>Save</button>
+        </div>
 
-      <div className="tags-footer">
-        <button className="cancel-btn" onClick={closePopup}>Cancel</button>
-        <button className="save-btn" onClick={handleSave}>Save</button>
+        {showEditPopup && (
+          <EditTagPopup
+            tag={editingTag}
+            onSave={editingTag ? handleUpdateTag : handleCreateTag}
+            onDelete={handleDeleteTag}
+            onClose={() => setShowEditPopup(false)}
+          />
+        )}
       </div>
-
-      {showEditPopup && (
-        <EditTagPopup
-          tag={editingTag}
-          onSave={editingTag ? handleUpdateTag : handleCreateTag}
-          onDelete={handleDeleteTag}
-          onClose={() => setShowEditPopup(false)}
-        />
-      )}
     </div>
   );
 };
