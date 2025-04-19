@@ -1,4 +1,14 @@
 import React, { useState, useEffect } from 'react';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faBell,
+  faTags,
+  faPlus,
+  faTag,
+  faXmark
+} from "@fortawesome/free-solid-svg-icons";
+import ListEditPopup from '../ListEditPopup/ListEditPopup';
+import TagPopup from '../TagPopup/TagPopup';
 import './TaskModal.css';
 
 const TaskModal = ({ onClose, onSave, initialDate, availableLists = ['Personal', 'Work', 'Shopping', 'Ideas'] }) => {
@@ -15,6 +25,16 @@ const TaskModal = ({ onClose, onSave, initialDate, availableLists = ['Personal',
 
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showListPopup, setShowListPopup] = useState(false);
+  const [showTagPopup, setShowTagPopup] = useState(false);
+  const [allTags, setAllTags] = useState([
+    { name: "Work", color: "#FF4D4D" },
+    { name: "Personal", color: "#45AFFF" },
+    { name: "Important", color: "#FFD84D" },
+    { name: "Urgent", color: "#D32F2F" },
+    { name: "Shopping", color: "#57CC57" },
+    { name: "Ideas", color: "#AB47BC" }
+  ]);
 
   // Format time for today's reminder
   function formatTimeForToday(date) {
@@ -115,6 +135,41 @@ const TaskModal = ({ onClose, onSave, initialDate, availableLists = ['Personal',
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [taskData]);
 
+  const handleListClick = () => {
+    setShowListPopup(true);
+  };
+
+  const handleUpdateList = (newList) => {
+    setTaskData({ ...taskData, list: newList });
+    setShowListPopup(false);
+  };
+
+  const handleTagsClick = () => {
+    setShowTagPopup(true);
+  };
+
+  const handleSaveTags = (updatedAllTags, selectedTags) => {
+    setAllTags(updatedAllTags);
+    setTaskData({ ...taskData, tags: selectedTags });
+    setShowTagPopup(false);
+  };
+
+  const handleRemoveTag = (tagToRemove) => {
+    const updatedTags = taskData.tags.filter(tag => tag.name !== tagToRemove.name);
+    setTaskData({ ...taskData, tags: updatedTags });
+  };
+
+  // Get list color helper function
+  const getListColor = (listName) => {
+    const colors = {
+      'Personal': '#4285f4',
+      'Work': '#ea4335',
+      'Shopping': '#34a853',
+      'Ideas': '#fbbc05',
+    };
+    return colors[listName] || '#9e9e9e';
+  };
+
   return (
     <div className="task-modal-overlay" onClick={(e) => {
       if (e.target === e.currentTarget) onClose();
@@ -125,7 +180,7 @@ const TaskModal = ({ onClose, onSave, initialDate, availableLists = ['Personal',
           <div className="breadcrumb-nav">
             <span>My lists</span>
             <span className="breadcrumb-separator">></span>
-            <span>Personal</span>
+            <span>{taskData.list}</span>
           </div>
           <div className="task-type-selector">
             <button className={`type-btn ${!taskData.isShared ? 'active' : ''}`}>
@@ -153,43 +208,60 @@ const TaskModal = ({ onClose, onSave, initialDate, availableLists = ['Personal',
           />
           {errors.title && <div className="error-message">{errors.title}</div>}
 
-          <div className="task-options">
-            <div className="option-item reminder">
-              <svg width="16" height="16" viewBox="0 0 16 16">
-                <path d="M8 14c1.1 0 2-.9 2-2H6c0 1.1.9 2 2 2zm4-6V6c0-2.21-1.79-4-4-4S4 3.79 4 6v2l-2 2v1h12V9l-2-1z"/>
-              </svg>
+          <div className="quick-actions">
+            <button 
+              type="button"
+              className="quick-action-btn reminder-btn"
+              onClick={() => setTaskData({ ...taskData, isReminderSet: !taskData.isReminderSet })}
+            >
+              <FontAwesomeIcon icon={faBell} />
               <span>{formatDate(taskData.dueDate)}</span>
-              <div className="toggle-switch">
-                <input
-                  type="checkbox"
-                  checked={taskData.isReminderSet}
-                  onChange={(e) => setTaskData({ ...taskData, isReminderSet: e.target.checked })}
-                />
-                <span className="toggle-slider"></span>
-              </div>
-            </div>
-
-            <div className="option-item list">
-              <svg width="16" height="16" viewBox="0 0 16 16">
-                <path d="M14 5H2v2h12V5zm0 4H2v2h12V9z"/>
-              </svg>
-              <select 
-                value={taskData.list}
-                onChange={(e) => setTaskData({ ...taskData, list: e.target.value })}
-              >
-                {availableLists.map(list => (
-                  <option key={list} value={list}>{list}</option>
-                ))}
-              </select>
-            </div>
-
-            <div className="option-item tags">
-              <svg width="16" height="16" viewBox="0 0 16 16">
-                <path d="M13.707 8.707l-5 5c-.39.39-1.023.39-1.414 0l-5-5c-.39-.39-.39-1.023 0-1.414l5-5c.39-.39 1.023-.39 1.414 0l5 5c.39.39.39 1.023 0 1.414z"/>
-              </svg>
-              Tags
-            </div>
+            </button>
+            
+            <button 
+              type="button"
+              className="quick-action-btn list-btn"
+              onClick={handleListClick}
+            >
+              <span className="list-color" style={{ backgroundColor: getListColor(taskData.list) }}></span>
+              <span>{taskData.list}</span>
+            </button>
+            
+            <button 
+              type="button"
+              className="quick-action-btn tags-btn"
+              onClick={handleTagsClick}
+            >
+              <FontAwesomeIcon icon={faTags} />
+              <span>{taskData.tags.length > 0 ? `${taskData.tags.length} tags` : "Tags"}</span>
+            </button>
           </div>
+
+          {taskData.tags.length > 0 && (
+            <div className="tags-display">
+              {taskData.tags.map(tag => (
+                <div 
+                  key={tag.name}
+                  className="tag-badge"
+                  style={{ backgroundColor: tag.color + '20', color: tag.color }} 
+                >
+                  <FontAwesomeIcon icon={faTag} className="tag-icon" />
+                  <span className="tag-name">{tag.name}</span>
+                  <button 
+                    type="button"
+                    className="remove-tag-btn" 
+                    onClick={() => handleRemoveTag(tag)}
+                  >
+                    <FontAwesomeIcon icon={faXmark} />
+                  </button>
+                </div>
+              ))}
+              <button type="button" className="add-tag-badge" onClick={handleTagsClick}>
+                <FontAwesomeIcon icon={faPlus} />
+                <span>Add tag</span>
+              </button>
+            </div>
+          )}
 
           <textarea
             className="notes-input"
@@ -210,6 +282,38 @@ const TaskModal = ({ onClose, onSave, initialDate, availableLists = ['Personal',
             </button>
           </div>
         </form>
+
+        {showListPopup && (
+          <ListEditPopup
+            lists={availableLists}
+            selectedList={taskData.list}
+            onClose={() => setShowListPopup(false)}
+            onEdit={handleUpdateList}
+          />
+        )}
+
+        {showTagPopup && (
+          <>
+            <div className="tag-popup-overlay" onClick={() => setShowTagPopup(false)}></div>
+            <div className="tag-popup-container">
+              <TagPopup 
+                tags={allTags}
+                setTags={setAllTags}
+                selectedTags={taskData.tags}
+                setSelectedTags={(tags) => setTaskData({ ...taskData, tags })}
+                closePopup={() => setShowTagPopup(false)}
+                saveTags={handleSaveTags}
+                onDelete={(tag) => {
+                  setAllTags(allTags.filter(t => t.name !== tag.name));
+                  setTaskData({
+                    ...taskData,
+                    tags: taskData.tags.filter(t => t.name !== tag.name)
+                  });
+                }}
+              />
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
