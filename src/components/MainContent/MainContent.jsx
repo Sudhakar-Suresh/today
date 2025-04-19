@@ -113,6 +113,17 @@ const MainContent = ({
     return currentPage;
   };
   
+  const handleAddTask = async (newTask) => {
+    try {
+      // Call the parent's onAddTask function
+      await onAddTask(newTask);
+      return true;
+    } catch (error) {
+      console.error('Error adding task:', error);
+      return false;
+    }
+  };
+  
   const renderContent = () => {
     switch (currentPage) {
       case 'All My Tasks':
@@ -173,6 +184,7 @@ const MainContent = ({
             availableLists={userLists}
             listFilter={selectedList}
             pageTitle={getPageTitle()}
+            onAddTask={handleAddTask}
           />
         );
       case 'Completed tasks':

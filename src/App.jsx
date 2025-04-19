@@ -105,8 +105,19 @@ function App() {
     setTasks(updatedTasks);
   };
 
-  const handleAddTask = (newTask) => {
-    setTasks(prevTasks => [...prevTasks, newTask]);
+  const handleAddTask = async (newTask) => {
+    try {
+      // Add the new task to the tasks array
+      setTasks(prevTasks => [...prevTasks, newTask]);
+      
+      // If you're using any backend service, make the API call here
+      // await api.saveTask(newTask);
+      
+      return true; // Indicate successful save
+    } catch (error) {
+      console.error('Error adding task:', error);
+      return false; // Indicate failed save
+    }
   };
 
   return (

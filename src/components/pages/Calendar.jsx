@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './Calendar.css';
 import TaskCard from '../TaskCard/TaskCard';
+import TaskModal from '../TaskModal/TaskModal';
 
 const Calendar = ({ 
   tasks = [], 
@@ -14,7 +15,14 @@ const Calendar = ({
   availableLists = []
 }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [selectedTask, setSelectedTask] = useState(null);
+  const [showTaskModal, setShowTaskModal] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [calendarTasks, setCalendarTasks] = useState(tasks);
+
+  // Update local tasks when props tasks change
+  useEffect(() => {
+    setCalendarTasks(tasks);
+  }, [tasks]);
 
   const navigateMonth = (direction) => {
     setCurrentDate(prev => {
@@ -22,6 +30,56 @@ const Calendar = ({
       newDate.setMonth(prev.getMonth() + direction);
       return newDate;
     });
+  };
+
+  const handleDayClick = (date) => {
+    setSelectedDate(date);
+    setShowTaskModal(true);
+  };
+
+  const handleSaveTask = async (taskData) => {
+    try {
+      // Create the new task object
+      const newTask = {
+        ...taskData,
+        id: Date.now(),
+        dueDate: selectedDate.toISOString(),
+        created: new Date().toISOString()
+      };
+      
+      // First update the parent component's state
+      await onAddTask(newTask);
+      
+      // Then update local state
+      setCalendarTasks(prev => [...prev, newTask]);
+      
+      // Close the modal
+      setShowTaskModal(false);
+      return true; // Indicate successful save
+    } catch (error) {
+      console.error('Error saving task:', error);
+      return false; // Indicate failed save
+    }
+  };
+
+  const getTasksForDay = (date) => {
+    return calendarTasks.filter(task => {
+      if (!task.dueDate) return false;
+      const taskDate = new Date(task.dueDate);
+      return isSameDay(taskDate, date);
+    });
+  };
+
+  const isSameDay = (date1, date2) => {
+    const d1 = new Date(date1);
+    const d2 = new Date(date2);
+    return d1.getDate() === d2.getDate() &&
+           d1.getMonth() === d2.getMonth() &&
+           d1.getFullYear() === d2.getFullYear();
+  };
+
+  const isToday = (date) => {
+    return isSameDay(date, new Date());
   };
 
   const getCalendarDays = () => {
@@ -68,24 +126,6 @@ const Calendar = ({
     return days;
   };
 
-  const isToday = (date) => {
-    const today = new Date();
-    return date.getDate() === today.getDate() &&
-           date.getMonth() === today.getMonth() &&
-           date.getFullYear() === today.getFullYear();
-  };
-
-  const handleAddTask = (date) => {
-    const task = {
-      id: Date.now(),
-      title: '',
-      completed: false,
-      dueDate: date.toISOString(),
-      list: 'Personal'
-    };
-    onAddTask(task);
-  };
-
   const weekDays = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
   const calendarDays = getCalendarDays();
 
@@ -93,7 +133,15 @@ const Calendar = ({
     <div className="calendar-page">
       <div className="calendar-header">
         <div className="header-left">
-          <button className="today-btn">TODAY</button>
+          <button 
+            className="today-btn"
+            onClick={() => {
+              const today = new Date();
+              setCurrentDate(today);
+            }}
+          >
+            TODAY
+          </button>
           <div className="month-navigation">
             <button className="nav-btn" onClick={() => navigateMonth(-1)}>&lt;</button>
             <h2>{currentDate.toLocaleString('default', { month: 'long', year: 'numeric' })}</h2>
@@ -117,33 +165,52 @@ const Calendar = ({
         </div>
 
         <div className="days-grid">
-          {calendarDays.map((day, index) => (
-            <div 
-              key={index}
-              className={`calendar-day ${
-                day.isCurrentMonth ? 'current-month' : 'other-month'
-              } ${day.isToday ? 'today' : ''}`}
-            >
-              <div className="day-content">
-                <span className="day-number">{day.dayNumber}</span>
-                <div className="task-input-wrapper">
-                  <input 
-                    type="text" 
-                    className="task-input"
-                    placeholder="Add to My Day"
-                    onKeyPress={(e) => {
-                      if (e.key === 'Enter' && e.target.value.trim()) {
-                        handleAddTask(day.date);
-                        e.target.value = '';
-                      }
-                    }}
-                  />
+          {calendarDays.map((day, index) => {
+            const dayTasks = getTasksForDay(day.date);
+            
+            return (
+              <div 
+                key={index}
+                className={`calendar-day ${
+                  day.isCurrentMonth ? 'current-month' : 'other-month'
+                } ${day.isToday ? 'today' : ''}`}
+                onClick={() => handleDayClick(day.date)}
+              >
+                <div className="day-content">
+                  <div className="day-header">
+                    <span className="day-number">{day.dayNumber}</span>
+                    {dayTasks.length > 0 && (
+                      <span className="task-count">{dayTasks.length}</span>
+                    )}
+                  </div>
+                  <div className="day-tasks">
+                    {dayTasks.map(task => (
+                      <div key={task.id} className="task-preview">
+                        <span 
+                          className="task-dot"
+                          style={{ backgroundColor: task.list === 'Personal' ? '#0078d4' : 
+                                                  task.list === 'Work' ? '#107c41' : 
+                                                  task.list === 'Shopping' ? '#ff8c00' : '#666' }}
+                        ></span>
+                        <span className="task-title">{task.title}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
+
+      {showTaskModal && (
+        <TaskModal
+          onClose={() => setShowTaskModal(false)}
+          onSave={handleSaveTask}
+          initialDate={selectedDate}
+          availableLists={availableLists}
+        />
+      )}
     </div>
   );
 };
