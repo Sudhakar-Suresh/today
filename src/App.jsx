@@ -107,11 +107,19 @@ function App() {
 
   const handleAddTask = async (newTask) => {
     try {
-      // Add the new task to the tasks array
-      setTasks(prevTasks => [...prevTasks, newTask]);
+      // Ensure task has all required properties
+      const completeTask = {
+        ...newTask,
+        id: newTask.id || Date.now(),
+        completed: newTask.completed || false,
+        list: newTask.list || "Personal",
+        dueDate: newTask.dueDate || new Date().toISOString(),
+        sourceView: newTask.sourceView || currentPage.toLowerCase().replace(/\s+/g, ''),
+        tags: newTask.tags || []
+      };
       
-      // If you're using any backend service, make the API call here
-      // await api.saveTask(newTask);
+      // Add the new task to the tasks array
+      setTasks(prevTasks => [...prevTasks, completeTask]);
       
       return true; // Indicate successful save
     } catch (error) {

@@ -106,7 +106,7 @@ const Next7Days = ({
         </div>
       </div>
 
-      <div className="days-grid">
+      <div className="weekly-days-grid">
         {days.map((day) => {
           const dayTasks = getTasksForDay(day.date);
           

@@ -53,17 +53,25 @@ const MyDay = ({
       <div className="my-day-content">
         <header>
           <h1>{greeting}, Sudhakar<span className="dot">.</span></h1>
-          <p className="subtitle">Run your day or your day will run you</p>
+          <p className="subtitle">This is your private space</p>
         </header>
         
-        <section className="date-section">
+        <section className="date-section-no-card">
           <div className="date-container">
             <div className="date-label">{dayOfWeek}</div>
             <div className="date-number">{dayNumber}</div>
             <div className="date-month">{month}</div>
           </div>
           <div className="events-info">
-            <p>You have no events scheduled for today</p>
+            <p>Join video meetings with one tap</p>
+            <div className="calendar-buttons">
+              <button className="calendar-btn">
+                <span className="calendar-icon">📅</span> Connect Google Calendar
+              </button>
+              <button className="calendar-btn">
+                <span className="calendar-icon">📅</span> Connect Outlook Calendar
+              </button>
+            </div>
           </div>
         </section>
         

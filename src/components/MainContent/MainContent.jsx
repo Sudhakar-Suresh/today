@@ -89,11 +89,11 @@ const MainContent = ({
   // Filter tasks for My Day view
   const myDayTasks = activeTasks.filter(task => {
     // A task should appear in My Day if:
-    // 1. It was created in My Day view (sourceView === 'myday'), OR
-    // 2. It is due today AND wasn't created in Next7Days view
+    // 1. It was manually added to My Day view (sourceView === 'myday'), OR
+    // 2. It is due today regardless of where it was created
     return (
       task.sourceView === 'myday' || 
-      (isTaskDueToday(task) && task.sourceView !== 'next7days')
+      isTaskDueToday(task)
     );
   });
   

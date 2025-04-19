@@ -9,7 +9,7 @@
   overflow-x: hidden;
   overflow-y: auto;
   position: relative;
-  background-color: white;
+  background-color: rgb(253, 253, 253);
   transition: margin-left 0.3s ease;
 }
 
@@ -88,7 +88,8 @@
 }
 
 .subtitle {
-  font-size: 16px;
+  font-size: 35px;
+  font-weight: bolder;
   color: #5f6368;
   margin: 0;
 }
