@@ -16,7 +16,9 @@ const Next7Days = ({
   isSidebarExpanded = false
 }) => {
   const [days, setDays] = useState([]);
-
+  // Store newly added tasks locally before they appear in the props
+  const [newlyAddedTasks, setNewlyAddedTasks] = useState([]);
+  
   // Function to generate exactly 7 days from today
   const generateSevenDays = () => {
     const days = [];
@@ -45,7 +47,8 @@ const Next7Days = ({
         dayName,
         dateStr,
         subheader,
-        key: date.toISOString() // Unique key for React
+        key: date.toISOString(), // Unique key for React
+        isToday: i === 0 // Flag to identify today
       });
     }
     return days;
@@ -56,22 +59,46 @@ const Next7Days = ({
     setDays(generateSevenDays());
   }, []);
 
-  // Filter tasks for each day
+  // Simple function to check if two dates are the same day
+  const isSameDay = (date1, date2) => {
+    return date1.getDate() === date2.getDate() &&
+           date1.getMonth() === date2.getMonth() &&
+           date1.getFullYear() === date2.getFullYear();
+  };
+
+  // Filter tasks for each day, including newly added ones
   const getTasksForDay = (date) => {
-    return tasks.filter(task => {
+    // Combine tasks from props with newly added tasks
+    const allTasks = [...tasks, ...newlyAddedTasks];
+    
+    // Filter tasks for this specific day
+    return allTasks.filter(task => {
       if (!task.dueDate) return false;
       const taskDate = new Date(task.dueDate);
-      return taskDate.toDateString() === date.toDateString();
+      return isSameDay(taskDate, date);
     });
   };
 
-  // Higher-order function to wrap onAddTask with sourceView
-  const handleAddTask = (task) => {
-    // Add sourceView directly here to ensure all tasks added from this view have the property
-    onAddTask({
-      ...task,
+  // Handle adding a task for a specific day
+  const handleAddTask = (dayDate) => (newTask) => {
+    // Create a clean task object
+    const task = {
+      id: Date.now(),
+      title: newTask.title,
+      completed: false,
+      list: newTask.list || 'Personal',
+      dueDate: dayDate.toISOString(),
       sourceView: 'next7days'
-    });
+    };
+    
+    // Debug log to see what we're adding
+    console.log(`Adding task for ${dayDate.toDateString()}:`, task);
+    
+    // Add to local state for immediate visual feedback
+    setNewlyAddedTasks(prev => [...prev, task]);
+    
+    // Also send to parent component
+    onAddTask(task);
   };
 
   return (
@@ -90,37 +117,47 @@ const Next7Days = ({
       </div>
 
       <div className="days-grid">
-        {days.map((day) => (
-          <div key={day.key} className="day-column">
-            <div className="day-header">
-              <div className="day-title">
-                <h2>{day.dayName}</h2>
-                <span className="day-label">{day.dateStr}</span>
+        {days.map((day) => {
+          // Get tasks for this specific day
+          const dayTasks = getTasksForDay(day.date);
+          
+          return (
+            <div key={day.key} className={`day-column ${day.isToday ? 'today-column' : ''}`}>
+              <div className="day-header">
+                <div className="day-title">
+                  <h2>{day.dayName}</h2>
+                  <span className="day-label">{day.dateStr}</span>
+                  {dayTasks.length > 0 && (
+                    <span className="task-count">{dayTasks.length}</span>
+                  )}
+                </div>
+              </div>
+
+              <div className="day-tasks">
+                {/* Render tasks for this day */}
+                {dayTasks.map(task => (
+                  <TaskCard
+                    key={task.id}
+                    task={task}
+                    onDelete={onDelete}
+                    onToggleComplete={onToggleComplete}
+                    onUpdateTags={onUpdateTags}
+                    onUpdateList={onUpdateList}
+                    onTogglePin={onTogglePin}
+                    onUpdateReminder={onUpdateReminder}
+                    availableLists={availableLists}
+                  />
+                ))}
+                
+                {/* Add task button for this day */}
+                <AddTaskButton 
+                  onAddTask={handleAddTask(day.date)}
+                  dueDate={day.date}
+                />
               </div>
             </div>
-
-            <div className="day-tasks">
-              {getTasksForDay(day.date).map(task => (
-                <TaskCard
-                  key={task.id}
-                  task={task}
-                  onDelete={onDelete}
-                  onToggleComplete={onToggleComplete}
-                  onUpdateTags={onUpdateTags}
-                  onUpdateList={onUpdateList}
-                  onTogglePin={onTogglePin}
-                  onUpdateReminder={onUpdateReminder}
-                  availableLists={availableLists}
-                />
-              ))}
-              <AddTaskButton 
-                onAddTask={handleAddTask} 
-                dueDate={day.date}
-                sourceView="next7days"
-              />
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
