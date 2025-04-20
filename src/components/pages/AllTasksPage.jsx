@@ -735,13 +735,10 @@ const AllTasksPage = () => {
       {/* Header */}
       <div className="kanban-header">
         <div className="header-container">
-          <button className="settings-btn">
-            <span className="settings-icon">⚙</span>
-          </button>
           
           <div className="header-title-container">
             <div className="title-icon">|||</div>
-            <h1 className="project-title">Test</h1>
+            <h1 className="project-title">My Tasks</h1>
             
             <div className="header-actions">
               <button className="header-btn">
@@ -802,15 +799,8 @@ const AllTasksPage = () => {
                 </div>
               )}
               
-              <button className="header-btn">
-                <span className="btn-icon">📋</span>
-                <span>Filter</span>
-              </button>
-              <button className="header-btn">
-                <span className="btn-icon">⚡</span>
-                <span>Automations</span>
-              </button>
-              <button className="header-btn">•••</button>
+              
+              
             </div>
           </div>
         </div>

@@ -54,17 +54,17 @@ const AddTaskButton = ({ onAddTask, dueDate, sourceView = 'default' }) => {
   if (isExpanded) {
     return (
       <div className="add-task-expanded" ref={formRef}>
+        <span className="arrow-up">↑</span>
         <input
           type="text"
           className="task-input"
-          placeholder="Enter task name"
+          placeholder=""
           value={taskTitle}
           onChange={(e) => setTaskTitle(e.target.value)}
           onKeyDown={handleKeyDown}
           autoFocus
         />
         <div className="task-actions">
-        
         </div>
       </div>
     );
@@ -76,7 +76,7 @@ const AddTaskButton = ({ onAddTask, dueDate, sourceView = 'default' }) => {
       onClick={() => setIsExpanded(true)}
     >
       <span>+ Add Task</span>
-      <span className="arrow-up">↑</span>
+      
     </button>
   );
 };

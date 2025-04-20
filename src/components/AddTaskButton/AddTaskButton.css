@@ -20,21 +20,28 @@
 
 .arrow-up {
   color: #999;
-  font-size: 14px;
+  font-size: 20px;
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1;
 }
 
 .add-task-expanded {
   background: white;
   border: 1px solid #dee2e6;
   border-radius: 6px;
-  padding: 5px;
+  padding: 5px 12px;
   margin-top: 15px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  position: relative;
 }
 
 .task-input {
   width: 100%;
   padding: 8px 10px;
+  padding-right: 40px;
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 14px;

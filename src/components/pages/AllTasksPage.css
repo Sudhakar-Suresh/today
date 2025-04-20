@@ -11,17 +11,22 @@
   padding: 8px 16px;
   border-bottom: none;
   box-shadow: none;
+  margin-left: 60px;
+  margin-top: 20px;
+  margin-right: 1500px;
 }
 
 .header-container {
   display: flex;
   align-items: center;
+  position: fixed;
   gap: 12px;
+  width: 20%;
   background-color: white;
   padding: 6px 8px;
-  border-radius: 8px;
+  border-radius: 50px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-  position: relative;
+  margin-bottom: 100px;
 }
 
 .settings-btn {
@@ -106,6 +111,8 @@
   overflow-x: auto;
   height: calc(100vh - 60px);
   align-items: flex-start;
+  margin-left: 60px;
+  margin-top: 50px;
 }
 
 .kanban-section {
@@ -214,11 +221,12 @@
   width: 100%;
   border: none;
   outline: none;
-  font-size: 14px;
+  font-size: 18px;
   color: #333;
   font-family: inherit;
   background: transparent;
   padding: 0;
+  margin-top: -10px;
 }
 
 .task-footer {
@@ -258,7 +266,7 @@
 }
 
 .add-section-btn {
-  min-width: 280px;
+  min-width: 28px;
   height: 36px;
   border: 2px dashed #e0e0e0;
   border-radius: 8px;
@@ -321,6 +329,11 @@
 
 .view-options {
   padding: 8px 0;
+  margin-left: 10px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .view-option {
@@ -945,7 +958,6 @@
 .add-task-button {
   display: flex;
   align-items: center;
-  justify-content: center;
 }
 
 .add-task-button:hover,
