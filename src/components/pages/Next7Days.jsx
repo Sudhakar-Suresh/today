@@ -116,9 +116,6 @@ const Next7Days = ({
                 <div className="day-title">
                   <h2>{day.dayName}</h2>
                   <span className="day-label">{day.dateStr}</span>
-                  {dayTasks.length > 0 && (
-                    <span className="task-count">{dayTasks.length}</span>
-                  )}
                 </div>
               </div>
 
