@@ -106,10 +106,11 @@
 
 .kanban-board {
   display: flex;
+  position: relative;
   gap: 16px;
   padding: 16px;
-  overflow-x: auto;
-  height: calc(100vh - 60px);
+  width: 3000px;
+  height: 100%;
   align-items: flex-start;
   margin-left: 60px;
   margin-top: 50px;
@@ -118,13 +119,14 @@
 .kanban-section {
   background: white;
   border-radius: 8px;
-  width: 280px;
+  width: 350px;
   min-height: 100px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow: visible;
   position: relative;
+  margin-top: 12px;
 }
 
 .kanban-section.dragging-section {
@@ -143,11 +145,11 @@
 }
 
 .section-header {
-  padding: 12px 16px;
-  border-bottom: 1px solid #f0f0f0;
+  padding: 16px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  border-bottom: none;
 }
 
 .section-header:active {
@@ -156,7 +158,7 @@
 
 .section-header h2 {
   margin: 0;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
   color: #333;
 }
@@ -179,20 +181,24 @@
 }
 
 .tasks-container {
-  padding: 8px;
+  padding: 8px 16px;
   flex-grow: 1;
   min-height: 50px;
+  display: flex;
+  flex-direction: column;
 }
 
 .task-card {
   background: white;
   border: 1px solid #e8e8e8;
-  border-radius: 4px;
+  border-radius: 8px;
   margin-bottom: 8px;
-  padding: 10px 12px;
+  padding: 12px 16px;
   position: relative;
   cursor: pointer;
   transition: background-color 0.2s, box-shadow 0.2s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  width: 100%;
 }
 
 .task-card:hover {
@@ -210,12 +216,12 @@
 }
 
 .task-content {
-  margin-bottom: 4px;
-  font-size: 14px;
-  color: #333;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 4px;
+  font-size: 14px;
+  color: #333;
 }
 
 .task-actions {
@@ -245,8 +251,9 @@
 }
 
 .task-user-icon {
-  color: #999;
-  font-size: 14px;
+  color: #777;
+  font-size: 16px;
+  margin-right: 8px;
 }
 
 .task-menu-icon {
@@ -306,45 +313,45 @@
   color: #ff4d4f;
 }
 
-.add-task-btn {
-  width: 100%;
-  padding: 8px 16px;
-  background: none;
+.add-task-btn, 
+.add-task-button {
+  background: transparent;
   border: none;
   color: #666;
-  cursor: pointer;
-  text-align: center;
+  padding: 12px 16px;
   font-size: 14px;
+  cursor: pointer;
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 4px;
-  margin-top: 4px;
+  width: 100%;
+  text-align: left;
 }
 
-.add-task-btn:hover {
-  background: #f5f5f5;
+.add-task-btn:hover,
+.add-task-button:hover {
+  background-color: #f5f5f5;
 }
 
-.add-section-btn {
-  background: rgba(255, 255, 255, 0.8);
+.add-section-btn,
+.add-section-button {
+  background: white;
+  border: 1px dashed #ccc;
   border-radius: 8px;
-  width: 280px;
-  min-width: 280px;
-  height: 40px;
+  color: #666;
+  padding: 12px 16px;
+  font-size: 14px;
+  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #666;
-  cursor: pointer;
-  border: 2px dashed #e0e0e0;
-  font-size: 14px;
-  margin-top: 8px;
+  margin-top: 12px;
+  width: 280px;
+  height: 50px;
 }
 
-.add-section-btn:hover {
-  border-color: #bbb;
-  color: #555;
+.add-section-btn:hover,
+.add-section-button:hover {
+  background-color: #f5f5f5;
 }
 
 /* Drag handle effect */
@@ -1070,16 +1077,24 @@
   background: transparent;
   margin: 8px;
   border-radius: 4px;
+  border-color: #888;
   transition: background-color 0.2s;
+  margin-top: 0; /* Remove negative margin */
+  position: relative;
+  order: 99; /* Place it at the end of the flex container */
 }
 
 .kanban-section .add-task-button:hover {
   background-color: #f5f5f5;
+  border-color: #0066ff;
 }
 
 .kanban-section .add-task-expanded {
-  margin: 8px;
+  margin-top: 0;
   border-radius: 4px;
+  position: relative;
+  z-index: 1;
+  order: 99; /* Place it at the end of the flex container */
 }
 
 /* New styles for the duration display */
@@ -1088,4 +1103,85 @@
   color: #888;
   display: block;
   margin-top: 4px;
+}
+
+.task-menu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.01); /* Nearly transparent background */
+  display: block; /* Changed from flex to block */
+  pointer-events: all; /* Capture all pointer events */
+}
+
+/* Hide unnecessary styles that might cause layout shifts */
+.drag-ghost, .section-ghost {
+  display: none !important;
+}
+
+/* Position the task menu in the center of the screen */
+.task-menu {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10000;
+}
+
+/* Ensure the task menu appears above everything else */
+.task-actions {
+  position: relative;
+  z-index: 1;
+}
+
+/* Add this to your CSS file */
+.blank-kanban-page {
+  width: 100%;
+  height: calc(100vh - 80px);
+  background-color: #f9f9f9;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Add this to your CSS file for the blank page */
+.blank-page {
+  width: 100%;
+  height: calc(100vh - 80px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f9f9f9;
+  color: #888;
+  font-size: 16px;
+  text-align: center;
+  padding: 20px;
+}
+
+/* Add these styles to your CSS file */
+.kanban-section.auto-expand {
+  min-height: 120px; /* Initial smaller height */
+  height: auto;
+  transition: min-height 0.3s ease;
+}
+
+.kanban-section.auto-expand .tasks-container {
+  min-height: 10px; /* Smaller initial min-height */
+  height: auto;
+  flex-grow: 1;
+  transition: min-height 0.3s ease;
+}
+
+/* Make the add task button stick to the bottom */
+.kanban-section.auto-expand .add-task-btn {
+  margin-top: auto;
+}
+
+/* Ensure the container grows with content */
+.kanban-section {
+  display: flex;
+  flex-direction: column;
 } 

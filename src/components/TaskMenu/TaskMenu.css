@@ -1,0 +1,178 @@
+.task-menu {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 220px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+  z-index: 10000;
+  padding: 8px 0;
+  font-size: 14px;
+  color: #333;
+}
+
+.task-menu-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  width: 100%;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.task-menu-item:hover {
+  background-color: #f5f5f5;
+}
+
+.task-menu-icon {
+  width: 16px;
+  height: 16px;
+  margin-right: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Simple icon implementation with unicode characters */
+.icon-complete::before { content: "✓"; }
+.icon-remove::before { content: "⊘"; }
+.icon-date::before { content: "📅"; }
+.icon-assign::before { content: "👤"; }
+.icon-comment::before { content: "💬"; }
+.icon-tags::before { content: "#"; }
+.icon-track::before { content: "▶"; }
+.icon-duplicate::before { content: "📋"; }
+.icon-link::before { content: "🔗"; }
+.icon-archive::before { content: "🗑️"; }
+
+/* Backdrop to handle clicks */
+.task-menu-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.01); /* Almost invisible */
+  z-index: 9999;
+}
+
+.task-menu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none;
+}
+
+.task-menu-overlay .task-menu {
+  pointer-events: auto;
+}
+
+.task-actions {
+  position: relative;
+}
+
+.task-card {
+  position: relative;
+}
+
+/* Remove icon styles to match the image */
+.menu-icon {
+  display: none;
+}
+
+/* Add Task button styling */
+.add-task-btn {
+  display: flex;
+  align-items: center;
+  padding: 10px 16px;
+  color: #666;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  width: 100%;
+  text-align: left;
+  font-size: 14px;
+}
+
+.add-task-btn:hover {
+  background-color: #f9f9f9;
+}
+
+/* Section styling from image */
+.kanban-section {
+  background: white;
+  border-radius: 8px;
+  width: 280px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.section-header {
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.section-header h2 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+.task-card {
+  position: relative;
+  background: white;
+  border: 1px solid #eaeaea;
+  border-radius: 4px;
+  margin-bottom: 8px;
+  padding: 12px 16px;
+}
+
+.task-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+}
+
+.task-action-btn {
+  position: relative;
+  z-index: 1;
+  background: none;
+  border: none;
+  color: #999;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.task-action-btn:hover {
+  background-color: transparent;
+}
+
+.task-menu-icon {
+  font-weight: bold;
+}
+
+@media (max-width: 480px) {
+  .task-menu {
+    width: 180px;
+    font-size: 13px;
+  }
+} 

@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import AddTaskButton from '../AddTaskButton/AddTaskButton';
+import TaskMenu from '../TaskMenu/TaskMenu';
 import './AllTasksPage.css';
 
 const AllTasksPage = () => {
@@ -33,11 +34,13 @@ const AllTasksPage = () => {
   const [draggedSection, setDraggedSection] = useState(null);
   const [dragGhost, setDragGhost] = useState(null);
   const [editingSectionId, setEditingSectionId] = useState(null);
+  const [activeTaskMenu, setActiveTaskMenu] = useState(null);
   
   // Refs
   const viewPopupRef = useRef(null);
   const viewButtonRef = useRef(null);
   const editSectionInputRef = useRef(null);
+  const taskMenuRef = useRef(null);
 
   // Create state for column visibility outside the render function
   const [tableColumns] = useState([
@@ -76,6 +79,24 @@ const AllTasksPage = () => {
       editSectionInputRef.current.focus();
     }
   }, [editingSectionId]);
+
+  // Modify the useEffect for clicking outside to use this ref
+  useEffect(() => {
+    // Close task menu when clicking outside
+    const handleMenuClickOutside = (e) => {
+      if (activeTaskMenu && 
+          taskMenuRef.current && 
+          !taskMenuRef.current.contains(e.target) && 
+          !e.target.closest('.task-action-btn')) {
+        setActiveTaskMenu(null);
+      }
+    };
+    
+    document.addEventListener('mousedown', handleMenuClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleMenuClickOutside);
+    };
+  }, [activeTaskMenu]);
 
   // Task Management Functions
   const addTask = (sectionId) => {
@@ -340,89 +361,122 @@ const AllTasksPage = () => {
     }));
   };
 
-  // Render Kanban View
-  const renderKanbanView = () => {
-    return (
-      <div 
-        className="kanban-board"
-        onDragOver={handleDragOver}
-      >
-        {sections.map((section, index) => (
-          <div 
-            key={section.id} 
-            className="kanban-section"
-            data-section-id={section.id}
-            draggable
-            onDragStart={(e) => handleSectionDragStart(e, section.id)}
-            onDragEnd={handleSectionDragEnd}
-            onDragOver={(e) => handleSectionDragOver(e, section.id)}
-            onDrop={(e) => {
-              if (draggedTask) {
-                handleTaskDrop(e, section.id);
-              } else if (draggedSection) {
-                handleSectionDrop(e, index);
-              }
-            }}
-          >
-            <div className="section-header">
-              {editingSectionId === section.id ? (
-                <input
-                  ref={editSectionInputRef}
-                  type="text"
-                  className="section-title-input"
-                  defaultValue={section.title}
-                  onBlur={(e) => updateSectionTitle(section.id, e.target.value)}
-                  onKeyDown={(e) => handleEditSectionKeyDown(e, section.id)}
-                />
-              ) : (
-                <h2 onClick={() => startEditingSection(section.id)}>{section.title}</h2>
-              )}
-              <div className="section-actions">
-                <button className="section-menu-btn">•••</button>
-              </div>
-            </div>
-            <div className="tasks-container">
-              {section.tasks.map(task => (
-                <div 
-                  key={task.id} 
-                  className="task-card"
-                  draggable
-                  onDragStart={(e) => handleTaskDragStart(e, section.id, task.id)}
-                  onDragEnd={handleTaskDragEnd}
-                >
-                  <div className="task-content">
-                    <span>{task.text}</span>
-                    <div className="task-actions">
-                      <span className="task-user-icon">👤</span>
-                      <button className="task-action-btn">
-                        <span className="task-menu-icon">⋮</span>
-                      </button>
-                    </div>
-                  </div>
-                  {task.duration && (
-                    <div className="task-duration">
-                      {task.duration}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-            <AddTaskButton 
-              onAddTask={(newTask) => handleAddTask(section.id, newTask)} 
-              sourceView="kanban"
-            />
-          </div>
-        ))}
+  // Modify the handleTaskMenuToggle function to prevent event propagation issues
+  const handleTaskMenuToggle = (sectionId, taskId, e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    // Toggle menu visibility
+    if (activeTaskMenu && activeTaskMenu.sectionId === sectionId && activeTaskMenu.taskId === taskId) {
+      setActiveTaskMenu(null);
+    } else {
+      setActiveTaskMenu({ sectionId, taskId });
+    }
+  };
+
+  const handleCloseTaskMenu = () => {
+    setActiveTaskMenu(null);
+  };
+
+  const handleMarkComplete = (sectionId, taskId) => {
+    // Find completed section
+    const completedSection = sections.find(section => section.id === 'completed');
+    
+    if (completedSection) {
+      // Move task to completed section
+      setSections(prevSections => {
+        const newSections = JSON.parse(JSON.stringify(prevSections));
         
-        {/* Add Section Button */}
-        <button 
-          className="add-section-btn" 
-          onClick={addSection}
-        >
-          + Add section
-        </button>
-      </div>
-    );
+        // Find source section and task
+        const sourceSection = newSections.find(s => s.id === sectionId);
+        const taskIndex = sourceSection.tasks.findIndex(t => t.id === taskId);
+        
+        if (taskIndex === -1) return prevSections;
+        
+        // Get the task and remove it from source
+        const task = sourceSection.tasks[taskIndex];
+        sourceSection.tasks.splice(taskIndex, 1);
+        
+        // Add task to completed section
+        const targetSection = newSections.find(s => s.id === 'completed');
+        targetSection.tasks.push(task);
+        
+        return newSections;
+      });
+    }
+    
+    setActiveTaskMenu(null);
+  };
+
+  const handleRemoveFromMyDay = (sectionId, taskId) => {
+    // This would remove the task from My Day view if implemented
+    console.log('Remove from My Day:', sectionId, taskId);
+    setActiveTaskMenu(null);
+  };
+
+  const handleSetDueDate = (sectionId, taskId) => {
+    // This would open a date picker for setting due date
+    console.log('Set due date:', sectionId, taskId);
+    setActiveTaskMenu(null);
+  };
+
+  const handleAssign = (sectionId, taskId) => {
+    // This would open an assignee selector
+    console.log('Assign:', sectionId, taskId);
+    setActiveTaskMenu(null);
+  };
+
+  const handleComment = (sectionId, taskId) => {
+    // This would open a comment input
+    console.log('Comment:', sectionId, taskId);
+    setActiveTaskMenu(null);
+  };
+
+  const handleAddTags = (sectionId, taskId) => {
+    // This would open a tag selector
+    console.log('Add tags:', sectionId, taskId);
+    setActiveTaskMenu(null);
+  };
+
+  const handleTrackTime = (sectionId, taskId) => {
+    // This would open a time tracking input
+    console.log('Track time:', sectionId, taskId);
+    setActiveTaskMenu(null);
+  };
+
+  const handleDuplicate = (sectionId, taskId) => {
+    // Duplicate the task in the same section
+    setSections(prevSections => {
+      const newSections = JSON.parse(JSON.stringify(prevSections));
+      const section = newSections.find(s => s.id === sectionId);
+      
+      if (!section) return prevSections;
+      
+      const taskIndex = section.tasks.findIndex(t => t.id === taskId);
+      if (taskIndex === -1) return prevSections;
+      
+      const task = {...section.tasks[taskIndex], id: Date.now()};
+      section.tasks.push(task);
+      
+      return newSections;
+    });
+    
+    setActiveTaskMenu(null);
+  };
+
+  const handleCopyLink = (sectionId, taskId) => {
+    // This would copy a link to the task
+    console.log('Copy link:', sectionId, taskId);
+    setActiveTaskMenu(null);
+  };
+
+  const handleArchive = (sectionId, taskId) => {
+    // This would archive the task
+    console.log('Archive:', sectionId, taskId);
+    
+    // For now, just delete the task
+    deleteTask(sectionId, taskId);
+    setActiveTaskMenu(null);
   };
 
   // Fixed table view implementation
@@ -734,17 +788,78 @@ const AllTasksPage = () => {
     );
   };
 
-  // Update the renderCurrentView function to include the card view
+  // Update renderKanbanView with auto-expanding columns
+  const renderKanbanView = () => {
+    return (
+      <div className="kanban-board">
+        {sections.map((section) => (
+          <div key={section.id} className="kanban-section auto-expand">
+            <div className="section-header">
+              <h2>{section.title}</h2>
+            </div>
+            <div className="tasks-container">
+              {section.tasks.map(task => (
+                <div 
+                  key={task.id} 
+                  className="task-card"
+                  draggable
+                  onDragStart={(e) => handleTaskDragStart(e, section.id, task.id)}
+                  onDragEnd={handleTaskDragEnd}
+                >
+                  <div className="task-content">
+                    <span>{task.text || "Untitled Task"}</span>
+                    <div className="task-actions">
+                      <button 
+                        className="task-action-btn"
+                        onClick={(e) => handleTaskMenuToggle(section.id, task.id, e)}
+                      >
+                        <span className="task-menu-icon">⋮</span>
+                      </button>
+                      <button 
+                        className="task-delete-btn"
+                        onClick={() => deleteTask(section.id, task.id)}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  </div>
+                  {task.duration && (
+                    <div className="task-duration">
+                      {task.duration}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+            <button 
+              className="add-task-btn"
+              onClick={() => addTask(section.id)}
+            >
+              + Add Task
+            </button>
+          </div>
+        ))}
+        
+        <button 
+          className="add-section-btn" 
+          onClick={addSection}
+        >
+          + Add section
+        </button>
+      </div>
+    );
+  };
+
+  // Update the renderCurrentView function to set kanban as default
   const renderCurrentView = () => {
     switch (currentView) {
-      case 'kanban':
-        return renderKanbanView();
       case 'table':
         return renderTableView();
       case 'card':
         return renderCardView();
+      case 'kanban':
       default:
-        return renderKanbanView();
+        return renderKanbanView(); // Default to kanban view
     }
   };
 
@@ -752,80 +867,104 @@ const AllTasksPage = () => {
     <div className="kanban-page">
       {/* Header */}
       <div className="kanban-header">
-        <div className="header-container">
+        <div className="header-title-container">
+          <div className="title-icon">|||</div>
+          <h1 className="project-title">Test</h1>
           
-          <div className="header-title-container">
-            <div className="title-icon">|||</div>
-            <h1 className="project-title">My Tasks</h1>
+          <div className="header-actions">
+            <button className="header-btn">
+              <span className="btn-icon">👤</span>
+              <span>Share</span>
+            </button>
+            <button 
+              className={`header-btn ${showViewPopup ? 'active' : ''}`}
+              onClick={() => setShowViewPopup(!showViewPopup)}
+              ref={viewButtonRef}
+            >
+              <span className="btn-icon">👁️</span>
+              <span>View</span>
+            </button>
+            <button className="header-btn">
+              <span className="btn-icon">🔍</span>
+              <span>Filter</span>
+            </button>
+            <button className="header-btn">
+              <span className="btn-icon">⚡</span>
+              <span>Automations</span>
+            </button>
+            <button className="header-btn">
+              <span className="btn-icon">⋯</span>
+            </button>
             
-            <div className="header-actions">
-              <button className="header-btn">
-                <span className="btn-icon">👤</span>
-                <span>Share</span>
-              </button>
-              <button 
-                className={`header-btn ${showViewPopup ? 'active' : ''}`}
-                onClick={() => setShowViewPopup(!showViewPopup)}
-                ref={viewButtonRef}
-              >
-                <span className="btn-icon">👁️</span>
-                <span>View</span>
-              </button>
-              
-              {/* View Popup */}
-              {showViewPopup && (
-                <div className="view-popup" ref={viewPopupRef}>
-                  <div className="popup-header">
-                    <h3>View options</h3>
+            {/* View Popup */}
+            {showViewPopup && (
+              <div className="view-popup" ref={viewPopupRef}>
+                <div className="popup-header">
+                  <h3>View options</h3>
+                </div>
+                <div className="view-options">
+                  <div 
+                    className={`view-option ${currentView === 'kanban' ? 'active' : ''}`}
+                    onClick={() => handleViewChange('kanban')}
+                  >
+                    <div className="option-icon">📊</div>
+                    <div className="option-details">
+                      <div className="option-name">Kanban</div>
+                      <div className="option-description">Board view with columns</div>
+                    </div>
+                    {currentView === 'kanban' && <div className="option-check">✓</div>}
                   </div>
-                  <div className="view-options">
-                    <div 
-                      className={`view-option ${currentView === 'kanban' ? 'active' : ''}`}
-                      onClick={() => handleViewChange('kanban')}
-                    >
-                      <div className="option-icon">📊</div>
-                      <div className="option-details">
-                        <div className="option-name">Kanban</div>
-                        <div className="option-description">Board view with columns</div>
-                      </div>
-                      {currentView === 'kanban' && <div className="option-check">✓</div>}
+                  
+                  <div 
+                    className={`view-option ${currentView === 'table' ? 'active' : ''}`}
+                    onClick={() => handleViewChange('table')}
+                  >
+                    <div className="option-icon">🗒️</div>
+                    <div className="option-details">
+                      <div className="option-name">Table</div>
+                      <div className="option-description">Spreadsheet-like view</div>
                     </div>
-                    
-                    <div 
-                      className={`view-option ${currentView === 'table' ? 'active' : ''}`}
-                      onClick={() => handleViewChange('table')}
-                    >
-                      <div className="option-icon">🗒️</div>
-                      <div className="option-details">
-                        <div className="option-name">Table</div>
-                        <div className="option-description">Spreadsheet-like view</div>
-                      </div>
-                      {currentView === 'table' && <div className="option-check">✓</div>}
+                    {currentView === 'table' && <div className="option-check">✓</div>}
+                  </div>
+                  <div 
+                    className={`view-option ${currentView === 'card' ? 'active' : ''}`}
+                    onClick={() => handleViewChange('card')}
+                  >
+                    <div className="option-icon">🗂️</div>
+                    <div className="option-details">
+                      <div className="option-name">Card</div>
+                      <div className="option-description">Card view</div>
                     </div>
-                    <div 
-                      className={`view-option ${currentView === 'card' ? 'active' : ''}`}
-                      onClick={() => handleViewChange('card')}
-                    >
-                      <div className="option-icon">🗂️</div>
-                      <div className="option-details">
-                        <div className="option-name">Card</div>
-                        <div className="option-description">Card view</div>
-                      </div>
-                      {currentView === 'card' && <div className="option-check">✓</div>}
-                    </div>
+                    {currentView === 'card' && <div className="option-check">✓</div>}
                   </div>
                 </div>
-              )}
-              
-              
-              
-            </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
 
       {/* Current View */}
       {renderCurrentView()}
+      
+      {/* Task Menu - rendered at root level */}
+      {activeTaskMenu && (
+        <TaskMenu
+          onClose={handleCloseTaskMenu}
+          onMarkComplete={() => handleMarkComplete(activeTaskMenu.sectionId, activeTaskMenu.taskId)}
+          onAddToDay={() => handleRemoveFromMyDay(activeTaskMenu.sectionId, activeTaskMenu.taskId)}
+          onSetDueDate={() => handleSetDueDate(activeTaskMenu.sectionId, activeTaskMenu.taskId)}
+          onAssign={() => handleAssign(activeTaskMenu.sectionId, activeTaskMenu.taskId)}
+          onComment={() => handleComment(activeTaskMenu.sectionId, activeTaskMenu.taskId)}
+          onAddTags={() => handleAddTags(activeTaskMenu.sectionId, activeTaskMenu.taskId)}
+          onTrackTime={() => handleTrackTime(activeTaskMenu.sectionId, activeTaskMenu.taskId)}
+          onDuplicate={() => handleDuplicate(activeTaskMenu.sectionId, activeTaskMenu.taskId)}
+          onCopyLink={() => handleCopyLink(activeTaskMenu.sectionId, activeTaskMenu.taskId)}
+          onArchive={() => handleArchive(activeTaskMenu.sectionId, activeTaskMenu.taskId)}
+          isInMyDay={true}
+          ref={taskMenuRef}
+        />
+      )}
     </div>
   );
 };
