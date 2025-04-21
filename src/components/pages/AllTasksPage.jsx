@@ -931,7 +931,7 @@ const AllTasksPage = () => {
             </button>
             <button className="header-btn">
               <span className="btn-icon">⋯</span>
-            </button>
+              </button>
               
               {/* View Popup */}
               {showViewPopup && (

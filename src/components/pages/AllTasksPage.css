@@ -634,14 +634,13 @@
 
 .add-section-btn {
   padding: 12px;
-  border: 2px dashed #ddd;
+  width: 300px;
   border-radius: 8px;
-  background: white;
-  color: #777;
+  background: rgba(238, 235, 235, 0.822);
+  color: #000000;
   font-size: 14px;
   cursor: pointer;
   text-align: center;
-  width: 100%;
   transition: all 0.2s;
 }
 
