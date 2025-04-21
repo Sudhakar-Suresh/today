@@ -98,6 +98,38 @@ const AllTasksPage = () => {
     };
   }, [activeTaskMenu]);
 
+  // Add scroll synchronization for fixed bottom scrollbar
+  useEffect(() => {
+    const scrollbarBottom = document.querySelector('.scrollbar-bottom');
+    const kanbanBoardContainer = document.querySelector('.kanban-board-container');
+    
+    if (scrollbarBottom && kanbanBoardContainer) {
+      // Sync bottom scrollbar to board container
+      scrollbarBottom.addEventListener('scroll', () => {
+        kanbanBoardContainer.scrollLeft = scrollbarBottom.scrollLeft;
+      });
+      
+      // Initialize width of scrollbar content based on actual board width
+      const updateScrollbarWidth = () => {
+        const board = document.querySelector('.kanban-board');
+        if (board) {
+          const scrollContent = document.querySelector('.scrollbar-bottom-content');
+          if (scrollContent) {
+            scrollContent.style.width = `${board.scrollWidth}px`;
+          }
+        }
+      };
+      
+      updateScrollbarWidth();
+      // Update whenever sections change
+      window.addEventListener('resize', updateScrollbarWidth);
+      
+      return () => {
+        window.removeEventListener('resize', updateScrollbarWidth);
+      };
+    }
+  }, [sections]); // Re-run when sections change
+
   // Task Management Functions
   const addTask = (sectionId) => {
     setSections(sections.map(section => {
@@ -796,94 +828,101 @@ const AllTasksPage = () => {
   // Update renderKanbanView to apply the clean style without borders and dotted lines
   const renderKanbanView = () => {
     return (
-      <div 
-        className="kanban-board"
-        onDragOver={handleDragOver}
-      >
-        {sections.map((section, index) => (
+      <>
+        <div className="kanban-board-container">
           <div 
-            key={section.id} 
-            className="kanban-section auto-expand"
-            data-section-id={section.id}
-            draggable
-            onDragStart={(e) => handleSectionDragStart(e, section.id)}
-            onDragEnd={handleSectionDragEnd}
-            onDragOver={(e) => handleSectionDragOver(e, section.id)}
-            onDrop={(e) => {
-              if (draggedTask) {
-                handleTaskDrop(e, section.id);
-              } else if (draggedSection) {
-                handleSectionDrop(e, index);
-              }
-            }}
+            className="kanban-board"
+            onDragOver={handleDragOver}
           >
-            <div className="section-header">
-              {editingSectionId === section.id ? (
-                <input
-                  ref={editSectionInputRef}
-                  type="text"
-                  className="section-title-input"
-                  defaultValue={section.title}
-                  onBlur={(e) => updateSectionTitle(section.id, e.target.value)}
-                  onKeyDown={(e) => handleEditSectionKeyDown(e, section.id)}
-                />
-              ) : (
-                <h2 onClick={() => startEditingSection(section.id)}>{section.title}</h2>
-              )}
-              <div className="section-actions">
-                <button className="section-menu-btn">•••</button>
-              </div>
-            </div>
-            <div className="tasks-container">
-              {section.tasks.map(task => (
-                <div 
-                  key={task.id} 
-                  className="task-card"
-                  draggable
-                  onDragStart={(e) => handleTaskDragStart(e, section.id, task.id)}
-                  onDragEnd={handleTaskDragEnd}
-                >
-                  <div className="task-content">
-                    <span>{task.text || "Untitled Task"}</span>
-                    <div className="task-actions">
-                      <button 
-                        className="task-action-btn"
-                        onClick={(e) => handleTaskMenuToggle(section.id, task.id, e)}
-                      >
-                        <span className="task-menu-icon">⋮</span>
-                      </button>
-                      <button 
-                        className="task-delete-btn"
-                        onClick={() => deleteTask(section.id, task.id)}
-                      >
-                        ×
-                      </button>
-                    </div>
-                  </div>
-                  {task.duration && (
-                    <div className="task-duration">
-                      {task.duration}
-                    </div>
+            {sections.map((section, index) => (
+              <div 
+                key={section.id} 
+                className="kanban-section auto-expand"
+                data-section-id={section.id}
+                draggable
+                onDragStart={(e) => handleSectionDragStart(e, section.id)}
+                onDragEnd={handleSectionDragEnd}
+                onDragOver={(e) => handleSectionDragOver(e, section.id)}
+                onDrop={(e) => {
+                  if (draggedTask) {
+                    handleTaskDrop(e, section.id);
+                  } else if (draggedSection) {
+                    handleSectionDrop(e, index);
+                  }
+                }}
+              >
+                <div className="section-header">
+                  {editingSectionId === section.id ? (
+                    <input
+                      ref={editSectionInputRef}
+                      type="text"
+                      className="section-title-input"
+                      defaultValue={section.title}
+                      onBlur={(e) => updateSectionTitle(section.id, e.target.value)}
+                      onKeyDown={(e) => handleEditSectionKeyDown(e, section.id)}
+                    />
+                  ) : (
+                    <h2 onClick={() => startEditingSection(section.id)}>{section.title}</h2>
                   )}
+                  <div className="section-actions">
+                    <button className="section-menu-btn">•••</button>
+                  </div>
                 </div>
-              ))}
-            </div>
+                <div className="tasks-container">
+                  {section.tasks.map(task => (
+                    <div 
+                      key={task.id} 
+                      className="task-card"
+                      draggable
+                      onDragStart={(e) => handleTaskDragStart(e, section.id, task.id)}
+                      onDragEnd={handleTaskDragEnd}
+                    >
+                      <div className="task-content">
+                        <span>{task.text || "Untitled Task"}</span>
+                        <div className="task-actions">
+                          <button 
+                            className="task-action-btn"
+                            onClick={(e) => handleTaskMenuToggle(section.id, task.id, e)}
+                          >
+                            <span className="task-menu-icon">⋮</span>
+                          </button>
+                          <button 
+                            className="task-delete-btn"
+                            onClick={() => deleteTask(section.id, task.id)}
+                          >
+                            ×
+                          </button>
+                        </div>
+                      </div>
+                      {task.duration && (
+                        <div className="task-duration">
+                          {task.duration}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                <button 
+                  className="add-task-btn"
+                  onClick={() => addTask(section.id)}
+                >
+                  + Add Task
+                </button>
+              </div>
+            ))}
+            
             <button 
-              className="add-task-btn"
-              onClick={() => addTask(section.id)}
+              className="add-section-btn" 
+              onClick={addSection}
             >
-              + Add Task
+              + Add section
             </button>
           </div>
-        ))}
-        
-        <button 
-          className="add-section-btn" 
-          onClick={addSection}
-        >
-          + Add section
-        </button>
-      </div>
+        </div>
+        <div className="scrollbar-bottom">
+          <div className="scrollbar-bottom-content"></div>
+        </div>
+      </>
     );
   };
 
