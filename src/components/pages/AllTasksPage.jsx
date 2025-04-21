@@ -1,23 +1,28 @@
 import React, { useState, useRef, useEffect } from 'react';
+import AddTaskButton from '../AddTaskButton/AddTaskButton';
 import './AllTasksPage.css';
 
 const AllTasksPage = () => {
-  // Initial data state
+  // Initial data state with sections from the image
   const [sections, setSections] = useState([
+    {
+      id: 'newsdfzg',
+      title: 'Newsdfzg',
+      tasks: []
+    },
     {
       id: 'newgas',
       title: 'Newgas',
-      tasks: [{ id: 1, text: 'asfd', progress: '20%', assignee: '', startDate: '', dueDate: '', duration: '4.9.25', tags: '', attachments: [] }]
-    },
-    {
-      id: 'new',
-      title: 'New',
-      tasks: []
+      tasks: [
+        { id: 1, text: 'asfd', progress: '', assignee: '', startDate: '', dueDate: '', duration: '4.9.25', tags: '', attachments: [] }
+      ]
     },
     {
       id: 'completed',
       title: 'Completed',
-      tasks: [{ id: 2, text: 'sdafyhg', progress: '0%', assignee: '', startDate: '', dueDate: '', duration: '', tags: '', attachments: [] }]
+      tasks: [
+        { id: 2, text: 'sdafyhg', progress: '', assignee: '', startDate: '', dueDate: '', duration: '', tags: '', attachments: [] }
+      ]
     }
   ]);
 
@@ -312,6 +317,29 @@ const AllTasksPage = () => {
     }
   };
 
+  // Handle adding a task from the AddTaskButton component
+  const handleAddTask = (sectionId, newTask) => {
+    setSections(sections.map(section => {
+      if (section.id === sectionId) {
+        return {
+          ...section,
+          tasks: [...section.tasks, { 
+            id: newTask.id || Date.now(),
+            text: newTask.title || '',
+            progress: '0%',
+            assignee: '',
+            startDate: '',
+            dueDate: newTask.dueDate || '',
+            duration: '',
+            tags: '',
+            attachments: []
+          }]
+        };
+      }
+      return section;
+    }));
+  };
+
   // Render Kanban View
   const renderKanbanView = () => {
     return (
@@ -363,36 +391,26 @@ const AllTasksPage = () => {
                   onDragEnd={handleTaskDragEnd}
                 >
                   <div className="task-content">
-                    <input
-                      type="text"
-                      value={task.text}
-                      onChange={(e) => updateTask(section.id, task.id, { text: e.target.value })}
-                      placeholder="Enter task..."
-                      className="task-input"
-                    />
-                  </div>
-                  {task.progress && (
-                    <div className="task-footer">
-                      <div className="task-progress">
-                        <span className="progress-badge">{task.progress}</span>
-                      </div>
-                      <button 
-                        className="task-delete-btn"
-                        onClick={() => deleteTask(section.id, task.id)}
-                      >
-                        🗑️
+                    <span>{task.text}</span>
+                    <div className="task-actions">
+                      <span className="task-user-icon">👤</span>
+                      <button className="task-action-btn">
+                        <span className="task-menu-icon">⋮</span>
                       </button>
+                    </div>
+                  </div>
+                  {task.duration && (
+                    <div className="task-duration">
+                      {task.duration}
                     </div>
                   )}
                 </div>
               ))}
             </div>
-            <button 
-              className="add-task-btn"
-              onClick={() => addTask(section.id)}
-            >
-              + Add Task
-            </button>
+            <AddTaskButton 
+              onAddTask={(newTask) => handleAddTask(section.id, newTask)} 
+              sourceView="kanban"
+            />
           </div>
         ))}
         

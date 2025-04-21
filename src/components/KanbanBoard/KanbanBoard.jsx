@@ -4,23 +4,23 @@ import './KanbanBoard.css';
 const KanbanBoard = () => {
   const [sections, setSections] = useState([
     {
-      id: 'new1',
-      title: 'New',
-      tasks: [
-        { id: 1, text: 'sdafyhg' }
-      ]
+      id: 'newsdfzg',
+      title: 'Newsdfzg',
+      tasks: []
     },
     {
-      id: 'new2',
-      title: 'New',
+      id: 'newgas',
+      title: 'Newgas',
       tasks: [
-        { id: 2, text: 'asfd' }
+        { id: 1, text: 'asfd', duration: '4.9.25' }
       ]
     },
     {
       id: 'completed',
       title: 'Completed',
-      tasks: []
+      tasks: [
+        { id: 2, text: 'sdafyhg' }
+      ]
     }
   ]);
 
@@ -45,6 +45,7 @@ const KanbanBoard = () => {
             {section.tasks.map(task => (
               <div key={task.id} className="task-card">
                 {task.text}
+                {task.duration && <div className="task-duration">{task.duration}</div>}
               </div>
             ))}
           </div>
