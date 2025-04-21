@@ -130,18 +130,22 @@
 }
 
 .kanban-section.dragging-section {
-  opacity: 0.8;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-  z-index: 10;
+  opacity: 1 !important;
+  background-color: #ffffff !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  z-index: 100;
+  transform: none;
 }
 
 .kanban-section.drag-over {
-  background-color: #f8f9ff;
-  box-shadow: 0 0 0 2px #4f91ff;
+  background-color: #ffffff !important;
+  border: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  animation: none;
 }
 
 .kanban-section.drag-over .tasks-container {
-  background-color: rgba(79, 145, 255, 0.05);
+  background-color: transparent;
 }
 
 .section-header {
@@ -154,6 +158,7 @@
 
 .section-header:active {
   cursor: grabbing;
+  background-color: transparent;
 }
 
 .section-header h2 {
@@ -207,12 +212,14 @@
 
 .task-card:active {
   cursor: grabbing;
+  background-color: white;
 }
 
 .task-card.dragging {
-  opacity: 0.7;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-  z-index: 10;
+  opacity: 1 !important;
+  transform: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  background-color: white;
 }
 
 .task-content {
@@ -687,8 +694,8 @@
 
 /* Enhance section drag feedback */
 .table-section.dragging {
-  opacity: 0.7;
-  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+  opacity: 1 !important;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
 }
 
 /* Drop target highlight */
@@ -709,9 +716,9 @@
 }
 
 @keyframes pulse-border {
-  0% { box-shadow: 0 0 0 1px rgba(79, 145, 255, 0.5); }
-  50% { box-shadow: 0 0 0 3px rgba(79, 145, 255, 0.5); }
-  100% { box-shadow: 0 0 0 1px rgba(79, 145, 255, 0.5); }
+  0% { box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08); }
+  50% { box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08); }
+  100% { box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08); }
 }
 
 .kanban-section.drag-over {
@@ -843,32 +850,19 @@
 
 .kanban-section::before, 
 .section-row::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  pointer-events: none;
-  border: 2px solid transparent;
-  border-radius: 8px;
-  transition: border-color 0.2s;
-  z-index: 5;
-}
-
-.kanban-section.drag-over::before {
-  border-color: #4f91ff;
+  display: none;
 }
 
 /* Add animation for smoother transitions */
 @keyframes pulse-border {
-  0% { border-color: rgba(79, 145, 255, 0.4); }
-  50% { border-color: rgba(79, 145, 255, 0.8); }
-  100% { border-color: rgba(79, 145, 255, 0.4); }
+  0% { border-color: transparent; }
+  50% { border-color: transparent; }
+  100% { border-color: transparent; }
 }
 
 .kanban-section.drag-over::before {
-  animation: pulse-border 1.5s infinite;
+  border-color: transparent;
+  animation: none;
 }
 
 /* Card View Styles */
@@ -1040,14 +1034,19 @@
 
 /* Enhance visual feedback for dragging */
 .dragging {
-  opacity: 0.6;
-  box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
-  background-color: #f9f9f9;
+  opacity: 1 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  background-color: #ffffff;
+  transform: none;
+  z-index: 100;
 }
 
 .dragging-section {
-  opacity: 0.7;
-  background-color: #f8f9fa !important;
+  opacity: 1 !important;
+  background-color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  transform: none;
 }
 
 /* Remove unused drag ghost styles since we're not showing them anymore */
@@ -1061,14 +1060,16 @@
 
 /* Enhance the drop target highlight */
 .kanban-section.drag-over {
-  background-color: #f0f7ff !important;
-  border: 2px dashed #4d90fe;
-  animation: none; /* Remove the pulse animation */
+  background-color: #ffffff !important;
+  border: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  animation: none;
 }
 
 .drop-zone-row.drag-over {
-  background-color: #f0f7ff !important;
-  border: 2px dashed #4d90fe;
+  background-color: #ffffff !important;
+  border: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 /* Custom styling for the AddTaskButton in kanban board */
@@ -1166,18 +1167,27 @@
   min-height: 120px; /* Initial smaller height */
   height: auto;
   transition: min-height 0.3s ease;
+  display: flex;
+  flex-direction: column;
 }
 
 .kanban-section.auto-expand .tasks-container {
   min-height: 10px; /* Smaller initial min-height */
   height: auto;
   flex-grow: 1;
+  display: flex;
+  flex-direction: column;
   transition: min-height 0.3s ease;
+  overflow-y: auto;
 }
 
-/* Make the add task button stick to the bottom */
+/* Make the add task button always stay at the bottom */
 .kanban-section.auto-expand .add-task-btn {
   margin-top: auto;
+  position: relative;
+  bottom: 0;
+  width: calc(100% - 16px);
+  margin: 8px;
 }
 
 /* Ensure the container grows with content */

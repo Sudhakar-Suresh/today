@@ -190,14 +190,14 @@ const AllTasksPage = () => {
     setDraggedTask({ sectionId, taskId });
     e.currentTarget.classList.add('dragging');
     
-    // Create a simple transparent drag image instead of a visible popup
+    // Create a ghost element for the drag image
     const ghost = document.createElement('div');
     ghost.className = 'drag-ghost hidden-ghost';
     
-    // Add minimal styling for the ghost element but keep it invisible
+    // Make sure it's invisible but doesn't affect the original element
     ghost.style.width = '1px';
     ghost.style.height = '1px';
-    ghost.style.opacity = '0.01'; // Nearly invisible but still exists for technical reasons
+    ghost.style.opacity = '0.01';
     
     document.body.appendChild(ghost);
     setDragGhost(ghost);
@@ -205,8 +205,10 @@ const AllTasksPage = () => {
     // Set drag image to the invisible element
     e.dataTransfer.setDragImage(ghost, 0, 0);
     
-    // No need to update ghost position during drag since it's invisible
-    // Remove the event listener that tracks cursor position
+    // Make sure the original element doesn't become transparent
+    e.currentTarget.style.opacity = '1';
+    
+    // Remove event listener for position tracking
     document.removeEventListener('dragover', updateGhostPosition);
   };
 
@@ -256,6 +258,9 @@ const AllTasksPage = () => {
     
     // Set as invisible drag image
     e.dataTransfer.setDragImage(ghost, 0, 0);
+    
+    // Make sure the original element doesn't become transparent
+    e.currentTarget.style.opacity = '1';
     
     // Remove event listener for position tracking
     document.removeEventListener('dragover', updateGhostPosition);
@@ -788,14 +793,46 @@ const AllTasksPage = () => {
     );
   };
 
-  // Update renderKanbanView with auto-expanding columns
+  // Update renderKanbanView to apply the clean style without borders and dotted lines
   const renderKanbanView = () => {
     return (
-      <div className="kanban-board">
-        {sections.map((section) => (
-          <div key={section.id} className="kanban-section auto-expand">
+      <div 
+        className="kanban-board"
+        onDragOver={handleDragOver}
+      >
+        {sections.map((section, index) => (
+          <div 
+            key={section.id} 
+            className="kanban-section auto-expand"
+            data-section-id={section.id}
+            draggable
+            onDragStart={(e) => handleSectionDragStart(e, section.id)}
+            onDragEnd={handleSectionDragEnd}
+            onDragOver={(e) => handleSectionDragOver(e, section.id)}
+            onDrop={(e) => {
+              if (draggedTask) {
+                handleTaskDrop(e, section.id);
+              } else if (draggedSection) {
+                handleSectionDrop(e, index);
+              }
+            }}
+          >
             <div className="section-header">
-              <h2>{section.title}</h2>
+              {editingSectionId === section.id ? (
+                <input
+                  ref={editSectionInputRef}
+                  type="text"
+                  className="section-title-input"
+                  defaultValue={section.title}
+                  onBlur={(e) => updateSectionTitle(section.id, e.target.value)}
+                  onKeyDown={(e) => handleEditSectionKeyDown(e, section.id)}
+                />
+              ) : (
+                <h2 onClick={() => startEditingSection(section.id)}>{section.title}</h2>
+              )}
+              <div className="section-actions">
+                <button className="section-menu-btn">•••</button>
+              </div>
             </div>
             <div className="tasks-container">
               {section.tasks.map(task => (
@@ -867,23 +904,23 @@ const AllTasksPage = () => {
     <div className="kanban-page">
       {/* Header */}
       <div className="kanban-header">
-        <div className="header-title-container">
-          <div className="title-icon">|||</div>
+          <div className="header-title-container">
+            <div className="title-icon">|||</div>
           <h1 className="project-title">Test</h1>
-          
-          <div className="header-actions">
-            <button className="header-btn">
-              <span className="btn-icon">👤</span>
-              <span>Share</span>
-            </button>
-            <button 
-              className={`header-btn ${showViewPopup ? 'active' : ''}`}
-              onClick={() => setShowViewPopup(!showViewPopup)}
-              ref={viewButtonRef}
-            >
-              <span className="btn-icon">👁️</span>
-              <span>View</span>
-            </button>
+            
+            <div className="header-actions">
+              <button className="header-btn">
+                <span className="btn-icon">👤</span>
+                <span>Share</span>
+              </button>
+              <button 
+                className={`header-btn ${showViewPopup ? 'active' : ''}`}
+                onClick={() => setShowViewPopup(!showViewPopup)}
+                ref={viewButtonRef}
+              >
+                <span className="btn-icon">👁️</span>
+                <span>View</span>
+              </button>
             <button className="header-btn">
               <span className="btn-icon">🔍</span>
               <span>Filter</span>
@@ -895,51 +932,51 @@ const AllTasksPage = () => {
             <button className="header-btn">
               <span className="btn-icon">⋯</span>
             </button>
-            
-            {/* View Popup */}
-            {showViewPopup && (
-              <div className="view-popup" ref={viewPopupRef}>
-                <div className="popup-header">
-                  <h3>View options</h3>
+              
+              {/* View Popup */}
+              {showViewPopup && (
+                <div className="view-popup" ref={viewPopupRef}>
+                  <div className="popup-header">
+                    <h3>View options</h3>
+                  </div>
+                  <div className="view-options">
+                    <div 
+                      className={`view-option ${currentView === 'kanban' ? 'active' : ''}`}
+                      onClick={() => handleViewChange('kanban')}
+                    >
+                      <div className="option-icon">📊</div>
+                      <div className="option-details">
+                        <div className="option-name">Kanban</div>
+                        <div className="option-description">Board view with columns</div>
+                      </div>
+                      {currentView === 'kanban' && <div className="option-check">✓</div>}
+                    </div>
+                    
+                    <div 
+                      className={`view-option ${currentView === 'table' ? 'active' : ''}`}
+                      onClick={() => handleViewChange('table')}
+                    >
+                      <div className="option-icon">🗒️</div>
+                      <div className="option-details">
+                        <div className="option-name">Table</div>
+                        <div className="option-description">Spreadsheet-like view</div>
+                      </div>
+                      {currentView === 'table' && <div className="option-check">✓</div>}
+                    </div>
+                    <div 
+                      className={`view-option ${currentView === 'card' ? 'active' : ''}`}
+                      onClick={() => handleViewChange('card')}
+                    >
+                      <div className="option-icon">🗂️</div>
+                      <div className="option-details">
+                        <div className="option-name">Card</div>
+                        <div className="option-description">Card view</div>
+                      </div>
+                      {currentView === 'card' && <div className="option-check">✓</div>}
+                    </div>
+                  </div>
                 </div>
-                <div className="view-options">
-                  <div 
-                    className={`view-option ${currentView === 'kanban' ? 'active' : ''}`}
-                    onClick={() => handleViewChange('kanban')}
-                  >
-                    <div className="option-icon">📊</div>
-                    <div className="option-details">
-                      <div className="option-name">Kanban</div>
-                      <div className="option-description">Board view with columns</div>
-                    </div>
-                    {currentView === 'kanban' && <div className="option-check">✓</div>}
-                  </div>
-                  
-                  <div 
-                    className={`view-option ${currentView === 'table' ? 'active' : ''}`}
-                    onClick={() => handleViewChange('table')}
-                  >
-                    <div className="option-icon">🗒️</div>
-                    <div className="option-details">
-                      <div className="option-name">Table</div>
-                      <div className="option-description">Spreadsheet-like view</div>
-                    </div>
-                    {currentView === 'table' && <div className="option-check">✓</div>}
-                  </div>
-                  <div 
-                    className={`view-option ${currentView === 'card' ? 'active' : ''}`}
-                    onClick={() => handleViewChange('card')}
-                  >
-                    <div className="option-icon">🗂️</div>
-                    <div className="option-details">
-                      <div className="option-name">Card</div>
-                      <div className="option-description">Card view</div>
-                    </div>
-                    {currentView === 'card' && <div className="option-check">✓</div>}
-                  </div>
-                </div>
-              </div>
-            )}
+              )}
           </div>
         </div>
       </div>
