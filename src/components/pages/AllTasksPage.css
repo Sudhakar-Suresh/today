@@ -1375,4 +1375,57 @@
 .task-menu-container {
   position: relative;
   z-index: 1000;
+}
+
+/* Styling for AddTaskButton in Kanban view */
+.kanban-section .add-task-expanded {
+  margin: 8px;
+  background: white;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Styling for AddTaskButton in Card view */
+.card-section .add-task-expanded {
+  margin-top: 16px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Styling for AddTaskButton in Table view */
+.section-table .add-task-expanded {
+  margin: 8px 16px;
+  background: white;
+  border-radius: 4px;
+  border: 1px solid #e0e0e0;
+}
+
+/* Common styles for all views */
+.add-task-expanded {
+  padding: 12px;
+}
+
+.add-task-expanded input {
+  width: 100%;
+  border: none;
+  outline: none;
+  font-size: 14px;
+}
+
+.add-task-button {
+  width: 100%;
+  text-align: left;
+  padding: 8px 12px;
+  border: 1px solid #e7e7e7;
+  background: transparent;
+  color: #666;
+  cursor: pointer;
+  font-size: 14px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.add-task-button:hover {
+  background-color: #f5f5f5;
 } 

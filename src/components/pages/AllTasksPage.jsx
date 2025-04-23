@@ -410,7 +410,8 @@ const AllTasksPage = ({
             dueDate: newTask.dueDate || '',
             duration: '',
             tags: '',
-            attachments: []
+            attachments: [],
+            sourceView: newTask.sourceView || 'default'
           }]
         };
       }
@@ -792,12 +793,10 @@ const AllTasksPage = ({
               </div>
               
               <div className="section-footer">
-                <button 
-                  className="add-task-btn"
-                  onClick={() => addTask(section.id)}
-                >
-                  + Add Task
-                </button>
+                <AddTaskButton
+                  onAddTask={(newTask) => handleAddTask(section.id, newTask)}
+                  sourceView="table"
+                />
               </div>
             </div>
           ))}
@@ -806,140 +805,6 @@ const AllTasksPage = ({
             + Add Section
           </button>
         </div>
-      </div>
-    );
-  };
-
-  // Add a new renderCardView function
-  const renderCardView = () => {
-    return (
-      <div className="card-view-container">
-        {sections.map(section => (
-          <div key={section.id} className="card-section">
-            <div className="card-section-header">
-              {editingSectionId === section.id ? (
-                <input
-                  ref={editSectionInputRef}
-                  type="text"
-                  defaultValue={section.title}
-                  onKeyDown={(e) => handleEditSectionKeyDown(e, section.id)}
-                  onBlur={(e) => updateSectionTitle(section.id, e.target.value)}
-                  className="section-title-input"
-                />
-              ) : (
-                <h2 
-                  className="section-title" 
-                  onClick={() => startEditingSection(section.id)}
-                >
-                  {section.title}
-                </h2>
-              )}
-            </div>
-
-            <div className="card-tasks-container">
-              {section.tasks.map(task => (
-                <div 
-                  key={task.id} 
-                  className="task-card"
-                  draggable
-                  onDragStart={(e) => handleTaskDragStart(e, section.id, task.id)}
-                  onDragEnd={handleTaskDragEnd}
-                >
-                  <div className="task-card-header">
-                    <input
-                      type="text"
-                      className="task-title-input"
-                      value={task.text || ''}
-                      onChange={(e) => updateTask(section.id, task.id, { text: e.target.value })}
-                      placeholder="Task title"
-                    />
-                    <div className="task-card-actions">
-                      <div className="task-actions">
-                        <button 
-                          className="task-action-btn more-btn" 
-                          onClick={(e) => handleTaskMenuToggle(section.id, task.id, e)}
-                        >
-                          <FontAwesomeIcon icon={faEllipsisVertical} className="icon" />
-                        </button>
-                        {activeTaskMenu && activeTaskMenu.sectionId === section.id && activeTaskMenu.taskId === task.id && (
-                          <div className="task-menu-container">
-                            <TaskMenu
-                              style={{
-                                position: 'fixed',
-                                top: `${menuPosition.top}px`,
-                                left: `${menuPosition.left}px`,
-                              }}
-                              onClose={handleCloseTaskMenu}
-                              onMarkComplete={() => handleMarkComplete(section.id, task.id)}
-                              onAddToDay={() => handleAddToDay(section.id, task.id)}
-                              onSetDueDate={() => handleSetDueDate(section.id, task.id)}
-                              onAssign={() => handleAssign(section.id, task.id)}
-                              onComment={() => handleComment(section.id, task.id)}
-                              onAddTags={() => handleAddTags(section.id, task.id)}
-                              onTrackTime={() => handleTrackTime(section.id, task.id)}
-                              isInMyDay={sections
-                                .find(s => s.id === section.id)
-                                ?.tasks.find(t => t.id === task.id)
-                                ?.isInMyDay || false}
-                            />
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="task-card-body">
-                    <div className="task-card-field">
-                      <span className="field-label">Progress:</span>
-                      <select 
-                        value={task.progress || '0%'}
-                        onChange={(e) => updateTask(section.id, task.id, { progress: e.target.value })}
-                      >
-                        <option value="0%">0%</option>
-                        <option value="25%">25%</option>
-                        <option value="50%">50%</option>
-                        <option value="75%">75%</option>
-                        <option value="100%">100%</option>
-                      </select>
-                    </div>
-                    
-                    <div className="task-card-field">
-                      <span className="field-label">Assignee:</span>
-                      <input
-                        type="text"
-                        value={task.assignee || ''}
-                        onChange={(e) => updateTask(section.id, task.id, { assignee: e.target.value })}
-                        placeholder="Assignee"
-                      />
-                    </div>
-                    
-                    <div className="task-card-dates">
-                      <div className="task-card-field">
-                        <span className="field-label">Due:</span>
-                        <input
-                          type="date"
-                          value={task.dueDate || ''}
-                          onChange={(e) => updateTask(section.id, task.id, { dueDate: e.target.value })}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-              
-              <button 
-                className="add-task-button" 
-                onClick={() => addTask(section.id)}
-              >
-                + Add Task
-              </button>
-            </div>
-          </div>
-        ))}
-        
-        <button className="add-section-button" onClick={addSection}>
-          + Add Section
-        </button>
       </div>
     );
   };
@@ -1040,12 +905,10 @@ const AllTasksPage = ({
                     </div>
                   ))}
                 </div>
-                <button 
-                  className="add-task-btn"
-                  onClick={() => addTask(section.id)}
-                >
-                  + Add Task
-                </button>
+                <AddTaskButton
+                  onAddTask={(newTask) => handleAddTask(section.id, newTask)}
+                  sourceView="kanban"
+                />
               </div>
             ))}
             
@@ -1064,13 +927,11 @@ const AllTasksPage = ({
     );
   };
 
-  // Update the renderCurrentView function to set kanban as default
+  // Update the renderCurrentView function to remove card view
   const renderCurrentView = () => {
     switch (currentView) {
       case 'table':
         return renderTableView();
-      case 'card':
-        return renderCardView();
       case 'kanban':
       default:
         return renderKanbanView(); // Default to kanban view
@@ -1139,17 +1000,6 @@ const AllTasksPage = ({
                         <div className="option-description">Spreadsheet-like view</div>
                       </div>
                       {currentView === 'table' && <div className="option-check">✓</div>}
-                    </div>
-                    <div 
-                      className={`view-option ${currentView === 'card' ? 'active' : ''}`}
-                      onClick={() => handleViewChange('card')}
-                    >
-                      <div className="option-icon">🗂️</div>
-                      <div className="option-details">
-                        <div className="option-name">Card</div>
-                        <div className="option-description">Card view</div>
-                      </div>
-                      {currentView === 'card' && <div className="option-check">✓</div>}
                     </div>
                   </div>
                 </div>
