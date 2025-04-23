@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import AddTaskButton from '../AddTaskButton/AddTaskButton';
 import TaskMenu from '../TaskMenu/TaskMenu';
 import './AllTasksPage.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEllipsisVertical } from '@fortawesome/free-solid-svg-icons';
 
 const AllTasksPage = () => {
   // Initial data state with sections from the image
@@ -55,6 +57,12 @@ const AllTasksPage = () => {
   ]);
   const [visibleColumns, setVisibleColumns] = useState(['text', 'progress', 'assignee', 'dueDate', 'actions']);
   const [showColumnSelector, setShowColumnSelector] = useState(false);
+
+  // Add state for menu position
+  const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
+
+  // Add state for tracking tasks in My Day
+  const [myDayTasks, setMyDayTasks] = useState([]);
 
   // Close popup when clicking outside
   useEffect(() => {
@@ -398,16 +406,26 @@ const AllTasksPage = () => {
     }));
   };
 
-  // Modify the handleTaskMenuToggle function to prevent event propagation issues
+  // Update the click handler
   const handleTaskMenuToggle = (sectionId, taskId, e) => {
     e.preventDefault();
     e.stopPropagation();
     
-    // Toggle menu visibility
+    const rect = e.currentTarget.getBoundingClientRect();
+    
+    // Calculate position next to the dots button
+    // Added offset to move menu down slightly
+    const newPosition = {
+      top: rect.top + 24, // Increased from rect.top to add 24px offset
+      left: rect.right + 8,
+    };
+    
+    // Toggle menu visibility and update position
     if (activeTaskMenu && activeTaskMenu.sectionId === sectionId && activeTaskMenu.taskId === taskId) {
       setActiveTaskMenu(null);
     } else {
       setActiveTaskMenu({ sectionId, taskId });
+      setMenuPosition(newPosition);
     }
   };
 
@@ -445,9 +463,38 @@ const AllTasksPage = () => {
     setActiveTaskMenu(null);
   };
 
-  const handleRemoveFromMyDay = (sectionId, taskId) => {
-    // This would remove the task from My Day view if implemented
-    console.log('Remove from My Day:', sectionId, taskId);
+  // Handler for adding/removing from My Day
+  const handleAddToDay = (sectionId, taskId) => {
+    const section = sections.find(s => s.id === sectionId);
+    const task = section?.tasks.find(t => t.id === taskId);
+    
+    if (task) {
+      // If task is already in My Day, remove it
+      if (task.isInMyDay) {
+        setMyDayTasks(myDayTasks.filter(t => t.id !== taskId));
+        
+        // Update the task in sections
+        setSections(sections.map(section => ({
+          ...section,
+          tasks: section.tasks.map(t => 
+            t.id === taskId ? { ...t, isInMyDay: false } : t
+          )
+        })));
+      } else {
+        // Add task to My Day
+        setMyDayTasks([...myDayTasks, { ...task, isInMyDay: true }]);
+        
+        // Update the task in sections
+        setSections(sections.map(section => ({
+          ...section,
+          tasks: section.tasks.map(t => 
+            t.id === taskId ? { ...t, isInMyDay: true } : t
+          )
+        })));
+      }
+    }
+    
+    // Close the menu after action
     setActiveTaskMenu(null);
   };
 
@@ -682,12 +729,37 @@ const AllTasksPage = () => {
                         
                         {visibleColumns.includes('actions') && (
                           <div className="table-cell action-cell">
-                            <button 
-                              className="task-delete-btn"
-                              onClick={() => deleteTask(section.id, task.id)}
-                            >
-                              🗑️
-                            </button>
+                            <div className="task-actions">
+                              <button 
+                                className="task-action-btn more-btn" 
+                                onClick={(e) => handleTaskMenuToggle(section.id, task.id, e)}
+                              >
+                                <FontAwesomeIcon icon={faEllipsisVertical} className="icon" />
+                              </button>
+                              {activeTaskMenu && activeTaskMenu.sectionId === section.id && activeTaskMenu.taskId === task.id && (
+                                <div className="task-menu-container">
+                                  <TaskMenu
+                                    style={{
+                                      position: 'fixed',
+                                      top: `${menuPosition.top}px`,
+                                      left: `${menuPosition.left}px`,
+                                    }}
+                                    onClose={handleCloseTaskMenu}
+                                    onMarkComplete={() => handleMarkComplete(section.id, task.id)}
+                                    onAddToDay={() => handleAddToDay(section.id, task.id)}
+                                    onSetDueDate={() => handleSetDueDate(section.id, task.id)}
+                                    onAssign={() => handleAssign(section.id, task.id)}
+                                    onComment={() => handleComment(section.id, task.id)}
+                                    onAddTags={() => handleAddTags(section.id, task.id)}
+                                    onTrackTime={() => handleTrackTime(section.id, task.id)}
+                                    isInMyDay={sections
+                                      .find(s => s.id === section.id)
+                                      ?.tasks.find(t => t.id === task.id)
+                                      ?.isInMyDay || false}
+                                  />
+                                </div>
+                              )}
+                            </div>
                           </div>
                         )}
                       </div>
@@ -763,9 +835,37 @@ const AllTasksPage = () => {
                       placeholder="Task title"
                     />
                     <div className="task-card-actions">
-                      <button onClick={() => deleteTask(section.id, task.id)}>
-                        <i className="fa fa-trash"></i>
-                      </button>
+                      <div className="task-actions">
+                        <button 
+                          className="task-action-btn more-btn" 
+                          onClick={(e) => handleTaskMenuToggle(section.id, task.id, e)}
+                        >
+                          <FontAwesomeIcon icon={faEllipsisVertical} className="icon" />
+                        </button>
+                        {activeTaskMenu && activeTaskMenu.sectionId === section.id && activeTaskMenu.taskId === task.id && (
+                          <div className="task-menu-container">
+                            <TaskMenu
+                              style={{
+                                position: 'fixed',
+                                top: `${menuPosition.top}px`,
+                                left: `${menuPosition.left}px`,
+                              }}
+                              onClose={handleCloseTaskMenu}
+                              onMarkComplete={() => handleMarkComplete(section.id, task.id)}
+                              onAddToDay={() => handleAddToDay(section.id, task.id)}
+                              onSetDueDate={() => handleSetDueDate(section.id, task.id)}
+                              onAssign={() => handleAssign(section.id, task.id)}
+                              onComment={() => handleComment(section.id, task.id)}
+                              onAddTags={() => handleAddTags(section.id, task.id)}
+                              onTrackTime={() => handleTrackTime(section.id, task.id)}
+                              isInMyDay={sections
+                                .find(s => s.id === section.id)
+                                ?.tasks.find(t => t.id === task.id)
+                                ?.isInMyDay || false}
+                            />
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
 
@@ -880,18 +980,37 @@ const AllTasksPage = () => {
                       <div className="task-content">
                         <span>{task.text || "Untitled Task"}</span>
                         <div className="task-actions">
-                          <button 
-                            className="task-action-btn"
-                            onClick={(e) => handleTaskMenuToggle(section.id, task.id, e)}
-                          >
-                            <span className="task-menu-icon">⋮</span>
-                          </button>
-                          <button 
-                            className="task-delete-btn"
-                            onClick={() => deleteTask(section.id, task.id)}
-                          >
-                            ×
-                          </button>
+                          <div className="task-actions">
+                            <button 
+                              className="task-action-btn more-btn" 
+                              onClick={(e) => handleTaskMenuToggle(section.id, task.id, e)}
+                            >
+                              <FontAwesomeIcon icon={faEllipsisVertical} className="icon" />
+                            </button>
+                            {activeTaskMenu && activeTaskMenu.sectionId === section.id && activeTaskMenu.taskId === task.id && (
+                              <div className="task-menu-container">
+                                <TaskMenu
+                                  style={{
+                                    position: 'fixed',
+                                    top: `${menuPosition.top}px`,
+                                    left: `${menuPosition.left}px`,
+                                  }}
+                                  onClose={handleCloseTaskMenu}
+                                  onMarkComplete={() => handleMarkComplete(section.id, task.id)}
+                                  onAddToDay={() => handleAddToDay(section.id, task.id)}
+                                  onSetDueDate={() => handleSetDueDate(section.id, task.id)}
+                                  onAssign={() => handleAssign(section.id, task.id)}
+                                  onComment={() => handleComment(section.id, task.id)}
+                                  onAddTags={() => handleAddTags(section.id, task.id)}
+                                  onTrackTime={() => handleTrackTime(section.id, task.id)}
+                                  isInMyDay={sections
+                                    .find(s => s.id === section.id)
+                                    ?.tasks.find(t => t.id === task.id)
+                                    ?.isInMyDay || false}
+                                />
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
                       {task.duration && (
@@ -1026,9 +1145,14 @@ const AllTasksPage = () => {
       {/* Task Menu - rendered at root level */}
       {activeTaskMenu && (
         <TaskMenu
+          style={{
+            position: 'fixed',
+            top: `${menuPosition.top}px`,
+            left: `${menuPosition.left}px`,
+          }}
           onClose={handleCloseTaskMenu}
           onMarkComplete={() => handleMarkComplete(activeTaskMenu.sectionId, activeTaskMenu.taskId)}
-          onAddToDay={() => handleRemoveFromMyDay(activeTaskMenu.sectionId, activeTaskMenu.taskId)}
+          onAddToDay={() => handleAddToDay(activeTaskMenu.sectionId, activeTaskMenu.taskId)}
           onSetDueDate={() => handleSetDueDate(activeTaskMenu.sectionId, activeTaskMenu.taskId)}
           onAssign={() => handleAssign(activeTaskMenu.sectionId, activeTaskMenu.taskId)}
           onComment={() => handleComment(activeTaskMenu.sectionId, activeTaskMenu.taskId)}
@@ -1037,8 +1161,10 @@ const AllTasksPage = () => {
           onDuplicate={() => handleDuplicate(activeTaskMenu.sectionId, activeTaskMenu.taskId)}
           onCopyLink={() => handleCopyLink(activeTaskMenu.sectionId, activeTaskMenu.taskId)}
           onArchive={() => handleArchive(activeTaskMenu.sectionId, activeTaskMenu.taskId)}
-          isInMyDay={true}
-          ref={taskMenuRef}
+          isInMyDay={sections
+            .find(s => s.id === activeTaskMenu.sectionId)
+            ?.tasks.find(t => t.id === activeTaskMenu.taskId)
+            ?.isInMyDay || false}
         />
       )}
     </div>

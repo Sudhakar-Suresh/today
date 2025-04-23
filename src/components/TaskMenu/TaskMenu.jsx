@@ -2,8 +2,7 @@ import React, { useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import "./TaskMenu.css";
 
-const TaskMenu = ({ 
-  onClose, 
+const TaskMenu = ({ style, onClose, 
   onMarkComplete, 
   onAddToDay, 
   onSetDueDate, 
@@ -45,7 +44,7 @@ const TaskMenu = ({
       <div className="task-menu-backdrop" onClick={onClose}></div>
       
       {/* Menu */}
-      <div className="task-menu" ref={menuRef}>
+      <div className="task-menu" ref={menuRef} style={style}>
         <button 
           className="task-menu-item"
           onClick={handleAction(onMarkComplete)}
@@ -59,7 +58,7 @@ const TaskMenu = ({
           onClick={handleAction(onAddToDay)}
         >
           <span className="task-menu-icon icon-remove"></span>
-          {isInMyDay ? "Remove from My Day" : "Add to My Day"}
+          {isInMyDay ? "Move from My Day" : "Add to My Day"}
         </button>
         
         <button 
@@ -107,6 +106,7 @@ const TaskMenu = ({
 };
 
 TaskMenu.propTypes = {
+  style: PropTypes.object,
   onClose: PropTypes.func.isRequired,
   onMarkComplete: PropTypes.func,
   onAddToDay: PropTypes.func,

@@ -1168,19 +1168,68 @@
   display: none !important;
 }
 
-/* Position the task menu in the center of the screen */
+/* Position the task menu in a portal/overlay above everything */
 .task-menu {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  position: fixed; /* Change to fixed to float above everything */
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
   z-index: 10000;
+  width: 200px;
+  padding: 8px 0;
 }
 
-/* Ensure the task menu appears above everything else */
+/* Remove any constraining styles */
+.task-menu-container {
+  position: static;
+}
+
+/* Style menu items */
+.task-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 8px 16px;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  font-size: 14px;
+  color: #333;
+}
+
+.task-menu-item:hover {
+  background-color: #f5f5f5;
+}
+
+/* Ensure proper positioning context */
 .task-actions {
   position: relative;
-  z-index: 1;
+  display: flex;
+  align-items: center;
+}
+
+/* Style the three dots button */
+.task-action-btn.more-btn {
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+}
+
+/* Add backdrop to handle clicks outside */
+.task-menu-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
 }
 
 /* Add this to your CSS file */
@@ -1258,4 +1307,71 @@
   height: 1px;
   min-width: 100%;
   width: calc(100% + 3000px); /* Adjust based on your content width */
+}
+
+/* Remove any ghost elements */
+.drag-ghost, 
+.section-ghost,
+.task-menu-overlay,
+.task-menu-backdrop {
+  display: none !important;
+}
+
+/* Update task menu positioning and styling to match design exactly */
+.task-menu {
+  position: absolute;
+  top: 0;
+  right: -8px; /* Slight offset to align with the button */
+  width: 200px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  padding: 8px 0;
+  transform: translateY(-50%); /* Center align with the dots */
+}
+
+/* Style menu items to match design */
+.task-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px; /* Space between icon and text */
+  width: 100%;
+  padding: 8px 16px;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  font-size: 14px;
+  color: #333;
+  transition: background-color 0.2s;
+}
+
+.task-menu-item:hover {
+  background-color: #f5f5f5;
+}
+
+/* Ensure proper positioning context */
+.task-actions {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* Style the three dots button */
+.task-action-btn.more-btn {
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+}
+
+/* Remove any fixed positioning that might cause ghosting */
+.task-menu-container {
+  position: relative;
+  z-index: 1000;
 } 
