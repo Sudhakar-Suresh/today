@@ -290,9 +290,6 @@ const ReminderPopup = ({ onClose, onSetReminder, initialDate = null }) => {
           <button className="quick-option" onClick={setTomorrow}>Tomorrow</button>
           <button className="quick-option" onClick={setNextWeek}>Next week</button>
           <button className="quick-option">Someday</button>
-          <div className="recurring-option">
-            <span className="recurring-icon">↻</span> Recurring
-          </div>
         </div>
       </div>
       
