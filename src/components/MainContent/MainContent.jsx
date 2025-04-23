@@ -13,7 +13,8 @@ const MainContent = ({
   isSidebarExpanded = false,
   tasks = [],
   onTaskUpdate,
-  onAddTask
+  onAddTask,
+  onAddToMyDay
 }) => {
   const [filteredTasks, setFilteredTasks] = useState([]);
 
@@ -136,6 +137,7 @@ const MainContent = ({
           onUpdateList={handleUpdateList}
           onTogglePin={handleTogglePin}
           onUpdateReminder={handleUpdateReminder}
+          onAddToMyDay={onAddToMyDay}
           availableLists={userLists}
           listFilter={selectedList}
           pageTitle={getPageTitle()}

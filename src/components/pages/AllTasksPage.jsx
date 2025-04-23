@@ -5,7 +5,19 @@ import './AllTasksPage.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEllipsisVertical } from '@fortawesome/free-solid-svg-icons';
 
-const AllTasksPage = () => {
+const AllTasksPage = ({
+  tasks,
+  onToggleComplete,
+  onDelete,
+  onUpdateTags,
+  onUpdateList,
+  onTogglePin,
+  onUpdateReminder,
+  onAddToMyDay,
+  availableLists,
+  listFilter,
+  pageTitle
+}) => {
   // Initial data state with sections from the image
   const [sections, setSections] = useState([
     {
@@ -414,9 +426,8 @@ const AllTasksPage = () => {
     const rect = e.currentTarget.getBoundingClientRect();
     
     // Calculate position next to the dots button
-    // Added offset to move menu down slightly
     const newPosition = {
-      top: rect.top + 24, // Increased from rect.top to add 24px offset
+      top: rect.top,
       left: rect.right + 8,
     };
     
@@ -424,7 +435,15 @@ const AllTasksPage = () => {
     if (activeTaskMenu && activeTaskMenu.sectionId === sectionId && activeTaskMenu.taskId === taskId) {
       setActiveTaskMenu(null);
     } else {
-      setActiveTaskMenu({ sectionId, taskId });
+      const task = sections
+        .find(s => s.id === sectionId)
+        ?.tasks.find(t => t.id === taskId);
+
+      setActiveTaskMenu({
+        sectionId,
+        taskId,
+        isInMyDay: task?.isInMyDay || false
+      });
       setMenuPosition(newPosition);
     }
   };
@@ -1152,7 +1171,7 @@ const AllTasksPage = () => {
           }}
           onClose={handleCloseTaskMenu}
           onMarkComplete={() => handleMarkComplete(activeTaskMenu.sectionId, activeTaskMenu.taskId)}
-          onAddToDay={() => handleAddToDay(activeTaskMenu.sectionId, activeTaskMenu.taskId)}
+          onAddToDay={() => onAddToMyDay(activeTaskMenu.taskId)}
           onSetDueDate={() => handleSetDueDate(activeTaskMenu.sectionId, activeTaskMenu.taskId)}
           onAssign={() => handleAssign(activeTaskMenu.sectionId, activeTaskMenu.taskId)}
           onComment={() => handleComment(activeTaskMenu.sectionId, activeTaskMenu.taskId)}
@@ -1161,10 +1180,7 @@ const AllTasksPage = () => {
           onDuplicate={() => handleDuplicate(activeTaskMenu.sectionId, activeTaskMenu.taskId)}
           onCopyLink={() => handleCopyLink(activeTaskMenu.sectionId, activeTaskMenu.taskId)}
           onArchive={() => handleArchive(activeTaskMenu.sectionId, activeTaskMenu.taskId)}
-          isInMyDay={sections
-            .find(s => s.id === activeTaskMenu.sectionId)
-            ?.tasks.find(t => t.id === activeTaskMenu.taskId)
-            ?.isInMyDay || false}
+          isInMyDay={activeTaskMenu.isInMyDay}
         />
       )}
     </div>

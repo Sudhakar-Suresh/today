@@ -128,6 +128,19 @@ function App() {
     }
   };
 
+  const handleAddToMyDay = (taskId) => {
+    setTasks(prevTasks => prevTasks.map(task => {
+      if (task.id === taskId) {
+        return {
+          ...task,
+          isInMyDay: !task.isInMyDay,
+          sourceView: !task.isInMyDay ? 'myday' : task.sourceView
+        };
+      }
+      return task;
+    }));
+  };
+
   return (
     <div className="app-container">
       <Sidebar 
@@ -147,6 +160,7 @@ function App() {
         tasks={tasks}
         onTaskUpdate={handleTaskUpdate}
         onAddTask={handleAddTask}
+        onAddToMyDay={handleAddToMyDay}
       />
     </div>
   );
