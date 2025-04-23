@@ -947,10 +947,7 @@ const AllTasksPage = ({
           <h1 className="project-title">Test</h1>
             
             <div className="header-actions">
-              <button className="header-btn">
-                <span className="btn-icon">👤</span>
-                <span>Share</span>
-              </button>
+              
               <button 
                 className={`header-btn ${showViewPopup ? 'active' : ''}`}
                 onClick={() => setShowViewPopup(!showViewPopup)}
@@ -959,17 +956,7 @@ const AllTasksPage = ({
                 <span className="btn-icon">👁️</span>
                 <span>View</span>
               </button>
-            <button className="header-btn">
-              <span className="btn-icon">🔍</span>
-              <span>Filter</span>
-            </button>
-            <button className="header-btn">
-              <span className="btn-icon">⚡</span>
-              <span>Automations</span>
-            </button>
-            <button className="header-btn">
-              <span className="btn-icon">⋯</span>
-              </button>
+            
               
               {/* View Popup */}
               {showViewPopup && (

@@ -519,20 +519,21 @@ const TaskDetailPopup = ({
         
         {showTagPopup && (
           <>
-            <div className="tag-popup-overlay" onClick={() => setShowTagPopup(false)}></div>
-            <div onClick={handleTagPopupClick} className="tag-popup-container">
-              <TagPopup 
-                tags={allTags}
-                setTags={setAllTags}
-                selectedTags={tags}
-                setSelectedTags={setTags}
-                closePopup={() => setShowTagPopup(false)}
-                saveTags={handleSaveTags}
-                onDelete={(tag) => {
-                  setAllTags(allTags.filter(t => t.name !== tag.name));
-                  setTags(tags.filter(t => t.name !== tag.name));
-                }}
-              />
+            <div className="tag-popup-overlay" onClick={() => setShowTagPopup(false)}>
+              <div className="tag-popup-container" onClick={(e) => e.stopPropagation()}>
+                <TagPopup 
+                  tags={allTags}
+                  setTags={setAllTags}
+                  selectedTags={tags}
+                  setSelectedTags={setTags}
+                  closePopup={() => setShowTagPopup(false)}
+                  saveTags={handleSaveTags}
+                  onDelete={(tag) => {
+                    setAllTags(allTags.filter(t => t.name !== tag.name));
+                    setTags(tags.filter(t => t.name !== tag.name));
+                  }}
+                />
+              </div>
             </div>
           </>
         )}
