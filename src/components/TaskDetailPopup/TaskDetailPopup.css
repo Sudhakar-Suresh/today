@@ -4,6 +4,7 @@
   left: 0;
   right: 0;
   bottom: 0;
+  width: 100%;
   background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
@@ -16,8 +17,8 @@
   background-color: white;
   border-radius: 8px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-  width: 90%;
-  max-width: 600px;
+  width: 80%;
+  max-width: 500px;
   max-height: 90vh;
   overflow-y: auto;
   z-index: 1001;
@@ -120,9 +121,10 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  background-color: #f1f3f4;
-  border: none;
-  border-radius: 6px;
+  background-color: #ffffff;
+  border: 1px solid #e9eaec;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  border-radius: 50px;
   padding: 8px 12px;
   font-size: 14px;
   color: #202124;
@@ -160,6 +162,7 @@
 .notes-textarea {
   width: 100%;
   min-height: 100px;
+  margin-bottom: -100px;
   border: none;
   outline: none;
   resize: none;
@@ -402,7 +405,8 @@
   border: 1px solid #ddd;
   background: white;
   padding: 6px 12px;
-  border-radius: 4px;
+  width: 120px;
+  border-radius: 50px;
   font-size: 14px;
   color: #555;
   cursor: pointer;
@@ -515,8 +519,8 @@
   background-color: white;
   border-radius: 8px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-  width: 90%;
-  max-width: 600px;
+  width: 80%;
+  max-width: 500px;
   max-height: 90vh;
   overflow-y: auto;
   z-index: 1001;
