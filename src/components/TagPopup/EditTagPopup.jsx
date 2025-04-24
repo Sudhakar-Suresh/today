@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Portal from '../Portal';
 import './EditTagPopup.css';
 
 const EditTagPopup = ({ tag, onSave, onDelete, onClose }) => {
@@ -40,52 +41,54 @@ const EditTagPopup = ({ tag, onSave, onDelete, onClose }) => {
   };
 
   return (
-    <div className="edit-tag-overlay">
-      <div className="edit-tag-popup" onClick={(e) => e.stopPropagation()}>
-        <div className="edit-tag-header">
-          <button className="back-btn" onClick={onClose}>
-            ←
-          </button>
-          <span>{tag ? 'Edit Tag' : 'New Tag'}</span>
-          <button 
-            className="save-tag-btn"
-            onClick={handleSave}
-            disabled={!tagName.trim()}
-          >
-            SAVE
-          </button>
-        </div>
-
-        <div className="edit-tag-content">
-          <div className="tag-name-section">
-            <label>TAG NAME</label>
-            <input
-              type="text"
-              value={tagName}
-              onChange={(e) => setTagName(e.target.value)}
-              placeholder="Type a name"
-              autoFocus
-            />
+    <Portal>
+      <div className="edit-tag-overlay" onClick={onClose}>
+        <div className="edit-tag-popup" onClick={(e) => e.stopPropagation()}>
+          <div className="edit-tag-header">
+            <button className="back-btn" onClick={onClose}>
+              ←
+            </button>
+            <span>{tag ? 'Edit Tag' : 'New Tag'}</span>
+            <button 
+              className="save-tag-btn"
+              onClick={handleSave}
+              disabled={!tagName.trim()}
+            >
+              SAVE
+            </button>
           </div>
 
-          <div className="color-section">
-            <label>COLOR</label>
-            <div className="color-grid">
-              {colors.map((color, index) => (
-                <button
-                  key={index}
-                  className={`color-option ${selectedColor === color ? 'selected' : ''}`}
-                  style={{ backgroundColor: color }}
-                  onClick={() => setSelectedColor(color)}
-                >
-                  {selectedColor === color && '✓'}
-                </button>
-              ))}
+          <div className="edit-tag-content">
+            <div className="tag-name-section">
+              <label>TAG NAME</label>
+              <input
+                type="text"
+                value={tagName}
+                onChange={(e) => setTagName(e.target.value)}
+                placeholder="Type a name"
+                autoFocus
+              />
+            </div>
+
+            <div className="color-section">
+              <label>COLOR</label>
+              <div className="color-grid">
+                {colors.map((color, index) => (
+                  <button
+                    key={index}
+                    className={`color-option ${selectedColor === color ? 'selected' : ''}`}
+                    style={{ backgroundColor: color }}
+                    onClick={() => setSelectedColor(color)}
+                  >
+                    {selectedColor === color && '✓'}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </Portal>
   );
 };
 

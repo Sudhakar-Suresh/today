@@ -162,6 +162,7 @@ function App() {
         onAddTask={handleAddTask}
         onAddToMyDay={handleAddToMyDay}
       />
+      <div id="popup-root" style={{ position: 'relative', zIndex: 9999 }} />
     </div>
   );
 }
